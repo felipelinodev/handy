@@ -1,0 +1,191 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model avaliacao {
+  avaliacao_id   Int          @id @default(autoincrement())
+  contratacao_id Int          @unique
+  prestador_id   Int
+  cliente_id     Int
+  nota           Int
+  comentario     String?
+  created_at     DateTime?    @default(now()) @db.Timestamp(6)
+  cliente        cliente      @relation(fields: [cliente_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_avaliacao_cliente")
+  contratacoes   contratacoes @relation(fields: [contratacao_id], references: [contratacao_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_avaliacao_contratacao")
+  prestador      prestador    @relation(fields: [prestador_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_avaliacao_prestador")
+}
+
+model breakpoints {
+  breakpoint_id Int       @id @default(autoincrement())
+  prestador_id  Int
+  cliente_id    Int
+  mensagem_id   Int
+  titulo        String    @db.VarChar(100)
+  descricao     String?
+  data_criacao  DateTime? @default(now()) @db.Timestamp(6)
+  cliente       cliente   @relation(fields: [cliente_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_breakpoints_cliente")
+  mensagem      mensagem  @relation(fields: [mensagem_id], references: [mensagem_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_breakpoints_mensagem")
+  prestador     prestador @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_breakpoints_prestador")
+}
+
+model categoria {
+  categoria_id   Int        @id @default(autoincrement())
+  nome_categoria String     @unique @db.VarChar(100)
+  rank_categoria Int?       @default(0)
+  servicos       servicos[]
+}
+
+model cliente {
+  user_id      Int            @id
+  avaliacao    avaliacao[]
+  breakpoints  breakpoints[]
+  usuario      usuario        @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cliente_usuario")
+  contratacoes contratacoes[]
+  conversa     conversa[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model contratacoes {
+  contratacao_id Int         @id @default(autoincrement())
+  cliente_id     Int
+  prestador_id   Int
+  servico_id     Int
+  titulo         String      @db.VarChar(100)
+  detalhes       String?
+  endereco       String?
+  status         String      @default("Pendente") @db.VarChar(20)
+  inicio         DateTime?   @db.Timestamp(6)
+  conclusao      DateTime?   @db.Timestamp(6)
+  vencimento     DateTime?   @db.Timestamp(6)
+  created_at     DateTime?   @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?   @default(now()) @db.Timestamp(6)
+  avaliacao      avaliacao?
+  cliente        cliente     @relation(fields: [cliente_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_cliente")
+  prestador      prestador   @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_prestador")
+  servicos       servicos    @relation(fields: [servico_id], references: [servico_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_servico")
+  conversa       conversa?
+  pagamento      pagamento[]
+
+  @@index([cliente_id], map: "idx_contratacao_cliente")
+  @@index([prestador_id], map: "idx_contratacao_prestador")
+  @@index([servico_id], map: "idx_contratacao_servico")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model conversa {
+  conversa_id    Int          @id @default(autoincrement())
+  contratacao_id Int          @unique
+  cliente_id     Int
+  prestador_id   Int
+  status         String?      @default("Aberta") @db.VarChar(20)
+  created_at     DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?    @default(now()) @db.Timestamp(6)
+  cliente        cliente      @relation(fields: [cliente_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_conversa_cliente")
+  contratacoes   contratacoes @relation(fields: [contratacao_id], references: [contratacao_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_conversa_contratacao")
+  prestador      prestador    @relation(fields: [prestador_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_conversa_prestador")
+  mensagem       mensagem[]
+}
+
+model especialidade {
+  especialidade_id        Int                       @id @default(autoincrement())
+  nome_especialidade      String                    @unique @db.VarChar(100)
+  prestador_especialidade prestador_especialidade[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model mensagem {
+  mensagem_id    Int           @id @default(autoincrement())
+  conversa_id    Int
+  remetente_id   Int
+  conteudo       String
+  remetente_tipo String?       @db.VarChar(20)
+  status         String?       @default("enviada") @db.VarChar(20)
+  anexo_url      String?
+  created_at     DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at     DateTime?     @default(now()) @db.Timestamp(6)
+  breakpoints    breakpoints[]
+  conversa       conversa      @relation(fields: [conversa_id], references: [conversa_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_mensagem_conversa")
+  usuario        usuario       @relation(fields: [remetente_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_mensagem_usuario")
+
+  @@index([conversa_id], map: "idx_mensagem_conversa")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model pagamento {
+  pagamento_id            Int          @id @default(autoincrement())
+  contratacao_id          Int
+  plataforma_id_pagamento String?      @db.VarChar(200)
+  valor                   Decimal?     @db.Decimal(10, 2)
+  status                  String?      @default("Pendente") @db.VarChar(20)
+  data_pagamento          DateTime?    @db.Timestamp(6)
+  created_at              DateTime?    @default(now()) @db.Timestamp(6)
+  updated_at              DateTime?    @default(now()) @db.Timestamp(6)
+  forma_pagamento         String       @db.VarChar(20)
+  contratacoes            contratacoes @relation(fields: [contratacao_id], references: [contratacao_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pagamento_contratacao")
+
+  @@index([contratacao_id], map: "idx_pagamento_contratacao")
+}
+
+model prestador {
+  user_id                 Int                       @id
+  media_avaliacao         Decimal?                  @default(0) @db.Decimal(3, 2)
+  total_clientes          Int?                      @default(0)
+  avaliacao               avaliacao[]
+  breakpoints             breakpoints[]
+  contratacoes            contratacoes[]
+  conversa                conversa[]
+  usuario                 usuario                   @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_prestador_usuario")
+  prestador_especialidade prestador_especialidade[]
+  servicos                servicos[]
+}
+
+model prestador_especialidade {
+  prestador_id     Int
+  especialidade_id Int
+  especialidade    especialidade @relation(fields: [especialidade_id], references: [especialidade_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_prestador_especialidade_especialidade")
+  prestador        prestador     @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_prestador_especialidade_prestador")
+
+  @@id([prestador_id, especialidade_id])
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model servicos {
+  servico_id   Int            @id @default(autoincrement())
+  prestador_id Int
+  categoria_id Int
+  nome_servico String         @db.VarChar(150)
+  descricao    String?
+  preco        Decimal        @db.Decimal(10, 2)
+  contratacoes contratacoes[]
+  prestador    prestador      @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_prestador_usuario")
+  categoria    categoria      @relation(fields: [categoria_id], references: [categoria_id], onUpdate: NoAction, map: "fk_servico_categoria")
+
+  @@index([categoria_id], map: "idx_servico_categoria")
+  @@index([prestador_id], map: "idx_servico_prestador")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model usuario {
+  user_id       Int        @id @default(autoincrement())
+  nome          String     @db.VarChar(100)
+  email         String     @unique @db.VarChar(100)
+  hash_password String
+  cpf           String?    @unique @db.VarChar(14)
+  tipo_usuario  String     @db.VarChar(20)
+  photo_url     String?
+  endereco      String?
+  descricao     String?
+  create_at     DateTime?  @default(now()) @db.Timestamp(6)
+  update_at     DateTime?  @default(now()) @db.Timestamp(6)
+  cliente       cliente?
+  mensagem      mensagem[]
+  prestador     prestador?
+
+  @@index([tipo_usuario], map: "idx_usuario_tipo")
+}
