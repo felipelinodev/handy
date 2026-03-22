@@ -4,53 +4,67 @@
 
 | Nome | GitLab |
 |------|--------|
-| | @usuario |
-| | @usuario |
-| | @usuario |
-| | @usuario |
+| Felipe Lino | @felipe |
+| Guilherme | @guilhermex |
+| Melissa Martins | @melissa |
+| Garcia | @garcia |
+| Guilherme Faleiros | @guilherme.faleiros |
 
 ## 🎯 Problema Escolhido
 
-> Descreva aqui o problema real que o MVP vai resolver.
+> A plataforma visa
+> solucionar quatro problemas identificados na contratação de serviços profissionais: a
+> ausência de plataformas centralizadas, a dificuldade em verificar a confiabilidade de
+> profissionais, a falta de transparência quanto a preços e disponibilidade, e a
+> comunicação ineficiente entre as partes durante o processo de contratação.
+
 
 ## 🛠️ Stack Utilizada
 
 | Camada | Tecnologia |
 |--------|-----------|
-| Frontend | |
-| Backend | |
-| Banco de Dados | |
-| Hospedagem | |
+| Frontend | NodeJS, TypeScript, React Native |
+| Backend | NodeJS, TypeScript, NestJS |
+| Banco de Dados | PostgreSQL, Redis, PrismaORM |
+| Hospedagem | Amazon AWS (EC2 e RDS) |
+
 
 ## 🚀 Guia de Setup e Execução
 
 ### Pré-requisitos
 
 ```bash
-# Liste aqui as dependências (ex: Node.js 20+, Python 3.12+, Docker, etc.)
+Node.js 20+
+PostgreSQL 15+
+Redis
+Git
 ```
 
 ### Instalação
 
 ```bash
 # Clone o repositório
-git clone <url-do-repo>
-cd <nome-do-repo>
+git clone https://gitlab.com/uniube-pi2-2026-1/handy.git
+cd handy
 
-# Instale as dependências
-# npm install / pip install -r requirements.txt / etc.
+# Instale as dependências do backend
+cd src/backend/handy-backend-nest
+npm install
+
+# Configure o arquivo .env com as credenciais do PostgreSQL e Redis
+# Execute as migrações do banco de dados
+npx prisma migrate dev
 ```
 
 ### Executar localmente
 
 ```bash
-# Comando para subir o projeto
-# npm run dev / python manage.py runserver / docker compose up / etc.
+# Dentro de src/backend/handy-backend-nest
 ```
 
 ### Acessar
 
-- **Local:** http://localhost:PORTA
+- **Local:** http://localhost:4000
 - **Produção:** https://SEU-APP.vercel.app _(preencher no CP-5)_
 
 ## 📅 Checkpoints
