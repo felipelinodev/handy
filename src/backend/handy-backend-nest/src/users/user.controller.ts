@@ -1,8 +1,10 @@
-import { BadRequestException, Body, Controller, Get, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { clientSchema } from './schemas/user.schema';
-import type { CreateClientDto } from './schemas/user.schema';
 import {z} from "zod"
+
+import type { CreateClientDto } from './schemas/user.schema';
+import { request } from 'http';
 
 
 @Controller('users')
@@ -18,9 +20,30 @@ export class UserController {
     if(!result.success){
         const flattened  = z.flattenError(result.error).fieldErrors
         const sliceErro = Object.values(flattened)[0][0]
-        throw new BadRequestException(sliceErro) // BadRequestException -> Status 400 Erros de validação.
+        throw new BadRequestException(sliceErro)
     }
-    return this.userService.createClient(result.data);
+
+    try {
+      return this.userService.createClient(result.data);
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+    
   }
+
+
+  // @Get('view-client/:id')
+  // async getClientInfos(@Param('id', ParseIntPipe) id: number){
+  //   return this.userService.viewClientInfos(id);
+  // }
+
+  
+  @Post('login-client')
+  loginClient(@Body() body: any){
+
+    return none
+    
+  }
+
 
 }

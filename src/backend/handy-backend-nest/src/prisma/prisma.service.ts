@@ -1,17 +1,19 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
-import * as path from 'path';
-import { pathToFileURL } from 'url';
+import { PrismaClient } from '@prisma/client';
+
+// Carrega as variáveis do .env
+import 'dotenv/config';
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private client: any;
 
   async onModuleInit() {
-    // Resolve the path to the original generated ESM files (not the compiled dist version)
-    const generatedPath = path.resolve(__dirname, '..', '..', '..', 'generated', 'prisma', 'client.js');
-    const { PrismaClient } = await import(pathToFileURL(generatedPath).href);
-    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
+    // É necessário criar um Pool usando 'pg' e passá-lo para o PrismaPg
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const adapter = new PrismaPg(pool as any);
     this.client = new PrismaClient({ adapter });
   }
 

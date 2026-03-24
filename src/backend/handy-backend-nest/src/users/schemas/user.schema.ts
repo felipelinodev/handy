@@ -5,7 +5,7 @@ const clientSchema = z.object({
 
     nome: z.string().min(1, 'É necessário adicionar um nome.'),
 
-    email: z.string().email('O email digitado é inválido.'),
+    email: z.email('O email digitado é inválido.'),
 
     senha: z.string().min(6, 'A senha deve ter no mínimo 6 caracteres.'),
 
