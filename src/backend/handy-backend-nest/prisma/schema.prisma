@@ -180,8 +180,8 @@ model usuario {
   photo_url     String?
   endereco      String?
   descricao     String?
-  create_at     DateTime?  @default(now()) @db.Timestamp(6)
-  update_at     DateTime?  @default(now()) @db.Timestamp(6)
+  created_at    DateTime?  @default(now()) @db.Timestamp(6)
+  updated_at    DateTime?  @default(now()) @db.Timestamp(6)
   cliente       cliente?
   mensagem      mensagem[]
   prestador     prestador?

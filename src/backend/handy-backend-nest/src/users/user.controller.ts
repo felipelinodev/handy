@@ -43,7 +43,7 @@ export class UserController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch('atualizar-cliente/:id')
+  @Patch('update-cliente/:id')
   async atualizarCliente(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: any
@@ -65,7 +65,7 @@ export class UserController {
     }
   }
  
-  @Delete('excluir-conta/:email')
+  @Delete('delete-a-client/:email')
   async excluirConta(
     @Param('email') email: string, 
     @Headers('admin-key') chave_admin: string
