@@ -30,6 +30,10 @@ export class ClientService {
     return this.clientRepository.searchClient('user_id', id)
   }
 
+  async searchClientById(id: number){
+    return this.clientRepository.searchClient('user_id', id)
+  }
+
   async searchClientByEmail(email: string){
     return this.clientRepository.searchClient('email', email)
   }

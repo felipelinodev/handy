@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch, NotFoundException } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { clientSchema } from './schemas/client.schema';
 import {z} from "zod"
@@ -39,7 +39,14 @@ export class ClientController {
   @UseGuards(JwtAuthGuard)
   @Get('view-client/:id')
    async getClientInfos(@Param('id', ParseIntPipe) id: number){
-     return this.clientService.viewClientInfos(id);
+
+    const clientExists = await this.clientService.searchClientById(id)
+
+    if(!clientExists){
+      throw new NotFoundException("Cliente não foi encontrado portanto não pode ser exclido.")
+    }
+
+    return this.clientService.viewClientInfos(id);
   }
 
   @UseGuards(JwtAuthGuard)
