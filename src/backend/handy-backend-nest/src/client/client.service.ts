@@ -1,16 +1,13 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { BuscarPor, UserRepository } from './repository/users.repository';
+import { ClientRepository } from './repository/client.repository';
 import { HashProvider } from 'common/security/security.module';
-
-// TODO: Import the proper DTO for better type safety
-// import type { CreateClientDto } from './schemas/user.schema';
 
 
 @Injectable()
-export class UserService {
+export class ClientService {
   
   constructor(
-    private readonly userRepository: UserRepository, 
+    private readonly clientRepository: ClientRepository, 
     private readonly hashProvier: HashProvider){}
 
   async createClient(data: any){
@@ -23,22 +20,22 @@ export class UserService {
       hash_password: hashSenha, 
       ...rest}
     
-    const client = await this.userRepository.createClient(clientData);
+    const client = await this.clientRepository.createClient(clientData);
     
     console.log(client)
     return { message: 'Cliente criado com sucesso.', data };
   }
 
   async viewClientInfos(id: number){
-    return this.userRepository.buscarUsuario('user_id', id)
+    return this.clientRepository.searchClient('user_id', id)
   }
 
-  async buscarUserEmail(email: string){
-    return this.userRepository.buscarUsuario('email', email)
+  async searchClientByEmail(email: string){
+    return this.clientRepository.searchClient('email', email)
   }
 
-  async validarAcesso(email: string, senhaPassada: string) {
-    const user = await this.buscarUserEmail(email);
+  async validateAccess(email: string, senhaPassada: string) {
+    const user = await this.searchClientByEmail(email);
     
     if (!user) {
       throw new UnauthorizedException('Email ou senha inválidos');
@@ -53,20 +50,19 @@ export class UserService {
     return user;
   }
 
-
-  async excluirContaUsuario(email: string, chaveAdmin: string){
+  async deleteUserAccount(email: string, chaveAdmin: string){
 
     if(chaveAdmin !== process.env.CHAVE_ADMIN){
       throw new UnauthorizedException('Você não tem permissão para excluir essa conta.');
     }
 
-    const user = await this.buscarUserEmail(email);
+    const user = await this.searchClientByEmail(email);
     
     if (!user) {
       throw new NotFoundException('Usuário não encontrado para este email.');
     }
 
-    await this.userRepository.deletarUsuario(email)
+    await this.clientRepository.deleteClient(email)
 
     return{
         message: 'Conta de usuário excluída com sucesso!',
@@ -74,7 +70,7 @@ export class UserService {
     }
   }
 
-  async atualizarCliente(id: number, data: any) {
+  async updateThisClient(id: number, data: any) {
     const user = await this.viewClientInfos(id);
     if (!user) {
       throw new NotFoundException('Usuário não encontrado para atualizar.');
@@ -85,7 +81,7 @@ export class UserService {
       delete data.senha;
     }
 
-    const updatedUser = await this.userRepository.atualizarUsuario(id, data);
+    const updatedUser = await this.clientRepository.updateClient(id, data);
 
     return {
       message: 'Dados do cliente atualizados com sucesso!',

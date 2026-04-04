@@ -1,19 +1,19 @@
 import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch } from '@nestjs/common';
-import { UserService } from './user.service';
-import { clientSchema } from './schemas/user.schema';
+import { ClientService } from './client.service';
+import { clientSchema } from './schemas/client.schema';
 import {z} from "zod"
 
-import type { CreateClientDto } from './schemas/user.schema';
+import type { CreateClientDto } from './schemas/client.schema';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 
 
-@Controller('users')
-export class UserController {
+@Controller('client')
+export class ClientController {
   
   constructor(
-    private readonly userService: UserService,
+    private readonly clientService: ClientService,
     private readonly jwtService: JwtService         
   ) {}
 
@@ -29,7 +29,7 @@ export class UserController {
     }
 
     try {
-      return this.userService.createClient(result.data);
+      return this.clientService.createClient(result.data);
     } catch (error) {
       throw new InternalServerErrorException(error)
     }
@@ -39,12 +39,12 @@ export class UserController {
   @UseGuards(JwtAuthGuard)
   @Get('view-client/:id')
    async getClientInfos(@Param('id', ParseIntPipe) id: number){
-     return this.userService.viewClientInfos(id);
+     return this.clientService.viewClientInfos(id);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch('update-cliente/:id')
-  async atualizarCliente(
+  @Patch('update-client/:id')
+  async updateClient(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: any
   ){
@@ -58,21 +58,20 @@ export class UserController {
     }
 
     try {
-      return this.userService.atualizarCliente(id, data);
+      return this.clientService.updateThisClient(id, data);
     } catch (error) {
       return{error}
     }
      
   }
 
-  
   @Post('login-client')
   async loginClient(@Body() body: any){
     const {email, senha} = body
 
    
     try {
-        const user = await this.userService.validarAcesso(email, senha)
+        const user = await this.clientService.validateAccess(email, senha)
 
         const payload = {email: user.email, user_id: user.user_id}
 
@@ -100,7 +99,7 @@ export class UserController {
     @Headers('admin-key') chave_admin: string
   ) {
     try {
-      return this.userService.excluirContaUsuario(email, chave_admin);
+      return this.clientService.deleteUserAccount(email, chave_admin);
     } catch (error) {
       return {error}
     }
