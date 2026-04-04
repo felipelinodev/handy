@@ -48,7 +48,21 @@ export class UserController {
     @Param('id', ParseIntPipe) id: number,
     @Body() data: any
   ){
-     return this.userService.atualizarCliente(id, data);
+    
+    const result = clientSchema.partial().safeParse(data);
+
+    if(!result.success){
+       const flattened  = z.flattenError(result.error).fieldErrors
+       const sliceErro = Object.values(flattened)[0][0]
+       throw new BadRequestException(sliceErro)
+    }
+
+    try {
+      return this.userService.atualizarCliente(id, data);
+    } catch (error) {
+      return{error}
+    }
+     
   }
 
   
@@ -56,13 +70,28 @@ export class UserController {
   async loginClient(@Body() body: any){
     const {email, senha} = body
 
-    const user = await this.userService.validarAcesso(email, senha)
+   
+    try {
+        const user = await this.userService.validarAcesso(email, senha)
 
-    const payload = {email: user.email, user_id: user.user_id}
-    
-    return {
-      accessToken: this.jwtService.sign(payload)
+        const payload = {email: user.email, user_id: user.user_id}
+
+        const{hash_password, cpf, ...userNotPassword } = user
+
+        return {
+          accessToken: this.jwtService.sign(payload),
+          user: userNotPassword
     }
+
+    } catch (error) {
+      
+      if(error.status){
+        throw error;
+      }
+
+      throw new InternalServerErrorException('Erro ao tentar realizar o login.');
+    }
+    
   }
  
   @Delete('delete-a-client/:email')
@@ -70,7 +99,12 @@ export class UserController {
     @Param('email') email: string, 
     @Headers('admin-key') chave_admin: string
   ) {
-    return this.userService.excluirContaUsuario(email, chave_admin);
+    try {
+      return this.userService.excluirContaUsuario(email, chave_admin);
+    } catch (error) {
+      return {error}
+    }
+    
   }
 }
 
