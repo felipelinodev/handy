@@ -23,6 +23,10 @@ export class ContratationRepository {
         });
     }
 
+    async buscarTodasContratacoes() {
+        return await this.prisma.contratacoes.findMany();
+    }
+
     async deletarContratacao(id: number){
         return await this.prisma.contratacoes.delete({
             where: {

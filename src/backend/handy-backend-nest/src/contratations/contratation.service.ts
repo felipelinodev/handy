@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { BuscarPor, ContratationRepository } from './repository/contratations.repository';
 
 @Injectable()
@@ -15,6 +15,10 @@ export class ContratationService {
     return this.contratationRepository.buscarContratacao('contratacao_id', id);
   }
 
+  async viewAllContratations(){
+    return this.contratationRepository.buscarTodasContratacoes();
+  }
+
   async updateContratation(id: number, data: any) {
     const contratation = await this.viewContratation(id);
     if (!contratation) {
@@ -29,7 +33,11 @@ export class ContratationService {
     };
   }
 
-  async deleteContratation(id: number){
+  async cancelContratation(id: number, chaveAdmin: string){
+    if(chaveAdmin !== process.env.CHAVE_ADMIN){
+      throw new UnauthorizedException('Você não tem permissão para cancelar essa contratação.');
+    }
+
     const contratation = await this.viewContratation(id);
     
     if (!contratation) {
@@ -39,7 +47,7 @@ export class ContratationService {
     await this.contratationRepository.deletarContratacao(id);
 
     return {
-        message: 'Contratação excluída com sucesso!',
+        message: 'Contratação cancelada com sucesso!',
         contratation,
     };
   }

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, UseGuards, Patch } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, Headers, Param, ParseIntPipe, Post, UseGuards, Patch } from '@nestjs/common';
 import { ContratationService } from './contratation.service';
 import { contratationSchema } from './schemas/contratation.schema';
 import { z } from "zod";
@@ -13,8 +13,8 @@ export class ContratationController {
     private readonly contratationService: ContratationService
   ) {}
 
-  @Post('create')
-  create(@Body() body: CreateContratationDto){
+  @Post('create-a-contratation')
+  createContratation(@Body() body: CreateContratationDto){
 
     const result = contratationSchema.safeParse(body)
 
@@ -33,25 +33,47 @@ export class ContratationController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('view/:id')
-   async view(@Param('id', ParseIntPipe) id: number){
-     return this.contratationService.viewContratation(id);
+  @Get('view-a-contract/:id')
+  async viewContratation(@Param('id', ParseIntPipe) id: number){
+    try {
+      return this.contratationService.viewContratation(id);
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('view-all-contracts')
+  async viewAllContracts(){
+    try {
+      return this.contratationService.viewAllContratations();
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
   @UseGuards(JwtAuthGuard)
   @Patch('update/:id')
-  async update(
+  async updateContratation(
     @Param('id', ParseIntPipe) id: number,
     @Body() data: any
   ){
-     return this.contratationService.updateContratation(id, data);
+    try {
+      return this.contratationService.updateContratation(id, data);
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 
-  @UseGuards(JwtAuthGuard)
-  @Delete('delete/:id')
-  async excluir(
-    @Param('id', ParseIntPipe) id: number
+  @Delete('cancel-a-contratation/:id')
+  async cancelContratation(
+    @Param('id', ParseIntPipe) id: number,
+    @Headers('admin-key') chave_admin: string
   ) {
-    return this.contratationService.deleteContratation(id);
+    try {
+      return this.contratationService.cancelContratation(id, chave_admin);
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
   }
 }
