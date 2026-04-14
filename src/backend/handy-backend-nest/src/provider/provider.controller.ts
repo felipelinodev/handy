@@ -1,116 +1,103 @@
 import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch, NotFoundException } from '@nestjs/common';
-import { ClientService } from './client.service';
-import { clientSchema } from './schemas/client.schema';
-import {z} from "zod"
+import { ProviderService } from './provider.service';
+import { providerSchema } from './schemas/provider.schema';
+import { z } from "zod";
 
-import type { CreateClientDto } from './schemas/client.schema';
+import type { CreateProviderDto } from './schemas/provider.schema';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
+@Controller('provider')
+export class ProviderController {
 
+    constructor(
+        private readonly providerService: ProviderService,
+        private readonly jwtService: JwtService
+    ) { }
 
-@Controller('provier')
-export class ClientController {
-  
-  constructor(
-    private readonly clientService: ClientService,
-    private readonly jwtService: JwtService         
-  ) {}
+    @Post('create-service-provider-account')
+    async createServiceProviderAccount(@Body() body: CreateProviderDto) {
+        const result = providerSchema.safeParse(body);
 
-  @Post('create-client-account')
-  createClientAccount(@Body() body: CreateClientDto){
+        if (!result.success) {
+            const flattened = z.flattenError(result.error).fieldErrors;
+            const sliceErro = Object.values(flattened)[0][0];
+            throw new BadRequestException(sliceErro);
+        }
 
-    const result = clientSchema.safeParse(body)
-
-    if(!result.success){
-        const flattened  = z.flattenError(result.error).fieldErrors
-        const sliceErro = Object.values(flattened)[0][0]
-        throw new BadRequestException(sliceErro)
+        try {
+            return await this.providerService.createServiceProvider(result.data as any);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
     }
 
-    try {
-      return this.clientService.createClient(result.data);
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
-    
-  }
+    @UseGuards(JwtAuthGuard)
+    @Get('view-service-provider/:id')
+    async getServiceProviderInfos(@Param('id', ParseIntPipe) id: number) {
+        const providerExists = await this.providerService.searchServiceProviderById(id);
 
-  @UseGuards(JwtAuthGuard)
-  @Get('view-client/:id')
-   async getClientInfos(@Param('id', ParseIntPipe) id: number){
+        if (!providerExists) {
+            throw new NotFoundException("Prestador não foi encontrado.");
+        }
 
-    const clientExists = await this.clientService.searchClientById(id)
-
-    if(!clientExists){
-      throw new NotFoundException("Cliente não foi encontrado portanto não pode ser exclido.")
+        return providerExists;
     }
 
-    return this.clientService.viewClientInfos(id);
-  }
+    @UseGuards(JwtAuthGuard)
+    @Patch('update-service-provider/:id')
+    async updateServiceProvider(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() data: any
+    ) {
+        const result = providerSchema.partial().safeParse(data);
 
-  @UseGuards(JwtAuthGuard)
-  @Patch('update-client/:id')
-  async updateClient(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() data: any
-  ){
-    
-    const result = clientSchema.partial().safeParse(data);
+        if (!result.success) {
+            const flattened = z.flattenError(result.error).fieldErrors;
+            const sliceErro = Object.values(flattened)[0][0];
+            throw new BadRequestException(sliceErro);
+        }
 
-    if(!result.success){
-       const flattened  = z.flattenError(result.error).fieldErrors
-       const sliceErro = Object.values(flattened)[0][0]
-       throw new BadRequestException(sliceErro)
+        try {
+            return await this.providerService.updateServiceProvider(id, data);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
     }
 
-    try {
-      return this.clientService.updateThisClient(id, data);
-    } catch (error) {
-      return{error}
-    }
-     
-  }
+    @Post('login-service-provider')
+    async loginServiceProvider(@Body() body: any) {
+        const { email, senha } = body;
 
-  @Post('login-client')
-  async loginClient(@Body() body: any){
-    const {email, senha} = body
+        try {
+            const user = await this.providerService.validateAccess(email, senha);
+            const payload = { email: user.email, user_id: user.user_id };
 
-   
-    try {
-        const user = await this.clientService.validateAccess(email, senha)
+            const { hash_password, cpf, ...userNotPassword } = user as any;
 
-        const payload = {email: user.email, user_id: user.user_id}
-
-        const{hash_password, cpf, ...userNotPassword } = user
-
-        return {
-          accessToken: this.jwtService.sign(payload),
-          user: userNotPassword
+            return {
+                accessToken: this.jwtService.sign(payload),
+                user: userNotPassword
+            };
+        } catch (error) {
+            if (error.status) {
+                throw error;
+            }
+            throw new InternalServerErrorException('Erro ao tentar realizar o login.');
+        }
     }
 
-    } catch (error) {
-      
-      if(error.status){
-        throw error;
-      }
 
-      throw new InternalServerErrorException('Erro ao tentar realizar o login.');
+    @Delete('delete-a-service-provider/:email')
+    async deleteServiceProvider(
+        @Param('email') email: string,
+        @Headers('admin-key') chave_admin: string
+    ) {
+        try {
+            return await this.providerService.deleteUserAccount(email, chave_admin);
+        } catch (error) {
+            if (error.status) throw error;
+            throw new InternalServerErrorException(error);
+        }
     }
-    
-  }
- 
-  @Delete('delete-a-client/:email')
-  async excluirConta(
-    @Param('email') email: string, 
-    @Headers('admin-key') chave_admin: string
-  ) {
-    try {
-      return this.clientService.deleteUserAccount(email, chave_admin);
-    } catch (error) {
-      return {error}
-    }
-    
-  }
 }
-

@@ -9,6 +9,7 @@ export type CreateUsuarioInput = {
   photo_url?: string | null;
   endereco?: string | null;
   descricao?: string | null;
+  especialidades?: number[]; // Adicionado campo de especialidades
 };
 
 export type CreatePrestadorInput = {

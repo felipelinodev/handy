@@ -9,15 +9,27 @@ export class ProviderRepository {
     constructor(private readonly prisma: PrismaService){}
 
     async createProvider(data: CreateUsuarioInput){
+        const { especialidades, ...userData } = data;
+
         return await this.prisma.usuario.create({
             data: {
-                ...data,
+                ...userData,
                 prestador: {
-                    create: {}
+                    create: {
+                        prestador_especialidade: {
+                            create: especialidades?.map(id => ({
+                                especialidade_id: id
+                            }))
+                        }
+                    }
                 }
             },
             include: {
-                prestador: true
+                prestador: {
+                    include: {
+                        prestador_especialidade: true
+                    }
+                }
             }
         })
     }
@@ -36,7 +48,7 @@ export class ProviderRepository {
                                 especialidade: true
                             }
                         },
-                        avaliacao: true // Trazendo também as avaliações
+                        avaliacao: true
                     }
                 }
             }
@@ -59,7 +71,6 @@ export class ProviderRepository {
             }
         });
     }
-
 
     async updateProvider(id: number, data: UpdatePrestadorInput) {
         const { media_avaliacao, total_clientes, ...userData } = data;
