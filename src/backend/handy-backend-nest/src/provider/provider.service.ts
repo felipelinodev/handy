@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { ProviderRepository } from "./repository/provider.repository";
 import { HashProvider } from "common/security/security.module";
-import { CreateUsuarioInput } from "./types/provider.types";
+import { CreatePrestadorInput, CreateServicoInput, CreateUsuarioInput } from "./types/provider.types";
 
 @Injectable()
 export class ProviderService {

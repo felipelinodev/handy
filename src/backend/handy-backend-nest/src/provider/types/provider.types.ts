@@ -21,3 +21,11 @@ export type UpdatePrestadorInput = Partial<CreateUsuarioInput> & {
   media_avaliacao?: number;
   total_clientes?: number;
 };
+
+export type CreateServicoInput = {
+  prestador_id: number;
+  categoria_id: number;
+  nome_servico: string;
+  descricao?: string | null;
+  preco: number;
+};

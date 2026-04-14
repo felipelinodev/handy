@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from '../../prisma/prisma.service';
-import { CreateUsuarioInput, UpdatePrestadorInput } from "../types/provider.types";
+import { CreateServicoInput, CreateUsuarioInput, UpdatePrestadorInput } from "../types/provider.types";
 
 export type BuscarPor = 'email' | 'user_id';
 
@@ -99,4 +99,9 @@ export class ProviderRepository {
             }
         });
     }
+
+    async createService(serviceData: CreateServicoInput){
+        
+    }
+
 }
