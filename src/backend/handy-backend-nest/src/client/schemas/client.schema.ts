@@ -21,5 +21,7 @@ const clientSchema = z.object({
 
 });
 
+
+
 export type CreateClientDto = z.infer<typeof clientSchema> // INJEÇÃO DE TIPOS ENTENDE?
 export { clientSchema };
