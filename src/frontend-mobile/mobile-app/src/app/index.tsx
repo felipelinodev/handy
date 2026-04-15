@@ -1,18 +1,17 @@
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Alert, Image } from 'react-native';
-
-import { useFonts } from 'expo-font';
-
 import {
-  OpenSans_400Regular,
-  OpenSans_700Bold
-} from "@expo-google-fonts/open-sans";
+  View,
+  Text,
+  StyleSheet,
+  ImageBackground,
+  TouchableOpacity,
+  Alert,
+  Image,
+} from 'react-native';
+import { useRouter } from 'expo-router';
 
-export default function App() {
-  const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
-
-  if (!fontsLoaded) return null; //IMPEDE O SISTEMA DE CARREGAR TELAS SEM AS FONTES DESEJADAS. EVITA CARREGAR FONTES RIDÍCULAS DO SISTEMAS.
-
+export default function WelcomeScreen() {
+  const router = useRouter();
 
   return (
     <ImageBackground
@@ -28,7 +27,7 @@ export default function App() {
         />
       </View>
 
-      {/* PARTE DE BAIXO - TEXTO E BOTÕES*/}
+      {/* PARTE DE BAIXO - TEXTO E BOTÕES */}
       <View style={styles.contentContainer}>
         <Text style={styles.textTitle}>Para te orientar no App</Text>
 
@@ -37,16 +36,18 @@ export default function App() {
         </Text>
 
         <View style={styles.buttonGroup}>
+          {/* Navega para o fluxo de login do cliente */}
           <TouchableOpacity
             style={styles.buttonPrimary}
-            onPress={() => Alert.alert('Serviços')}
+            onPress={() => router.push('/auth/login')}
           >
             <Text style={styles.buttonText}>Serviços</Text>
           </TouchableOpacity>
 
+          {/* Área do prestador ainda não implementada */}
           <TouchableOpacity
             style={styles.buttonSegundary}
-            onPress={() => Alert.alert('Prestar Serviços')}
+            onPress={() => Alert.alert('Em breve', 'Área do prestador em desenvolvimento.')}
           >
             <Text style={styles.buttonText}>Prestar Serviços</Text>
           </TouchableOpacity>
@@ -67,7 +68,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
   },
   logo: {
-    width: 131.51
+    width: 131.51,
   },
   contentContainer: {
     flex: 2,
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontSize: 18,
-    fontFamily: 'OpenSans_600SemiBold',
+    fontFamily: 'OpenSans_700Bold',
     color: '#fff',
   },
 });
