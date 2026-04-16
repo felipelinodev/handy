@@ -1,0 +1,179 @@
+import React from 'react';
+import {
+  View,
+  Text,
+  Image,
+  ScrollView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import {Colors} from '../theme/colors';
+import {Fonts} from '../theme/fonts';
+import {Professional} from '../data/mockData';
+
+const CARD_WIDTH = Dimensions.get('window').width * 0.44;
+
+interface ProfessionalCarouselProps {
+  data: Professional[];
+}
+
+const ProfessionalCard: React.FC<{item: Professional}> = ({item}) => {
+  return (
+    <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+      <View style={styles.imageContainer}>
+        <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
+        <View style={styles.ratingBadge}>
+          <Icon name="star" size={12} color={Colors.starYellow} />
+          <Text style={styles.ratingText}>{item.rating}</Text>
+        </View>
+      </View>
+      <View style={styles.cardContent}>
+        <Text style={styles.cardName} numberOfLines={1}>
+          {item.name}
+        </Text>
+        <Text style={styles.minLabel}>Valor mínimo</Text>
+        <View style={styles.priceRow}>
+          <Text style={styles.priceText}>
+            R$ {item.minPrice.toLocaleString('pt-BR')}
+          </Text>
+          <View style={styles.categoryTag}>
+            <Text style={styles.categoryTagText} numberOfLines={1}>
+              {item.category}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export const ProfessionalCarousel: React.FC<ProfessionalCarouselProps> = ({
+  data,
+}) => {
+  return (
+    <View style={styles.container}>
+      <View style={styles.pillContainer}>
+        <View style={styles.pill}>
+          <Text style={styles.pillText}>Próximos a você</Text>
+        </View>
+      </View>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        nestedScrollEnabled
+      >
+        {data.map(item => (
+          <ProfessionalCard key={item.id} item={item} />
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    marginTop: 8,
+  },
+  pillContainer: {
+    paddingHorizontal: 24,
+    marginBottom: 14,
+    alignItems: 'flex-start',
+  },
+  pill: {
+    backgroundColor: Colors.pillBackground,
+    paddingHorizontal: 18,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  pillText: {
+    color: Colors.white,
+    fontSize: 13,
+    fontFamily: Fonts.semiBold,
+    letterSpacing: 0.2,
+  },
+  listContent: {
+    paddingLeft: 24,
+    paddingRight: 10,
+    paddingBottom: 4,
+  },
+  card: {
+    width: CARD_WIDTH,
+    backgroundColor: Colors.cardBackground,
+    borderRadius: 16,
+    marginRight: 14,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+    overflow: 'hidden',
+  },
+  imageContainer: {
+    position: 'relative',
+  },
+  cardImage: {
+    width: '100%',
+    height: CARD_WIDTH * 0.7,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    backgroundColor: '#E0D5F0',
+  },
+  ratingBadge: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+    borderRadius: 12,
+    gap: 3,
+  },
+  ratingText: {
+    fontSize: 12,
+    fontFamily: Fonts.bold,
+    color: Colors.textPrimary,
+  },
+  cardContent: {
+    padding: 12,
+  },
+  cardName: {
+    fontSize: 14,
+    fontFamily: Fonts.bold,
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
+  minLabel: {
+    fontSize: 11,
+    fontFamily: Fonts.regular,
+    color: Colors.textMuted,
+    marginBottom: 2,
+  },
+  priceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  priceText: {
+    fontSize: 15,
+    fontFamily: Fonts.extraBold,
+    color: Colors.purpleDark,
+  },
+  categoryTag: {
+    backgroundColor: Colors.tagBackground,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+    maxWidth: 90,
+  },
+  categoryTagText: {
+    fontSize: 10,
+    fontFamily: Fonts.semiBold,
+    color: Colors.tagText,
+  },
+});
