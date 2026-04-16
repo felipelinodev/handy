@@ -1,21 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 
-import type { CreateCategoriaInput } from '../types/category.types';
+import type { CreateCategoryInput } from '../types/category.types';
 
-export type BuscarCategoriaPor = 'categoria_id' | 'nome_categoria';
+export type BuscarPor = 'categoria_id' | 'nome_categoria';
 
 @Injectable()
 export class CategoryRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createCategory(data: CreateCategoriaInput) {
+  async createCategory(data: CreateCategoryInput) {
     return await this.prisma.categoria.create({
       data,
     });
   }
 
-  async searchCategory(campo: BuscarCategoriaPor, valor: string | number) {
+  async searchCategory(campo: BuscarPor, valor: string | number) {
     return await this.prisma.categoria.findUnique({
       where: {
         [campo]: valor,
