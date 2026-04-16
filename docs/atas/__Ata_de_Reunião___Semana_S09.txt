@@ -1,0 +1,42 @@
+# Ata de Reunião — Semana S09
+
+Data: 12/04/2026
+Horário: 15:00 – 17:30
+Local/Plataforma: Meet
+Grupo: Handy – Plataforma de Serviços
+
+## Participantes
+| Nome | Presente |
+|------|----------|
+| Guilherme Faleiros | ✅ |
+| Guilherme Antonio | ✅ |
+| Haristoneu Garcia | ✅ |
+| Melissa Martins | ✅ |
+| Luiz Felipe Silva | ✅ |
+
+## Pauta
+1. Revisão geral das atividades desenvolvidas
+2. Testes de funcionalidade das principais telas
+3. Identificação e correção de bugs encontrados
+
+## Decisões Tomadas
+
+- Acordado prazo para correções e ajustes finais antes da apresentação
+
+## Tarefas Definidas
+| Tarefa | Responsável | Prazo |
+|--------|------------|-------|
+| Corrigir bugs no fluxo de login | Guilherme Faleiros | 16/04 |
+| Ajustes de layout nas telas de listagem | Guilherme Antonio | 16/04 |
+| Validar integridade dos dados em produção | Felipe Lino | 16/04 |
+| Testar fluxo completo de agendamento | Luiz Felipe Silva | 16/04 |
+| Adicionando documentação atual do projeto | Haristoneu Garcia | 16/04 |
+
+## Pendências Anteriores
+- [x] Ajustes finais na integração front-end e backend
+- [x] Documentação dos endpoints da API
+- [x] Revisão do ambiente de produção
+
+## Observações
+
+A reunião focou na qualidade das entregas e na preparação para a apresentação final do projeto. A equipe realizou uma revisão colaborativa das funcionalidades, priorizando a experiência do usuário e a estabilidade da aplicação.
