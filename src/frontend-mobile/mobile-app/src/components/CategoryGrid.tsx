@@ -1,9 +1,8 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet, Dimensions} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {Colors} from '../theme/colors';
-import {Fonts} from '../theme/fonts';
-import {Category} from '../data/mockData';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import Icon from '@expo/vector-icons/Ionicons';
+import colors from '../utils/colors';
+import { Category } from '../data/mockData';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_PADDING = 24;
@@ -14,11 +13,11 @@ interface CategoryGridProps {
   data: Category[];
 }
 
-const CategoryItem: React.FC<{item: Category}> = ({item}) => {
+const CategoryItem: React.FC<{ item: Category }> = ({ item }) => {
   return (
     <TouchableOpacity style={styles.item} activeOpacity={0.7}>
       <View style={styles.iconContainer}>
-        <Icon name={item.icon as any} size={26} color={Colors.purpleMedium} />
+        <Icon name={item.icon as any} size={26} color={colors.primary} />
       </View>
       <Text style={styles.itemLabel} numberOfLines={2}>
         {item.name}
@@ -27,7 +26,7 @@ const CategoryItem: React.FC<{item: Category}> = ({item}) => {
   );
 };
 
-export const CategoryGrid: React.FC<CategoryGridProps> = ({data}) => {
+export const CategoryGrid: React.FC<CategoryGridProps> = ({ data }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Busque por categorias.</Text>
@@ -48,8 +47,8 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 18,
-    fontFamily: Fonts.semiBold,
-    color: Colors.textPrimary,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textDark,
     marginBottom: 16,
   },
   grid: {
@@ -60,19 +59,23 @@ const styles = StyleSheet.create({
   item: {
     width: ITEM_SIZE,
     aspectRatio: 1,
-    backgroundColor: Colors.categoryBg,
+    backgroundColor: '#FAF5FF',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 6,
+    shadowColor: '#4A1D96',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 5,
   },
   iconContainer: {
     marginBottom: 6,
   },
   itemLabel: {
     fontSize: 10,
-    fontFamily: Fonts.semiBold,
-    color: Colors.textSecondary,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textMuted,
     textAlign: 'center',
     lineHeight: 13,
   },

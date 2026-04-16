@@ -11,6 +11,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Logo from '../../components/common/Logo';
 import InputField from '../../components/auth/InputField';
@@ -61,7 +62,11 @@ export default function LoginScreen() {
     try {
       const response = await loginClient({ email: email.trim(), senha });
 
-      Alert.alert('Bem-vindo!', `Olá, ${response.user.nome} 👋`);
+      await AsyncStorage.setItem('@auth_token', response.accessToken);
+      await AsyncStorage.setItem('@auth_user', JSON.stringify(response.user));
+
+      Alert.alert('Sucesso!', `Bem-vindo(a), ${response.user.nome}!`);
+      router.replace('/home' as any);
     } catch (error: any) {
       Alert.alert('Erro ao entrar', error.message ?? 'Tente novamente.');
     } finally {
@@ -74,6 +79,10 @@ export default function LoginScreen() {
       source={require('../../assets/fundo_principal.png')}
       style={styles.background}
     >
+      <View style={styles.logoContainer}>
+        <Logo />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -83,8 +92,6 @@ export default function LoginScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Logo />
-
           <View style={styles.card}>
             <Text style={styles.title}>Entrar</Text>
 
@@ -113,7 +120,7 @@ export default function LoginScreen() {
             <View style={styles.footer}>
               <Text style={styles.footerText}>Não tem uma conta? </Text>
               <TouchableOpacity
-                onPress={() => router.push('/auth/register')}
+                onPress={() => router.push('/auth/register' as any)}
                 activeOpacity={0.7}
               >
                 <Text style={styles.footerLink}>Crie sua conta.</Text>
@@ -131,6 +138,12 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
+  logoContainer: {
+    alignItems: 'flex-start',
+    paddingTop: 32,
+    paddingHorizontal: 24,
+    marginBottom: 20,
+  },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
@@ -139,20 +152,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.muttedSurface,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
-    elevation: 8,
+    fontFamily: 'OpenSans_400Regular',
+    fontSize: 24
   },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     marginBottom: 20,
+    paddingVertical: 20
   },
   footer: {
     flexDirection: 'row',

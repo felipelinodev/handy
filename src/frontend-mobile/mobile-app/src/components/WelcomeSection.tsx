@@ -1,7 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
-import {Colors} from '../theme/colors';
-import {Fonts} from '../theme/fonts';
+import colors from '../utils/colors';
 
 interface WelcomeSectionProps {
   userName: string;
@@ -24,14 +23,14 @@ const styles = StyleSheet.create({
   },
   greeting: {
     fontSize: 28,
-    fontFamily: Fonts.boldItalic,
-    color: Colors.purpleDark,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.textDark,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    fontFamily: Fonts.regular,
-    color: Colors.textPrimary,
+    fontFamily: 'OpenSans_400Regular',
+    color: colors.textMuted,
     lineHeight: 22,
   },
 });

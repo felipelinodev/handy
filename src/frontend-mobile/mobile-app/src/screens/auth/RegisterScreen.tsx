@@ -92,9 +92,9 @@ export default function RegisterScreen() {
       });
 
       Alert.alert(
-        'Conta criada! 🎉',
-        'Cadastro realizado com sucesso. Faça o login para continuar.',
-        [{ text: 'Fazer login', onPress: () => router.replace({ pathname: '/auth/login' }) }]
+        'Sucesso',
+        'Conta criada com sucesso. Você já pode fazer o seu login.',
+        [{ text: 'Entrar', onPress: () => router.replace({ pathname: '/auth/login' } as any) }]
       );
     } catch (error: any) {
       Alert.alert('Erro ao criar conta', error.message ?? 'Tente novamente.');
@@ -108,6 +108,10 @@ export default function RegisterScreen() {
       source={require('../../assets/fundo_principal.png')}
       style={styles.background}
     >
+      <View style={styles.logoContainer}>
+        <Logo />
+      </View>
+
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -117,15 +121,6 @@ export default function RegisterScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.backButtonText}>← Voltar</Text>
-          </TouchableOpacity>
-
-          <Logo />
 
           <View style={styles.card}>
             <Text style={styles.title}>Criar Conta</Text>
@@ -192,37 +187,33 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
+  logoContainer: {
+    alignItems: 'flex-start',
+    paddingTop: 32,
+    paddingHorizontal: 24,
+    marginBottom: 20,
+  },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
-    paddingTop: 60,
     paddingBottom: 40,
     justifyContent: 'center',
   },
-  backButton: {
-    marginBottom: 12,
-  },
-  backButtonText: {
-    fontSize: 15,
-    color: colors.textDark,
-    fontFamily: 'OpenSans_700Bold',
-    opacity: 0.7,
-  },
   card: {
-    backgroundColor: colors.surface,
+    backgroundColor: colors.muttedSurface,
     borderRadius: 24,
     padding: 24,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
-    elevation: 8,
+    fontFamily: 'OpenSans_400Regular',
+    fontSize: 24
   },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     marginBottom: 20,
+    paddingVertical: 20
   },
   footer: {
     flexDirection: 'row',

@@ -6,11 +6,14 @@ import { useFonts } from 'expo-font';
 
 import {
     OpenSans_400Regular,
+    OpenSans_600SemiBold,
     OpenSans_700Bold
 } from "@expo-google-fonts/open-sans";
+import { useRouter } from 'expo-router';
 
 export default function DecideFlow() {
-    const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
+    const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_600SemiBold, OpenSans_700Bold });
+    const router = useRouter();
 
     if (!fontsLoaded) return null; //IMPEDE O SISTEMA DE CARREGAR TELAS SEM AS FONTES DESEJADAS. EVITA CARREGAR FONTES RIDÍCULAS DO SISTEMAS.
 
@@ -39,7 +42,7 @@ export default function DecideFlow() {
                 <View style={styles.buttonGroup}>
                     <TouchableOpacity
                         style={styles.buttonPrimary}
-                        onPress={() => Alert.alert('Serviços')}
+                        onPress={() => router.push('/auth/login' as any)}
                     >
                         <Text style={styles.buttonText}>Serviços</Text>
                     </TouchableOpacity>

@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'expo-router';
 import {
   View,
   Text,
@@ -7,6 +8,9 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  FlatList,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 
 import { useFonts } from 'expo-font';
@@ -18,13 +22,33 @@ import {
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const CAROUSEL_WIDTH = SCREEN_WIDTH * 0.78;
+const CAROUSEL_WIDTH = SCREEN_WIDTH * 0.82;
 const CAROUSEL_HEIGHT = CAROUSEL_WIDTH * 0.58;
 
-export default function WelcomeScreen() {
-  const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
+const CAROUSEL_IMAGES = [
+  require('../assets/people1.png'),
+  require('../assets/people2.png'),
+  require('../assets/people3.png'),
+  require('../assets/people4.png'),
+  require('../assets/people5.png'),
+  require('../assets/people6.png'),
+];
 
-  if (!fontsLoaded) return null; //IMPEDE O SISTEMA DE CARREGAR TELAS SEM AS FONTES DESEJADAS. EVITA CARREGAR FONTES RIDÍCULAS DO SISTEMAS.
+export default function WelcomeScreen() {
+  const router = useRouter();
+  const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  if (!fontsLoaded) return null; //IMPEDE O SISTEMA DE CARREGAR TELAS SEM AS FONTES DESEJADAS
+
+  const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const slideSize = event.nativeEvent.layoutMeasurement.width;
+    const index = event.nativeEvent.contentOffset.x / slideSize;
+    const roundIndex = Math.round(index);
+    if (roundIndex !== activeIndex) {
+      setActiveIndex(roundIndex);
+    }
+  };
 
   return (
     <ImageBackground
@@ -41,19 +65,39 @@ export default function WelcomeScreen() {
         />
       </View>
 
-      {/* IMAGEM FIXA */}
+      {/* CARROSSEL DE IMAGENS FUNCIONAL */}
       <View style={styles.carouselContainer}>
-        <View style={styles.carouselItem}>
-          <Image
-            source={require('../assets/people1.png')}
-            style={styles.carouselImage}
-            resizeMode="cover"
-          />
-        </View>
+        <FlatList
+          data={CAROUSEL_IMAGES}
+          keyExtractor={(_, index) => index.toString()}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onScroll={onScroll}
+          renderItem={({ item }) => (
+            <View style={styles.carouselSlide}>
+              <View style={styles.carouselItem}>
+                <Image
+                  source={item}
+                  style={styles.carouselImage}
+                  resizeMode="cover"
+                />
+              </View>
+            </View>
+          )}
+        />
 
-        {/* INDICADOR FIXO */}
+        {/* INDICADOR DINÂMICO */}
         <View style={styles.indicatorContainer}>
-          <View style={styles.indicatorActive} />
+          {CAROUSEL_IMAGES.map((_, index) => (
+            <View
+              key={index}
+              style={[
+                styles.indicatorInactive,
+                activeIndex === index && styles.indicatorActive,
+              ]}
+            />
+          ))}
         </View>
       </View>
 
@@ -65,7 +109,11 @@ export default function WelcomeScreen() {
         </Text>
 
         <View style={styles.buttonGroup}>
-          <TouchableOpacity style={styles.buttonSegundary}>
+          <TouchableOpacity
+            style={styles.buttonSegundary}
+            onPress={() => router.push('/decide' as any)}
+            activeOpacity={0.7}
+          >
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
 
@@ -96,6 +144,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 10,
   },
+  carouselSlide: {
+    width: SCREEN_WIDTH,
+    alignItems: 'center',
+  },
   carouselItem: {
     width: CAROUSEL_WIDTH,
     height: CAROUSEL_HEIGHT,
@@ -112,6 +164,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 14,
     gap: 8,
+  },
+  indicatorInactive: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.4)',
   },
   indicatorActive: {
     width: 40,

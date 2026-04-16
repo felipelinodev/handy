@@ -8,9 +8,8 @@ import {
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
-import {Colors} from '../theme/colors';
-import {Fonts} from '../theme/fonts';
+import Icon from '@expo/vector-icons/Ionicons';
+import colors from '../utils/colors';
 import {Professional} from '../data/mockData';
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.44;
@@ -25,7 +24,7 @@ const ProfessionalCard: React.FC<{item: Professional}> = ({item}) => {
       <View style={styles.imageContainer}>
         <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
         <View style={styles.ratingBadge}>
-          <Icon name="star" size={12} color={Colors.starYellow} />
+          <Icon name="star" size={12} color="#FFB800" />
           <Text style={styles.ratingText}>{item.rating}</Text>
         </View>
       </View>
@@ -83,15 +82,15 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   pill: {
-    backgroundColor: Colors.pillBackground,
+    backgroundColor: colors.buttonDark,
     paddingHorizontal: 18,
     paddingVertical: 8,
     borderRadius: 20,
   },
   pillText: {
-    color: Colors.white,
+    color: colors.textWhite,
     fontSize: 13,
-    fontFamily: Fonts.semiBold,
+    fontFamily: 'OpenSans_600SemiBold',
     letterSpacing: 0.2,
   },
   listContent: {
@@ -101,7 +100,7 @@ const styles = StyleSheet.create({
   },
   card: {
     width: CARD_WIDTH,
-    backgroundColor: Colors.cardBackground,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     marginRight: 14,
     shadowColor: '#000',
@@ -135,22 +134,22 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontSize: 12,
-    fontFamily: Fonts.bold,
-    color: Colors.textPrimary,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.textDark,
   },
   cardContent: {
     padding: 12,
   },
   cardName: {
     fontSize: 14,
-    fontFamily: Fonts.bold,
-    color: Colors.textPrimary,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.textDark,
     marginBottom: 4,
   },
   minLabel: {
     fontSize: 11,
-    fontFamily: Fonts.regular,
-    color: Colors.textMuted,
+    fontFamily: 'OpenSans_400Regular',
+    color: colors.textMuted,
     marginBottom: 2,
   },
   priceRow: {
@@ -161,11 +160,11 @@ const styles = StyleSheet.create({
   },
   priceText: {
     fontSize: 15,
-    fontFamily: Fonts.extraBold,
-    color: Colors.purpleDark,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.primaryDark,
   },
   categoryTag: {
-    backgroundColor: Colors.tagBackground,
+    backgroundColor: colors.muttedSurface,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 8,
@@ -173,7 +172,7 @@ const styles = StyleSheet.create({
   },
   categoryTagText: {
     fontSize: 10,
-    fontFamily: Fonts.semiBold,
-    color: Colors.tagText,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.primary,
   },
 });

@@ -1,8 +1,17 @@
 import { Stack } from 'expo-router';
-import { useFonts, OpenSans_400Regular, OpenSans_700Bold } from '@expo-google-fonts/open-sans';
+import { 
+  useFonts, 
+  OpenSans_400Regular, 
+  OpenSans_600SemiBold, 
+  OpenSans_700Bold 
+} from '@expo-google-fonts/open-sans';
 
 export default function RootLayout() {
-  const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
+  const [fontsLoaded] = useFonts({ 
+    OpenSans_400Regular, 
+    OpenSans_600SemiBold, 
+    OpenSans_700Bold 
+  });
 
   if (!fontsLoaded) return null;
 

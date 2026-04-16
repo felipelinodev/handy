@@ -16,7 +16,6 @@ export default function Logo() {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'flex-start',
-    marginBottom: 20,
   },
   logo: {
     width: 120,

@@ -13,6 +13,7 @@ const colors = {
 
   // Superfícies
   surface: '#ffffff',
+  muttedSurface: '#f2ebfcff',
   surfaceInput: '#f5f3ff',
 
   // Bordas

@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, TouchableOpacity, StyleSheet} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
+import Icon from '@expo/vector-icons/Ionicons';
 import {Colors} from '../theme/colors';
 
 interface NavItem {
@@ -35,7 +35,7 @@ export const BottomNavBar: React.FC<BottomNavBarProps> = ({
               style={styles.navItem}
               activeOpacity={0.7}>
               <Icon
-                name={isActive ? item.iconActive : item.icon}
+                name={(isActive ? item.iconActive : item.icon) as any}
                 size={24}
                 color={isActive ? Colors.navActive : Colors.navInactive}
               />
