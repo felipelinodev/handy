@@ -1,0 +1,42 @@
+# Ata de Reunião — Semana S08
+
+Data: 07/04/2026
+Horário: 15:00 – 17:30
+Local/Plataforma: Meet
+Grupo: Handy – Plataforma de Serviços
+
+## Participantes
+| Nome | Presente |
+|------|----------|
+| Guilherme Faleiros | ✅ |
+| Guilherme Antonio | ✅ |
+| Haristoneu Garcia | ✅ |
+| Melissa Martins | ✅ |
+| Luiz Felipe Silva | ✅ |
+
+## Pauta
+1. Refinamento das rotas e controllers do backend
+2. Configuração do ambiente de desenvolvimento mobile
+3. Revisão da integração entre front-end e API
+
+## Decisões Tomadas
+
+- Definida a estrutura final das rotas REST do backend
+- Configurado o ambiente mobile com Expo para todos os integrantes
+
+## Tarefas Definidas
+| Tarefa | Responsável | Prazo |
+|--------|------------|-------|
+| Finalizar rotas de autenticação (login/registro) | Guilherme Antonio | 14/04 |
+| Configurar Expo e testar em dispositivo físico | Guilherme Faleiros | 14/04 |
+| Criar rotas de serviços e prestadores | Felipe Lino | 14/04 |
+| Documentar endpoints da API | Luiz Felipe Silva | 14/04 |
+
+## Pendências Anteriores
+- [x] Continuação das telas do front-end definidas na S07
+- [x] Integração das telas com os endpoints do backend
+- [x] Testes de fluxo completo de cadastro e login
+
+## Observações
+
+Foi discutida a necessidade de manter o backend bem documentado para facilitar a integração com o front-end mobile. A equipe alinhou os padrões de comunicação entre as camadas da aplicação e reforçou a importância de testar os endpoints antes de integrá-los às telas.
