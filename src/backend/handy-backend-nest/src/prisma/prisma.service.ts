@@ -64,4 +64,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get breakpoints() {
     return this.client.breakpoints;
   }
+
+  get ticket() {
+    return this.client.ticket;
+  }
 }
