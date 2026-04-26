@@ -1,6 +1,6 @@
 import { LoginPayload, RegisterPayload, AuthResponse } from '../types/auth';
 
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.137.58:4001';
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://192.168.137.41:4001';
 
 export async function loginClient(payload: LoginPayload): Promise<AuthResponse> {
   const response = await fetch(`${BASE_URL}/client/login-client`, {
