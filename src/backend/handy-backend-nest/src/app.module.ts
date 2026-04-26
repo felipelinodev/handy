@@ -8,9 +8,10 @@ import { ContratationsModule } from './contratations/contratations.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { ServicesModule } from './services/services.module';
 import { BreakpointsModule } from './brakpoints/breakpoints.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
-  imports: [ClientModule, ProviderModule, PrismaModule, ContratationsModule, AnalysisModule, ServicesModule, BreakpointsModule],
+  imports: [ClientModule, ProviderModule, PrismaModule, ContratationsModule, AnalysisModule, ServicesModule, BreakpointsModule, ReviewModule],
   controllers: [AppController],
   providers: [AppService],
 })
