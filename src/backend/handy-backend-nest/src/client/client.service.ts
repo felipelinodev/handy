@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, ConflictException } from '@nestjs/common';
 import { ClientRepository } from './repository/client.repository';
 import { HashProvider } from 'common/security/security.module';
 
@@ -20,10 +20,16 @@ export class ClientService {
       hash_password: hashSenha, 
       ...rest}
     
-    const client = await this.clientRepository.createClient(clientData);
-    
-    console.log(client)
-    return { message: 'Cliente criado com sucesso.', data };
+    try {
+      const client = await this.clientRepository.createClient(clientData);
+      console.log(client)
+      return { message: 'Cliente criado com sucesso.', data };
+    } catch (error: any) {
+      if (error.code === 'P2002') {
+        throw new ConflictException('Este e-mail já está cadastrado.');
+      }
+      throw error;
+    }
   }
 
   async viewClientInfos(id: number){
