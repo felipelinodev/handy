@@ -8,9 +8,23 @@ import { ContratationsModule } from './contratations/contratations.module';
 import { AnalysisModule } from './analysis/analysis.module';
 import { ServicesModule } from './services/services.module';
 import { BreakpointsModule } from './brakpoints/breakpoints.module';
+import { SupportModule } from './support/support.module';
+import { MessagesModule } from './messages/messages.module';
+import { ConversationsModule } from './conversations/conversations.module';
 
 @Module({
-  imports: [ClientModule, ProviderModule, PrismaModule, ContratationsModule, AnalysisModule, ServicesModule, BreakpointsModule],
+  imports: [
+    ClientModule, 
+    ProviderModule, 
+    PrismaModule, 
+    ContratationsModule, 
+    AnalysisModule, 
+    ServicesModule, 
+    BreakpointsModule,
+    SupportModule,
+    MessagesModule,
+    ConversationsModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
