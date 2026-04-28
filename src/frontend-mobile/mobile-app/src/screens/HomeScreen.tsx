@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View, ImageBackground } from 'react-native';
+import { ScrollView, StyleSheet, ImageBackground } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -8,8 +8,8 @@ import { WelcomeSection } from '../components/WelcomeSection';
 import { ProfessionalCarousel } from '../components/ProfessionalCarousel';
 import { CategoryGrid } from '../components/CategoryGrid';
 import { BottomNavBar } from '../components/BottomNavBar';
+import { ConcludedContractChecker } from '../components/ConcludedContractChecker';
 import { professionals, categories } from '../data/mockData';
-import colors from '../utils/colors';
 
 export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
@@ -21,12 +21,10 @@ export const HomeScreen: React.FC = () => {
         const userDataString = await AsyncStorage.getItem('@auth_user');
         if (userDataString) {
           const userData = JSON.parse(userDataString);
-          if (userData && userData.nome) {
-            setUserName(userData.nome);
-          }
+          if (userData?.nome) setUserName(userData.nome);
         }
       } catch (error) {
-        console.error("Erro ao ler usuário logado", error);
+        console.error('Erro ao ler usuário logado', error);
       }
     }
     loadUser();
@@ -41,7 +39,8 @@ export const HomeScreen: React.FC = () => {
         style={[styles.scrollView, { paddingTop: insets.top }]}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
-        bounces={true}>
+        bounces={true}
+      >
         <Header />
         <WelcomeSection userName={userName} />
         <ProfessionalCarousel data={professionals} />
@@ -49,6 +48,9 @@ export const HomeScreen: React.FC = () => {
       </ScrollView>
 
       <BottomNavBar activeTab="home" />
+
+      {/* Verifica automaticamente contratos concluídos e exibe o modal de avaliação */}
+      <ConcludedContractChecker />
     </ImageBackground>
   );
 };

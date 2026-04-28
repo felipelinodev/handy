@@ -39,7 +39,7 @@ export default function WelcomeScreen() {
   const [fontsLoaded] = useFonts({ OpenSans_400Regular, OpenSans_700Bold });
   const [activeIndex, setActiveIndex] = useState(0);
 
-  if (!fontsLoaded) return null; //IMPEDE O SISTEMA DE CARREGAR TELAS SEM AS FONTES DESEJADAS
+  if (!fontsLoaded) return null;
 
   const onScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const slideSize = event.nativeEvent.layoutMeasurement.width;
@@ -65,7 +65,7 @@ export default function WelcomeScreen() {
         />
       </View>
 
-      {/* CARROSSEL DE IMAGENS FUNCIONAL */}
+      {/* CARROSSEL DE IMAGENS */}
       <View style={styles.carouselContainer}>
         <FlatList
           data={CAROUSEL_IMAGES}
