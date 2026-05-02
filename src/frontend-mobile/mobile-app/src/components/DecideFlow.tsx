@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Alert, Image } from 'react-native';
+import { View, Text, StyleSheet, ImageBackground, TouchableOpacity, Image } from 'react-native';
 
 import { useFonts } from 'expo-font';
 
@@ -49,7 +49,7 @@ export default function DecideFlow() {
 
                     <TouchableOpacity
                         style={styles.buttonSegundary}
-                        onPress={() => Alert.alert('Prestar Serviços')}
+                        onPress={() => router.push('/auth/provider-login' as any)}
                     >
                         <Text style={styles.buttonText}>Prestar Serviços</Text>
                     </TouchableOpacity>

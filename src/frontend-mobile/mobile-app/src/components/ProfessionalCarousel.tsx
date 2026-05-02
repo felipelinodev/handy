@@ -2,27 +2,39 @@ import React from 'react';
 import {
   View,
   Text,
-  Image,
   ScrollView,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
 } from 'react-native';
+import { Image } from 'expo-image';
 import Icon from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import colors from '../utils/colors';
-import {Professional} from '../data/mockData';
+import { ProfessionalListItem } from '../services/professionalService';
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.44;
+const PROFILE_PLACEHOLDER = require('../assets/fundo_neutro.png');
 
 interface ProfessionalCarouselProps {
-  data: Professional[];
+  data: ProfessionalListItem[];
 }
 
-const ProfessionalCard: React.FC<{item: Professional}> = ({item}) => {
+const ProfessionalCard: React.FC<{ item: ProfessionalListItem }> = ({ item }) => {
+  const router = useRouter();
   return (
-    <TouchableOpacity style={styles.card} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={styles.card}
+      activeOpacity={0.85}
+      onPress={() => router.push(`/professional/${item.id}` as any)}>
       <View style={styles.imageContainer}>
-        <Image source={item.image} style={styles.cardImage} resizeMode="cover" />
+        <Image
+          source={item.photoUrl ? { uri: item.photoUrl } : PROFILE_PLACEHOLDER}
+          style={styles.cardImage}
+          contentFit="cover"
+          transition={200}
+          cachePolicy="memory-disk"
+        />
         <View style={styles.ratingBadge}>
           <Icon name="star" size={12} color="#FFB800" />
           <Text style={styles.ratingText}>{item.rating}</Text>
@@ -80,16 +92,17 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginBottom: 14,
     alignItems: 'flex-start',
+
   },
   pill: {
-    backgroundColor: colors.buttonDark,
+    backgroundColor: colors.primary,
     paddingHorizontal: 18,
     paddingVertical: 8,
     borderRadius: 20,
   },
   pillText: {
     color: colors.textWhite,
-    fontSize: 13,
+    fontSize: 10,
     fontFamily: 'OpenSans_600SemiBold',
     letterSpacing: 0.2,
   },
@@ -104,7 +117,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     marginRight: 14,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: 4},
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
     elevation: 4,
@@ -164,15 +177,15 @@ const styles = StyleSheet.create({
     color: colors.primaryDark,
   },
   categoryTag: {
-    backgroundColor: colors.muttedSurface,
+    backgroundColor: "#CBC3F8",
     paddingHorizontal: 8,
     paddingVertical: 3,
-    borderRadius: 8,
+    borderRadius: 100,
     maxWidth: 90,
   },
   categoryTagText: {
     fontSize: 10,
     fontFamily: 'OpenSans_600SemiBold',
-    color: colors.primary,
+    color: colors.textDark,
   },
 });

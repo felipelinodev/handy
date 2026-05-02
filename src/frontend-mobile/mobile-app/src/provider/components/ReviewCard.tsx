@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../../utils/colors';
 
@@ -21,9 +22,12 @@ export default function ReviewCard({ review }: { review: any }) {
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.authorInfo}>
-          <Image 
-            source={review.authorAvatar ?? require('../../../../assets/favicon.png')} 
-            style={styles.avatar} 
+          <Image
+            source={review.authorAvatar ?? require('../../../../assets/favicon.png')}
+            style={styles.avatar}
+            contentFit="cover"
+            transition={200}
+            cachePolicy="memory-disk"
           />
           <Text style={styles.authorName}>{authorName}</Text>
         </View>

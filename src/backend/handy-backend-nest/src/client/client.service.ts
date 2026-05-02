@@ -26,7 +26,15 @@ export class ClientService {
       return { message: 'Cliente criado com sucesso.', data };
     } catch (error: any) {
       if (error.code === 'P2002') {
-        throw new ConflictException('Este e-mail já está cadastrado.');
+        const target = error.meta?.target;
+        const targetStr = Array.isArray(target) ? target.join(',') : String(target ?? '');
+        if (targetStr.includes('cpf')) {
+          throw new ConflictException({ message: 'Este CPF já está cadastrado.', field: 'cpf' });
+        }
+        if (targetStr.includes('email')) {
+          throw new ConflictException({ message: 'Este e-mail já está cadastrado.', field: 'email' });
+        }
+        throw new ConflictException({ message: 'Já existe um cadastro com esses dados.', field: null });
       }
       throw error;
     }

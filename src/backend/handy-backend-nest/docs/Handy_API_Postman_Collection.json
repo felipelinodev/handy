@@ -1,0 +1,1124 @@
+{
+  "info": {
+    "name": "Handy API (Completa)",
+    "description": "Documentação e Coleção Postman 100% completa para o Backend Handy (NestJS).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "seu_token_jwt_aqui",
+      "type": "string"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "item": [
+    {
+      "name": "1. Analysis",
+      "description": "Módulo de Analysis",
+      "item": [
+        {
+          "name": "List Contracted Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analysis/contracted-services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analysis",
+                "contracted-services"
+              ]
+            },
+            "description": "Retorna a listagem/relatório de serviços contratados do prestador/sistema."
+          }
+        },
+        {
+          "name": "Revenue Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analysis/revenue-services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analysis",
+                "revenue-services"
+              ]
+            },
+            "description": "Obter dados sobre faturamento e receita financeira."
+          }
+        },
+        {
+          "name": "Get Performance",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analysis/get-performance",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analysis",
+                "get-performance"
+              ]
+            },
+            "description": "Extrai as métricas de desempenho."
+          }
+        },
+        {
+          "name": "List Service Provider Clients",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/analysis/list-service-provider-clients",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "analysis",
+                "list-service-provider-clients"
+              ]
+            },
+            "description": "Lista todos os clientes que um determinado prestador atendeu."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Breakpoints",
+      "description": "Módulo de Breakpoints",
+      "item": [
+        {
+          "name": "Create New Breakpoint",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prestador_id\": 1,\n  \"cliente_id\": 2,\n  \"mensagem_id\": 3,\n  \"titulo\": \"Revisão do código em andamento\",\n  \"descricao\": \"Descrição detalhada do breakpoint\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/breakpoints/create-new-breakpoints",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "breakpoints",
+                "create-new-breakpoints"
+              ]
+            },
+            "description": "Cria um novo breakpoint (marco temporal/aviso atrelado a mensagens)."
+          }
+        },
+        {
+          "name": "View Breakpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/breakpoints/view-breakpoints/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "breakpoints",
+                "view-breakpoints",
+                "1"
+              ]
+            },
+            "description": "Detalhe de um breakpoint pelo ID."
+          }
+        },
+        {
+          "name": "Edit Breakpoint",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Novo título revisado\",\n  \"descricao\": \"Nova descrição opcional\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/breakpoints/edit-a-breakpoint/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "breakpoints",
+                "edit-a-breakpoint",
+                "1"
+              ]
+            },
+            "description": "Edita um breakpoint parcialmente."
+          }
+        },
+        {
+          "name": "Delete Breakpoint",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/breakpoints/delete-a-breakpoint/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "breakpoints",
+                "delete-a-breakpoint",
+                "1"
+              ]
+            },
+            "description": "Deleta um breakpoint pelo ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Category",
+      "description": "Módulo de Category",
+      "item": [
+        {
+          "name": "Register Category",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome_categoria\": \"Manutenção\",\n  \"rank_categoria\": 0\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/category/register-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                "register-category"
+              ]
+            },
+            "description": "Cadastra uma nova categoria de serviço."
+          }
+        },
+        {
+          "name": "View Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/category/view-category/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                "view-category",
+                "1"
+              ]
+            },
+            "description": "Detalhe de uma categoria pelo ID."
+          }
+        },
+        {
+          "name": "View All Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/category/view-all-category",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                "view-all-category"
+              ]
+            },
+            "description": "Lista global de categorias."
+          }
+        },
+        {
+          "name": "Remove Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/category/remove-category/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "category",
+                "remove-category",
+                "1"
+              ]
+            },
+            "description": "Remove uma categoria pelo ID."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Client",
+      "description": "Módulo de Client",
+      "item": [
+        {
+          "name": "Create Client Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"João Silva\",\n  \"email\": \"joao@example.com\",\n  \"senha\": \"password123\",\n  \"cpf\": \"12345678901\",\n  \"tipo_usuario\": \"cliente\",\n  \"endereco\": \"Rua Exemplo\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client/create-client-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "create-client-account"
+              ]
+            },
+            "description": "Registra um usuário na base e também na tabela de clientes."
+          }
+        },
+        {
+          "name": "Login Client",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"joao@example.com\",\n  \"senha\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client/login-client",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "login-client"
+              ]
+            },
+            "description": "Autentica um cliente."
+          }
+        },
+        {
+          "name": "View Client",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/client/view-client/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "view-client",
+                "1"
+              ]
+            },
+            "description": "Visualiza dados do cliente pelo ID."
+          }
+        },
+        {
+          "name": "Update Client",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"endereco\": \"Rua Nova Exemplo, 123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/client/update-client/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "update-client",
+                "1"
+              ]
+            },
+            "description": "Atualiza parcialmente os dados do cliente."
+          }
+        },
+        {
+          "name": "Delete Client",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "admin-key",
+                "value": "sua-chave-admin-aqui",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/client/delete-a-client/joao@example.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "client",
+                "delete-a-client",
+                "joao@example.com"
+              ]
+            },
+            "description": "Deleta um cliente pelo e-mail (necessita header admin-key)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Contratations",
+      "description": "Módulo de Contratations",
+      "item": [
+        {
+          "name": "Create Contratation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cliente_id\": 1,\n  \"prestador_id\": 2,\n  \"servico_id\": 10,\n  \"titulo\": \"Criação de APP Web\",\n  \"detalhes\": \"Desenvolvimento de SPA em React\",\n  \"endereco\": \"Rua Online\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contratations/create-a-contratation",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratations",
+                "create-a-contratation"
+              ]
+            },
+            "description": "Cria uma nova solicitação de contratação."
+          }
+        },
+        {
+          "name": "View Contract",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contratations/view-a-contract/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratations",
+                "view-a-contract",
+                "1"
+              ]
+            },
+            "description": "Visualiza o status da contratação."
+          }
+        },
+        {
+          "name": "View All Contracts",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contratations/view-all-contracts",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratations",
+                "view-all-contracts"
+              ]
+            },
+            "description": "Traz todas as contratações."
+          }
+        },
+        {
+          "name": "Update Contratation",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Concluído\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/contratations/update/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratations",
+                "update",
+                "1"
+              ]
+            },
+            "description": "Modifica o status, conclusão ou vencimento de uma contratação."
+          }
+        },
+        {
+          "name": "Cancel Contratation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/contratations/cancel-a-contratation/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "contratations",
+                "cancel-a-contratation",
+                "1"
+              ]
+            },
+            "description": "Cancela e deleta uma contratação."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Conversations",
+      "description": "Módulo de Conversations",
+      "item": [
+        {
+          "name": "Create New Chat",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"contratacao_id\": 16,\n  \"cliente_id\": 1,\n  \"prestador_id\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/create-new-chat",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "conversations",
+                "create-new-chat"
+              ]
+            },
+            "description": "Cria um novo chat para uma contratação."
+          }
+        },
+        {
+          "name": "View Chat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/conversations/view-chat/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "conversations",
+                "view-chat",
+                "1"
+              ]
+            },
+            "description": "Detalhes de um chat e suas mensagens."
+          }
+        },
+        {
+          "name": "Add Status to Chat",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Fechada\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/add-status-a-chat/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "conversations",
+                "add-status-a-chat",
+                "1"
+              ]
+            },
+            "description": "Altera o status de um chat."
+          }
+        },
+        {
+          "name": "Update Chat",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/conversations/update-chat/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "conversations",
+                "update-chat",
+                "1"
+              ]
+            },
+            "description": "Atualizações genéricas em um chat."
+          }
+        },
+        {
+          "name": "Delete Chat",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/conversations/delete-chat/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "conversations",
+                "delete-chat",
+                "1"
+              ]
+            },
+            "description": "Deleta o chat inteiro."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Messages",
+      "description": "Módulo de Messages",
+      "item": [
+        {
+          "name": "Create New Message",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"conversa_id\": 1,\n  \"remetente_id\": 2,\n  \"conteudo\": \"Olá, aceita minha proposta?\",\n  \"remetente_tipo\": \"prestador\",\n  \"anexo_url\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/messages/create-new-menssage",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "messages",
+                "create-new-menssage"
+              ]
+            },
+            "description": "Envia uma mensagem na conversa."
+          }
+        },
+        {
+          "name": "View Messages by Chat",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/messages/view-menssages/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "messages",
+                "view-menssages",
+                "1"
+              ]
+            },
+            "description": "Traz as mensagens ligadas pelo conversa_id."
+          }
+        },
+        {
+          "name": "View All Messages",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/messages/view-all-menssages",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "messages",
+                "view-all-menssages"
+              ]
+            },
+            "description": "Traz todas as mensagens do sistema."
+          }
+        },
+        {
+          "name": "Delete a Message",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/messages/delete-a-menssage/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "messages",
+                "delete-a-menssage",
+                "1"
+              ]
+            },
+            "description": "Deleta uma mensagem específica."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Provider",
+      "description": "Módulo de Provider",
+      "item": [
+        {
+          "name": "Create Provider Account",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Empresa X\",\n  \"email\": \"contato@x.com\",\n  \"senha\": \"password321\",\n  \"cpf\": \"99988877711\",\n  \"tipo_usuario\": \"prestador\",\n  \"descricao\": \"Especialista em manutenção\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/provider/create-service-provider-account",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "create-service-provider-account"
+              ]
+            },
+            "description": "Cria a conta do prestador de serviços."
+          }
+        },
+        {
+          "name": "Login Provider",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"contato@x.com\",\n  \"senha\": \"password321\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/provider/login-service-provider",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "login-service-provider"
+              ]
+            },
+            "description": "Autenticação do prestador."
+          }
+        },
+        {
+          "name": "View Provider",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/provider/view-service-provider/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "view-service-provider",
+                "1"
+              ]
+            },
+            "description": "Detalhes de um prestador pelo ID."
+          }
+        },
+        {
+          "name": "Update Provider",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descricao\": \"Nova descrição do prestador\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/provider/update-service-provider/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "update-service-provider",
+                "1"
+              ]
+            },
+            "description": "Atualiza parcialmente um prestador."
+          }
+        },
+        {
+          "name": "Delete Provider",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/provider/delete-a-service-provider/contato@x.com",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "provider",
+                "delete-a-service-provider",
+                "contato@x.com"
+              ]
+            },
+            "description": "Deleta um prestador de serviços pelo e-mail."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Services",
+      "description": "Módulo de Services",
+      "item": [
+        {
+          "name": "Create New Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"prestador_id\": 2,\n  \"categoria_id\": 1,\n  \"nome_servico\": \"Pintura Externa\",\n  \"descricao\": \"Pintura com até duas demãos.\",\n  \"preco\": 150.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services/create-new-service",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                "create-new-service"
+              ]
+            },
+            "description": "Criação de um novo serviço para um prestador."
+          }
+        },
+        {
+          "name": "List All Services",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/list-all-services",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                "list-all-services"
+              ]
+            },
+            "description": "Lista todos os serviços."
+          }
+        },
+        {
+          "name": "List A Service",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/list-a-service/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                "list-a-service",
+                "1"
+              ]
+            },
+            "description": "Lista um serviço específico."
+          }
+        },
+        {
+          "name": "Edit A Service",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"preco\": 180.00\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/services/edit-a-service/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                "edit-a-service",
+                "1"
+              ]
+            },
+            "description": "Edita as informações de um serviço."
+          }
+        },
+        {
+          "name": "Delete A Service",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/services/delete-a-service/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "services",
+                "delete-a-service",
+                "1"
+              ]
+            },
+            "description": "Deleta um serviço específico."
+          }
+        }
+      ]
+    },
+    {
+      "name": "10. Support",
+      "description": "Módulo de Support",
+      "item": [
+        {
+          "name": "Create New Ticket",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titulo\": \"Erro ao tentar agendar\",\n  \"descricao\": \"O botão fica travado após aceitar...\",\n  \"categoria\": \"Bug Sistema\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/support/create-new-ticket/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "create-new-ticket",
+                "1"
+              ]
+            },
+            "description": "Cria um novo ticket de suporte."
+          }
+        },
+        {
+          "name": "View Tickets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/support/view-tickets/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "view-tickets",
+                "1"
+              ]
+            },
+            "description": "Visualiza tickets de um usuário."
+          }
+        },
+        {
+          "name": "View A Ticket",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/support/view-a-ticket/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "view-a-ticket",
+                "1"
+              ]
+            },
+            "description": "Visualiza um ticket de suporte específico."
+          }
+        },
+        {
+          "name": "Update Ticket",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Fechado\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/support/update-ticket/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "update-ticket",
+                "1"
+              ]
+            },
+            "description": "Atualiza um ticket (ex: status)."
+          }
+        },
+        {
+          "name": "Delete A Ticket",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/support/delete-a-ticket/1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "support",
+                "delete-a-ticket",
+                "1"
+              ]
+            },
+            "description": "Deleta um ticket de suporte."
+          }
+        }
+      ]
+    }
+  ]
+}

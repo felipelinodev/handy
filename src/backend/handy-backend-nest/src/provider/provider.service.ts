@@ -33,6 +33,14 @@ export class ProviderService {
         return this.providerRepository.searchProvider('user_id', id)
     }
 
+    async listServiceProviders(page: number = 1) {
+        return this.providerRepository.listAllProviders(page);
+    }
+
+    async listEspecialidades() {
+        return this.providerRepository.listEspecialidades();
+    }
+
     async updateServiceProvider(id: number, data: any) {
         const provider = await this.searchServiceProviderById(id);
         if (!provider) {

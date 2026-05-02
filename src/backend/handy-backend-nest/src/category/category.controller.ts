@@ -42,6 +42,11 @@ export class CategoryController {
     return await this.categoryService.viewAllCategories();
   }
 
+  @Get('public/list')
+  async listPublicCategories() {
+    return await this.categoryService.viewAllCategories();
+  }
+
   @Delete('remove-category/:id')
   async removeCategory(
     @Param('id', ParseIntPipe) id: number,

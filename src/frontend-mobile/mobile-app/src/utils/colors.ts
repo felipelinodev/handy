@@ -1,7 +1,7 @@
 // Paleta de cores centralizada do projeto Handy
 const colors = {
   // Primárias
-  primary: '#6366f1',
+  primary: '#5B67ED',
   primaryDark: '#4f46e5',
   primaryLight: '#a5b4fc',
 

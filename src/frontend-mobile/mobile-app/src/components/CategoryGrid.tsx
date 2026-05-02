@@ -59,7 +59,7 @@ const styles = StyleSheet.create({
   item: {
     width: ITEM_SIZE,
     aspectRatio: 1,
-    backgroundColor: '#FAF5FF',
+    backgroundColor: '#E6DCF8',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   itemLabel: {
     fontSize: 10,
     fontFamily: 'OpenSans_600SemiBold',
-    color: colors.textMuted,
+    color: colors.textDark,
     textAlign: 'center',
     lineHeight: 13,
   },

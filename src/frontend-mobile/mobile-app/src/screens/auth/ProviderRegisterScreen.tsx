@@ -12,26 +12,39 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import Logo from '../../components/common/Logo';
 import InputField from '../../components/auth/InputField';
 import AuthButton from '../../components/auth/AuthButton';
 import colors from '../../utils/colors';
-import { isValidEmail } from '../../utils/validation';
-import { loginClient } from '../../services/authService';
+import { isValidEmail, isValidCpf } from '../../utils/validation';
+import { loginProvider, registerProvider } from '../../services/authService';
 
-export default function LoginScreen() {
+export default function ProviderRegisterScreen() {
   const router = useRouter();
 
+  const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
+  const [cpf, setCpf] = useState('');
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const [nomeError, setNomeError] = useState('');
   const [emailError, setEmailError] = useState('');
+  const [cpfError, setCpfError] = useState('');
   const [senhaError, setSenhaError] = useState('');
 
   function validate(): boolean {
     let valid = true;
+
+    if (!nome.trim()) {
+      setNomeError('O nome é obrigatório.');
+      valid = false;
+    } else {
+      setNomeError('');
+    }
 
     if (!email.trim()) {
       setEmailError('O e-mail é obrigatório.');
@@ -41,6 +54,19 @@ export default function LoginScreen() {
       valid = false;
     } else {
       setEmailError('');
+    }
+
+    if (!cpf) {
+      setCpfError('O CPF é obrigatório.');
+      valid = false;
+    } else if (cpf.replace(/\D/g, '').length < 11) {
+      setCpfError('Digite o CPF completo.');
+      valid = false;
+    } else if (!isValidCpf(cpf)) {
+      setCpfError('CPF inválido.');
+      valid = false;
+    } else {
+      setCpfError('');
     }
 
     if (!senha) {
@@ -56,29 +82,56 @@ export default function LoginScreen() {
     return valid;
   }
 
-  async function handleLogin() {
+  function applyBackendError(field: string | null | undefined, message: string) {
+    const setters: Record<string, (msg: string) => void> = {
+      nome: setNomeError,
+      email: setEmailError,
+      cpf: setCpfError,
+      senha: setSenhaError,
+    };
+    const setter = field ? setters[field] : undefined;
+    if (setter) {
+      setter(message);
+    } else {
+      Alert.alert('Erro ao criar conta', message);
+    }
+  }
+
+  async function handleRegister() {
     if (!validate()) return;
 
     setLoading(true);
     try {
-      const response = await loginClient({ email: email.trim(), senha });
+      await registerProvider({
+        nome: nome.trim(),
+        email: email.trim(),
+        cpf: cpf.replace(/\D/g, ''),
+        senha,
+      });
 
-      await AsyncStorage.setItem('@auth_token', response.accessToken);
-      await AsyncStorage.setItem('@auth_user', JSON.stringify(response.user));
-
-      Alert.alert('Sucesso!', `Bem-vindo(a), ${response.user.nome}!`);
-      router.replace('/home' as any);
+      Alert.alert(
+        'Sucesso',
+        'Conta de prestador criada.',
+        [
+          {
+            text: 'Entrar',
+            onPress: async () => {
+              try {
+                const session = await loginProvider({ email: email.trim(), senha });
+                await AsyncStorage.setItem('@auth_token', session.accessToken);
+                await AsyncStorage.setItem('@auth_user', JSON.stringify(session.user));
+                router.replace(`/professional/${session.user.user_id}` as any);
+              } catch (loginErr: any) {
+                Alert.alert('Erro ao entrar', loginErr?.message ?? 'Faça login manualmente.', [
+                  { text: 'OK', onPress: () => router.replace('/auth/provider-login' as any) },
+                ]);
+              }
+            },
+          },
+        ]
+      );
     } catch (error: any) {
-      const setters: Record<string, (msg: string) => void> = {
-        email: setEmailError,
-        senha: setSenhaError,
-      };
-      const setter = error?.field ? setters[error.field] : undefined;
-      if (setter) {
-        setter(error.message);
-      } else {
-        Alert.alert('Erro ao entrar', error?.message ?? 'Tente novamente.');
-      }
+      applyBackendError(error?.field, error?.message ?? 'Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -105,7 +158,19 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.card}>
-              <Text style={styles.title}>Entrar</Text>
+              <Text style={styles.subtitle}>Área do Prestador</Text>
+              <Text style={styles.title}>Criar Conta</Text>
+
+              <InputField
+                placeholder="Nome completo"
+                value={nome}
+                onChangeText={(text) => {
+                  setNome(text);
+                  if (nomeError) setNomeError('');
+                }}
+                autoCapitalize="words"
+                errorMessage={nomeError}
+              />
 
               <InputField
                 placeholder="E-mail"
@@ -116,6 +181,17 @@ export default function LoginScreen() {
                 }}
                 keyboardType="email-address"
                 errorMessage={emailError}
+              />
+
+              <InputField
+                placeholder="CPF (00000000000)"
+                value={cpf}
+                onChangeText={(text) => {
+                  setCpf(text.replace(/\D/g, '').slice(0, 11));
+                  if (cpfError) setCpfError('');
+                }}
+                keyboardType="numeric"
+                errorMessage={cpfError}
               />
 
               <InputField
@@ -130,27 +206,18 @@ export default function LoginScreen() {
               />
 
               <AuthButton
-                label="Entrar"
-                onPress={handleLogin}
+                label="Criar conta de prestador"
+                onPress={handleRegister}
                 loading={loading}
               />
 
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Não tem uma conta? </Text>
-                <TouchableOpacity
-                  onPress={() => router.push('/auth/register' as any)}
-                  activeOpacity={0.7}
-                >
-                  <Text style={styles.footerLink}>Crie sua conta.</Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={styles.footer}>
+                <Text style={styles.footerText}>Já tem uma conta? </Text>
                 <TouchableOpacity
                   onPress={() => router.replace('/auth/provider-login' as any)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.altLink}>Sou prestador</Text>
+                  <Text style={styles.footerLink}>Entrar.</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -186,12 +253,20 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 20,
   },
+  subtitle: {
+    fontSize: 12,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.primary,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     marginBottom: 20,
-    paddingVertical: 20
+    paddingVertical: 12,
   },
   footer: {
     flexDirection: 'row',
@@ -208,10 +283,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textLink,
     fontFamily: 'OpenSans_700Bold',
-  },
-  altLink: {
-    fontSize: 13,
-    color: colors.primary,
-    fontFamily: 'OpenSans_600SemiBold',
   },
 });

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Query, UseGuards, Patch, NotFoundException } from '@nestjs/common';
 import { ProviderService } from './provider.service';
 import { providerSchema } from './schemas/provider.schema';
 import { z } from "zod";
@@ -27,6 +27,25 @@ export class ProviderController {
 
         try {
             return await this.providerService.createServiceProvider(result.data as any);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    @Get('list-service-providers')
+    async listServiceProviders(@Query('page') page?: string) {
+        const pageNumber = page ? parseInt(page, 10) : 1;
+        try {
+            return await this.providerService.listServiceProviders(pageNumber);
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    @Get('especialidades')
+    async listEspecialidades() {
+        try {
+            return await this.providerService.listEspecialidades();
         } catch (error) {
             throw new InternalServerErrorException(error);
         }

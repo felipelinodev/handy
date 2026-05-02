@@ -1,12 +1,12 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import colors from '../utils/colors';
 
 interface WelcomeSectionProps {
   userName: string;
 }
 
-export const WelcomeSection: React.FC<WelcomeSectionProps> = ({userName}) => {
+export const WelcomeSection: React.FC<WelcomeSectionProps> = ({ userName }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.greeting}>Olá, {userName}!</Text>
@@ -22,15 +22,16 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
   },
   greeting: {
-    fontSize: 28,
+    fontSize: 24,
     fontFamily: 'OpenSans_700Bold',
-    color: colors.textDark,
+    color: colors.primary,
     marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 24,
     fontFamily: 'OpenSans_400Regular',
-    color: colors.textMuted,
-    lineHeight: 22,
+    color: colors.textDark,
+    lineHeight: 28,
+    width: 250
   },
 });

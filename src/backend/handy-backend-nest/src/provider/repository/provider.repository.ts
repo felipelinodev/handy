@@ -58,14 +58,19 @@ export class ProviderRepository {
     async listAllProviders(page: number = 1) {
         return await this.prisma.usuario.findMany({
             where: {
-                tipo_usuario: 'PRESTADOR' 
+                tipo_usuario: { in: ['prestador', 'PRESTADOR'] }
             },
             take: 100,
             skip: (page - 1) * 100,
             include: {
                 prestador: {
                     include: {
-                        servicos: true
+                        servicos: {
+                            include: { categoria: true }
+                        },
+                        prestador_especialidade: {
+                            include: { especialidade: true }
+                        }
                     }
                 }
             }
@@ -73,7 +78,19 @@ export class ProviderRepository {
     }
 
     async updateProvider(id: number, data: UpdatePrestadorInput) {
-        const { media_avaliacao, total_clientes, ...userData } = data;
+        const { media_avaliacao, total_clientes, especialidades, ...userData } = data as any;
+
+        if (Array.isArray(especialidades)) {
+            await this.prisma.prestador_especialidade.deleteMany({ where: { prestador_id: id } });
+            if (especialidades.length > 0) {
+                await this.prisma.prestador_especialidade.createMany({
+                    data: especialidades.map((especialidade_id: number) => ({
+                        prestador_id: id,
+                        especialidade_id,
+                    })),
+                });
+            }
+        }
 
         return await this.prisma.usuario.update({
             where: { user_id: id },
@@ -87,8 +104,20 @@ export class ProviderRepository {
                 }
             },
             include: {
-                prestador: true
+                prestador: {
+                    include: {
+                        prestador_especialidade: {
+                            include: { especialidade: true }
+                        }
+                    }
+                }
             }
+        });
+    }
+
+    async listEspecialidades() {
+        return this.prisma.especialidade.findMany({
+            orderBy: { nome_especialidade: 'asc' },
         });
     }
 

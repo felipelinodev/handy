@@ -24,16 +24,12 @@ export class ClientController {
 
     if(!result.success){
         const flattened  = z.flattenError(result.error).fieldErrors
-        const sliceErro = Object.values(flattened)[0][0]
-        throw new BadRequestException(sliceErro)
+        const field = Object.keys(flattened)[0] ?? null
+        const message = (Object.values(flattened)[0] as string[] | undefined)?.[0] ?? 'Dados inválidos.'
+        throw new BadRequestException({ message, field })
     }
 
-    try {
-      return this.clientService.createClient(result.data);
-    } catch (error) {
-      throw new InternalServerErrorException(error)
-    }
-    
+    return this.clientService.createClient(result.data);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -60,8 +56,9 @@ export class ClientController {
 
     if(!result.success){
        const flattened  = z.flattenError(result.error).fieldErrors
-       const sliceErro = Object.values(flattened)[0][0]
-       throw new BadRequestException(sliceErro)
+       const field = Object.keys(flattened)[0] ?? null
+       const message = (Object.values(flattened)[0] as string[] | undefined)?.[0] ?? 'Dados inválidos.'
+       throw new BadRequestException({ message, field })
     }
 
     try {

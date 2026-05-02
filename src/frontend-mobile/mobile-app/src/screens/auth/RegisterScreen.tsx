@@ -10,6 +10,7 @@ import {
   Alert,
   ImageBackground,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
 import Logo from '../../components/common/Logo';
@@ -79,6 +80,21 @@ export default function RegisterScreen() {
     return valid;
   }
 
+  function applyBackendError(field: string | null | undefined, message: string) {
+    const setters: Record<string, (msg: string) => void> = {
+      nome: setNomeError,
+      email: setEmailError,
+      cpf: setCpfError,
+      senha: setSenhaError,
+    };
+    const setter = field ? setters[field] : undefined;
+    if (setter) {
+      setter(message);
+    } else {
+      Alert.alert('Erro ao criar conta', message);
+    }
+  }
+
   async function handleRegister() {
     if (!validate()) return;
 
@@ -97,7 +113,7 @@ export default function RegisterScreen() {
         [{ text: 'Entrar', onPress: () => router.replace({ pathname: '/auth/login' } as any) }]
       );
     } catch (error: any) {
-      Alert.alert('Erro ao criar conta', error.message ?? 'Tente novamente.');
+      applyBackendError(error?.field, error?.message ?? 'Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -105,79 +121,91 @@ export default function RegisterScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_principal.png')}
+      source={require('../../assets/fundo_neutro.png')}
       style={styles.background}
     >
-      <View style={styles.logoContainer}>
-        <Logo />
-      </View>
+      <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>
+        <View style={styles.logoContainer}>
+          <Logo />
+        </View>
 
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
+        <KeyboardAvoidingView
+          style={styles.flex}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 24 : 0}
         >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
 
-          <View style={styles.card}>
-            <Text style={styles.title}>Criar Conta</Text>
+            <View style={styles.card}>
+              <Text style={styles.title}>Criar Conta</Text>
 
-            <InputField
-              placeholder="Nome completo"
-              value={nome}
-              onChangeText={setNome}
-              autoCapitalize="words"
-              errorMessage={nomeError}
-            />
+              <InputField
+                placeholder="Nome completo"
+                value={nome}
+                onChangeText={(text) => {
+                  setNome(text);
+                  if (nomeError) setNomeError('');
+                }}
+                autoCapitalize="words"
+                errorMessage={nomeError}
+              />
 
-            <InputField
-              placeholder="E-mail"
-              value={email}
-              onChangeText={setEmail}
-              keyboardType="email-address"
-              errorMessage={emailError}
-            />
+              <InputField
+                placeholder="E-mail"
+                value={email}
+                onChangeText={(text) => {
+                  setEmail(text);
+                  if (emailError) setEmailError('');
+                }}
+                keyboardType="email-address"
+                errorMessage={emailError}
+              />
 
-            <InputField
-              placeholder="CPF (00000000000)"
-              value={cpf}
-              onChangeText={(text) => {
-                setCpf(text.replace(/\D/g, '').slice(0, 11));
-                setCpfError('');
-              }}
-              keyboardType="numeric"
-              errorMessage={cpfError}
-            />
+              <InputField
+                placeholder="CPF (00000000000)"
+                value={cpf}
+                onChangeText={(text) => {
+                  setCpf(text.replace(/\D/g, '').slice(0, 11));
+                  if (cpfError) setCpfError('');
+                }}
+                keyboardType="numeric"
+                errorMessage={cpfError}
+              />
 
-            <InputField
-              placeholder="Senha"
-              value={senha}
-              onChangeText={setSenha}
-              isPassword
-              errorMessage={senhaError}
-            />
+              <InputField
+                placeholder="Senha"
+                value={senha}
+                onChangeText={(text) => {
+                  setSenha(text);
+                  if (senhaError) setSenhaError('');
+                }}
+                isPassword
+                errorMessage={senhaError}
+              />
 
-            <AuthButton
-              label="Criar conta"
-              onPress={handleRegister}
-              loading={loading}
-            />
+              <AuthButton
+                label="Criar conta"
+                onPress={handleRegister}
+                loading={loading}
+              />
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Já tem uma conta? </Text>
-              <TouchableOpacity
-                onPress={() => router.replace({ pathname: '/auth/login' })}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.footerLink}>Entrar.</Text>
-              </TouchableOpacity>
+              <View style={styles.footer}>
+                <Text style={styles.footerText}>Já tem uma conta? </Text>
+                <TouchableOpacity
+                  onPress={() => router.replace({ pathname: '/auth/login' })}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.footerLink}>Entrar.</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </ImageBackground>
   );
 }
@@ -189,13 +217,14 @@ const styles = StyleSheet.create({
   },
   logoContainer: {
     alignItems: 'flex-start',
-    paddingTop: 32,
+    paddingTop: 16,
     paddingHorizontal: 24,
-    marginBottom: 20,
+    marginBottom: 12,
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: 24,
+    paddingTop: 24,
     paddingBottom: 40,
     justifyContent: 'center',
   },
@@ -205,15 +234,13 @@ const styles = StyleSheet.create({
     padding: 24,
     shadowOpacity: 0.12,
     shadowRadius: 20,
-    fontFamily: 'OpenSans_400Regular',
-    fontSize: 24
   },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     marginBottom: 20,
-    paddingVertical: 20
+    paddingVertical: 20,
   },
   footer: {
     flexDirection: 'row',

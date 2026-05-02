@@ -19,9 +19,9 @@ import InputField from '../../components/auth/InputField';
 import AuthButton from '../../components/auth/AuthButton';
 import colors from '../../utils/colors';
 import { isValidEmail } from '../../utils/validation';
-import { loginClient } from '../../services/authService';
+import { loginProvider } from '../../services/authService';
 
-export default function LoginScreen() {
+export default function ProviderLoginScreen() {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -61,13 +61,13 @@ export default function LoginScreen() {
 
     setLoading(true);
     try {
-      const response = await loginClient({ email: email.trim(), senha });
+      const response = await loginProvider({ email: email.trim(), senha });
 
       await AsyncStorage.setItem('@auth_token', response.accessToken);
       await AsyncStorage.setItem('@auth_user', JSON.stringify(response.user));
 
       Alert.alert('Sucesso!', `Bem-vindo(a), ${response.user.nome}!`);
-      router.replace('/home' as any);
+      router.replace(`/professional/${response.user.user_id}` as any);
     } catch (error: any) {
       const setters: Record<string, (msg: string) => void> = {
         email: setEmailError,
@@ -105,6 +105,7 @@ export default function LoginScreen() {
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.card}>
+              <Text style={styles.subtitle}>Área do Prestador</Text>
               <Text style={styles.title}>Entrar</Text>
 
               <InputField
@@ -130,27 +131,27 @@ export default function LoginScreen() {
               />
 
               <AuthButton
-                label="Entrar"
+                label="Entrar como Prestador"
                 onPress={handleLogin}
                 loading={loading}
               />
 
               <View style={styles.footer}>
-                <Text style={styles.footerText}>Não tem uma conta? </Text>
+                <Text style={styles.footerText}>Ainda não é prestador? </Text>
                 <TouchableOpacity
-                  onPress={() => router.push('/auth/register' as any)}
+                  onPress={() => router.push('/auth/provider-register' as any)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.footerLink}>Crie sua conta.</Text>
+                  <Text style={styles.footerLink}>Cadastre-se.</Text>
                 </TouchableOpacity>
               </View>
 
               <View style={styles.footer}>
                 <TouchableOpacity
-                  onPress={() => router.replace('/auth/provider-login' as any)}
+                  onPress={() => router.replace('/auth/login' as any)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.altLink}>Sou prestador</Text>
+                  <Text style={styles.altLink}>Sou cliente</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -186,18 +187,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 20,
   },
+  subtitle: {
+    fontSize: 12,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.primary,
+    letterSpacing: 1,
+    textTransform: 'uppercase',
+    marginBottom: 4,
+  },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     marginBottom: 20,
-    paddingVertical: 20
+    paddingVertical: 12,
   },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 20,
+    marginTop: 16,
   },
   footerText: {
     fontSize: 14,

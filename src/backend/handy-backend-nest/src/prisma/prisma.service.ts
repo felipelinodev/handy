@@ -68,4 +68,12 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get ticket() {
     return this.client.ticket;
   }
+
+  get especialidade() {
+    return this.client.especialidade;
+  }
+
+  get prestador_especialidade() {
+    return this.client.prestador_especialidade;
+  }
 }

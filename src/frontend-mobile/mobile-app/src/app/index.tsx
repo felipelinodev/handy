@@ -26,12 +26,12 @@ const CAROUSEL_WIDTH = SCREEN_WIDTH * 0.82;
 const CAROUSEL_HEIGHT = CAROUSEL_WIDTH * 0.58;
 
 const CAROUSEL_IMAGES = [
-  require('../assets/people1.png'),
-  require('../assets/people2.png'),
-  require('../assets/people3.png'),
-  require('../assets/people4.png'),
-  require('../assets/people5.png'),
-  require('../assets/people6.png'),
+  require('../assets/people1.jpg'),
+  require('../assets/people2.jpg'),
+  require('../assets/people3.jpg'),
+  require('../assets/people4.jpg'),
+  require('../assets/people5.jpg'),
+  require('../assets/people6.jpg'),
 ];
 
 export default function WelcomeScreen() {
@@ -117,10 +117,14 @@ export default function WelcomeScreen() {
             <Text style={styles.buttonText}>Entrar</Text>
           </TouchableOpacity>
 
-          <Text style={styles.footerText}>
-            Não tem uma conta?{' '}
-            <Text style={styles.footerLink}>Crie sua conta.</Text>
-          </Text>
+          <View style={styles.footerContainer}>
+            <Text style={styles.footerText}>Não tem uma conta? </Text>
+            <TouchableOpacity
+              onPress={() => router.push('/auth/register' as any)}
+              activeOpacity={0.7}>
+              <Text style={styles.footerLink}>Crie sua conta.</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </ImageBackground>
@@ -211,12 +215,17 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_700Bold',
     color: '#fff',
   },
+  footerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
   footerText: {
     fontSize: 14,
     fontFamily: 'OpenSans_400Regular',
     color: '#121341',
   },
   footerLink: {
+    fontSize: 14,
     fontFamily: 'OpenSans_700Bold',
     color: '#121341',
     textDecorationLine: 'underline',

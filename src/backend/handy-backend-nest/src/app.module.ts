@@ -11,19 +11,21 @@ import { BreakpointsModule } from './brakpoints/breakpoints.module';
 import { SupportModule } from './support/support.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
-    ClientModule, 
-    ProviderModule, 
-    PrismaModule, 
-    ContratationsModule, 
-    AnalysisModule, 
-    ServicesModule, 
+    ClientModule,
+    ProviderModule,
+    PrismaModule,
+    ContratationsModule,
+    AnalysisModule,
+    ServicesModule,
     BreakpointsModule,
     SupportModule,
     MessagesModule,
-    ConversationsModule
+    ConversationsModule,
+    CategoryModule
   ],
   controllers: [AppController],
   providers: [AppService],

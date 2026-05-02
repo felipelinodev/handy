@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '../../utils/colors';
+import { HandyIcon } from '../../components/HandyIcon';
 import { fetchProviderProfile, fetchProviderServices } from '../services/providerService';
 import ServiceCard from '../components/ServiceCard';
 import ReviewCard from '../components/ReviewCard';
@@ -98,7 +100,13 @@ export default function ProviderProfileScreen({ route, navigation }: any) {
 
       <View style={styles.profileSection}>
         <View style={styles.imageContainer}>
-             <Image source={provider.photo_url ? { uri: provider.photo_url } : require('../../../assets/favicon.png')} style={styles.profileImage} />
+             <Image
+               source={provider.photo_url ? { uri: provider.photo_url } : require('../../../assets/favicon.png')}
+               style={styles.profileImage}
+               contentFit="cover"
+               transition={200}
+               cachePolicy="memory-disk"
+             />
         </View>
       
         <View style={styles.titleRow}>
@@ -131,7 +139,7 @@ export default function ProviderProfileScreen({ route, navigation }: any) {
 
             <TouchableOpacity style={styles.secondaryButton}>
                 <Text style={styles.secondaryButtonText}>Enviar</Text>
-                <Ionicons name="chatbubble-ellipses-outline" size={20} color={colors.primary} />
+                <HandyIcon name="carbon:chat" size={20} color={colors.primary} />
             </TouchableOpacity>
         </View>
       </View>
