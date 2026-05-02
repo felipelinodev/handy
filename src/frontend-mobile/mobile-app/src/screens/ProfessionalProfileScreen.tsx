@@ -24,6 +24,7 @@ import {
   ContractFormResult,
   ContractServiceBottomSheet,
 } from '../components/ContractServiceBottomSheet';
+import { NotificationBell } from '../components/NotificationBell';
 
 type TabKey = 'experiencia' | 'opinioes' | 'servicos';
 
@@ -171,9 +172,7 @@ export default function ProfessionalProfileScreen() {
                 <Icon name="create-outline" size={22} color={colors.primary} />
               </TouchableOpacity>
             )}
-            <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
-              <Icon name="notifications-outline" size={22} color={colors.primary} />
-            </TouchableOpacity>
+            <NotificationBell />
           </View>
         </View>
 

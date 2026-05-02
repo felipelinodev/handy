@@ -53,6 +53,29 @@ export async function fetchContrato(id: number): Promise<Contratacao> {
   return data as Contratacao;
 }
 
+export async function fetchAllContracts(): Promise<Contratacao[]> {
+  const token = await AsyncStorage.getItem('@auth_token');
+
+  const response = await fetch(`${BASE_URL}/contratations/view-all-contracts`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error('Não foi possível carregar os contratos.');
+  }
+
+  return (await response.json()) as Contratacao[];
+}
+
+export async function fetchClientContracts(clienteId: number): Promise<Contratacao[]> {
+  const all = await fetchAllContracts();
+  return all.filter((c) => c.cliente_id === clienteId);
+}
+
 const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado'];
 
 /**

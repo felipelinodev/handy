@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../../utils/colors';
 import { createContract } from '../../services/contractService';
+import { NotificationBell } from '../../components/NotificationBell';
 
 type Params = {
   servicoId?: string;
@@ -168,9 +169,7 @@ export default function AcceptContractScreen() {
           onPress={() => router.back()}>
           <Icon name="chevron-back" size={22} color={colors.primary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
-          <Icon name="notifications-outline" size={22} color={colors.primary} />
-        </TouchableOpacity>
+        <NotificationBell />
       </View>
 
       <View style={[styles.sheet, { paddingBottom: insets.bottom + 16 }]}>

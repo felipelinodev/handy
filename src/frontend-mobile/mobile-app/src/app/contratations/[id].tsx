@@ -15,6 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '../../utils/colors';
 import { BottomNavBar } from '../../components/BottomNavBar';
 import { HandyIcon } from '@/components/HandyIcon';
+import { NotificationBell } from '../../components/NotificationBell';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 const DESCRIPTION_PREVIEW_LIMIT = 220;
@@ -138,9 +139,7 @@ export default function ContractDetailsScreen() {
             onPress={() => router.back()}>
             <Icon name="chevron-back" size={22} color={colors.primary} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} activeOpacity={0.7}>
-            <Icon name="notifications-outline" size={22} color={colors.primary} />
-          </TouchableOpacity>
+          <NotificationBell />
         </View>
 
         <View style={styles.providerCard}>
