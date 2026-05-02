@@ -1,18 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-const API_PORT = 4001;
+const API_PORT = 4000;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri =
-    (Constants.expoConfig as any)?.hostUri ??
-    (Constants as any)?.expoGoConfig?.debuggerHost;
-  if (hostUri) {
-    const host = String(hostUri).split(':')[0];
-    return `http://${host}:${API_PORT}`;
-  }
-  return `http://localhost:${API_PORT}`;
+  return `http://192.168.18.180:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();
@@ -199,7 +192,7 @@ export async function fetchCategorias(): Promise<Categoria[]> {
     try {
       const parsed = JSON.parse(raw);
       if (typeof parsed?.message === 'string') msg = parsed.message;
-    } catch {}
+    } catch { }
     throw new Error(msg);
   }
 
@@ -240,7 +233,7 @@ export async function createService(payload: CreateServicePayload): Promise<void
     try {
       const data = await response.json();
       if (typeof data?.message === 'string') msg = data.message;
-    } catch {}
+    } catch { }
     throw new Error(msg);
   }
 }
@@ -293,7 +286,7 @@ export async function updateService(serviceId: number | string, payload: UpdateS
     try {
       const data = await response.json();
       if (typeof data?.message === 'string') msg = data.message;
-    } catch {}
+    } catch { }
     throw new Error(msg);
   }
 }
@@ -314,7 +307,7 @@ export async function updateProfessional(id: number | string, payload: UpdatePro
     try {
       const data = await response.json();
       if (typeof data?.message === 'string') msg = data.message;
-    } catch {}
+    } catch { }
     throw new Error(msg);
   }
 }

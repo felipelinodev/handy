@@ -230,6 +230,19 @@ export default function ProfessionalProfileScreen() {
           </View>
         )}
 
+        {/* Owner action buttons */}
+        {isOwner && (
+          <View style={styles.actionsRow}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              activeOpacity={0.85}
+              onPress={() => router.push('/maintenance' as any)}>
+              <Icon name="construct-outline" size={20} color={colors.textWhite} />
+              <Text style={styles.primaryButtonText}>Acompanhar Manutenção</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {/* Tabs */}
         <View style={styles.tabsRow}>
           {TABS.map(tab => {
@@ -296,7 +309,7 @@ export default function ProfessionalProfileScreen() {
         </View>
       </ScrollView>
 
-      {!isOwner && <BottomNavBar activeTab="search" />}
+      <BottomNavBar activeTab={isOwner ? "history" : "search"} />
 
       {!isOwner && (
         <>

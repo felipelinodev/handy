@@ -1,18 +1,11 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-const API_PORT = 4001;
+const API_PORT = 4000;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri =
-    (Constants.expoConfig as any)?.hostUri ??
-    (Constants as any)?.expoGoConfig?.debuggerHost;
-  if (hostUri) {
-    const host = String(hostUri).split(':')[0];
-    return `http://${host}:${API_PORT}`;
-  }
-  return `http://localhost:${API_PORT}`;
+  return `http://192.168.18.180:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();
