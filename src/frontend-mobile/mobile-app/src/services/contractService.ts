@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 
-const API_PORT = 4000;
+const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
@@ -67,6 +67,11 @@ export async function fetchAllContracts(): Promise<Contratacao[]> {
 export async function fetchClientContracts(clienteId: number): Promise<Contratacao[]> {
   const all = await fetchAllContracts();
   return all.filter((c) => c.cliente_id === clienteId);
+}
+
+export async function fetchPrestadorContracts(prestadorId: number): Promise<Contratacao[]> {
+  const all = await fetchAllContracts();
+  return all.filter((c) => c.prestador_id === prestadorId);
 }
 
 const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado'];

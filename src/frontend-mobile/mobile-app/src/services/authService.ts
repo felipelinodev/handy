@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 import { LoginPayload, RegisterPayload, AuthResponse } from '../types/auth';
 
-const API_PORT = 4000;
+const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) {
