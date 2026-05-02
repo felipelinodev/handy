@@ -17,7 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../../utils/colors';
 import { BottomNavBar } from '../../components/BottomNavBar';
 import { NotificationBell } from '../../components/NotificationBell';
-import { Contratacao, fetchClientContracts } from '../../services/contractService';
+import { Contratacao, fetchClientContracts, fetchPrestadorContracts } from '../../services/contractService';
 import {
   fetchProfessionalById,
   ProfessionalListItem,
@@ -112,14 +112,18 @@ export default function ContractsListScreen() {
 
       const userDataStr = await AsyncStorage.getItem('@auth_user');
       const u = userDataStr ? JSON.parse(userDataStr) : null;
-      const clienteId = Number(u?.user_id);
-      if (!clienteId) {
+      const userId = Number(u?.user_id);
+      const tipoUsuario: string = u?.tipo_usuario ?? 'cliente';
+      if (!userId) {
         setErrorMsg('Faça login para ver seus contratos.');
         setItems([]);
         return;
       }
 
-      const contratos = await fetchClientContracts(clienteId);
+      const contratos =
+        tipoUsuario === 'prestador'
+          ? await fetchPrestadorContracts(userId)
+          : await fetchClientContracts(userId);
 
       const prestadorCache = new Map<number, ProfessionalListItem | null>();
       const enriched: EnrichedContract[] = [];

@@ -26,3 +26,27 @@ export interface ProviderProfileData {
   services: ProviderService[];
   reviews: ProviderReview[];
 }
+
+export interface BreakpointComment {
+  id: string;
+  autor: string;
+  texto: string;
+  data: string;
+}
+
+export interface Breakpoint {
+  id: string;
+  titulo: string;
+  descricao: string;
+  data: string;
+  comentarios: BreakpointComment[];
+  status: 'pendente' | 'em_andamento' | 'concluido';
+}
+
+export interface MaintenanceData {
+  id: string;
+  titulo: string;
+  subtitulo: string;
+  contratoId: string;
+  breakpoints: Breakpoint[];
+}

@@ -15,6 +15,29 @@ export class ConversationsController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Get('list-by-prestador/:prestadorId')
+  async listByPrestador(
+    @Param('prestadorId', ParseIntPipe) prestadorId: number,
+  ) {
+    return this.conversationsService.listByPrestador(prestadorId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('ensure-by-contratacao/:contratacaoId')
+  async ensureByContratacao(
+    @Param('contratacaoId', ParseIntPipe) contratacaoId: number,
+  ) {
+    try {
+      return await this.conversationsService.ensureByContratacao(contratacaoId);
+    } catch (error) {
+      console.error('[ensure-by-contratacao] ERROR:', error);
+      if (error.status) throw error;
+      const msg = error?.message ?? 'Erro interno ao criar conversa.';
+      throw new InternalServerErrorException(msg);
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Post('create-new-chat')
   createNewChat(@Body() body: any) {
     const result = conversaSchema.safeParse(body);

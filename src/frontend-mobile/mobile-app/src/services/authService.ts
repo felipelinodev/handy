@@ -4,23 +4,10 @@ import { LoginPayload, RegisterPayload, AuthResponse } from '../types/auth';
 const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
-  // Prioriza variável de ambiente se definida
   if (process.env.EXPO_PUBLIC_API_URL) {
     return process.env.EXPO_PUBLIC_API_URL;
   }
-
-  // Tenta extrair IP automático do Expo
-  const hostUri =
-    (Constants.expoConfig as any)?.hostUri ??
-    (Constants as any)?.expoGoConfig?.debuggerHost;
-
-  if (hostUri) {
-    const host = String(hostUri).split(':')[0];
-    return `http://${host}:${API_PORT}`;
-  }
-
-  // Fallback para localhost (apenas para web/ios)
-  return `http://localhost:${API_PORT}`;
+  return `http://192.168.18.180:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();

@@ -76,4 +76,8 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
   get prestador_especialidade() {
     return this.client.prestador_especialidade;
   }
+
+  get $transaction() {
+    return this.client.$transaction.bind(this.client);
+  }
 }

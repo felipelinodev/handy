@@ -5,14 +5,7 @@ const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri =
-    (Constants.expoConfig as any)?.hostUri ??
-    (Constants as any)?.expoGoConfig?.debuggerHost;
-  if (hostUri) {
-    const host = String(hostUri).split(':')[0];
-    return `http://${host}:${API_PORT}`;
-  }
-  return `http://localhost:${API_PORT}`;
+  return `http://192.168.18.180:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();
@@ -74,6 +67,11 @@ export async function fetchAllContracts(): Promise<Contratacao[]> {
 export async function fetchClientContracts(clienteId: number): Promise<Contratacao[]> {
   const all = await fetchAllContracts();
   return all.filter((c) => c.cliente_id === clienteId);
+}
+
+export async function fetchPrestadorContracts(prestadorId: number): Promise<Contratacao[]> {
+  const all = await fetchAllContracts();
+  return all.filter((c) => c.prestador_id === prestadorId);
 }
 
 const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado'];
