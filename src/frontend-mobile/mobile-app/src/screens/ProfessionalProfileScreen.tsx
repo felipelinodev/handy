@@ -15,10 +15,15 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../utils/colors';
-import { fetchProfessionalById, ProfessionalListItem } from '../services/professionalService';
+import { fetchProfessionalById, ProfessionalListItem, ProfessionalService } from '../services/professionalService';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { ServiceCard } from '../components/ServiceCard';
 import { HandyIcon } from '@/components/HandyIcon';
+import { ServicesBottomSheet } from '../components/ServicesBottomSheet';
+import {
+  ContractFormResult,
+  ContractServiceBottomSheet,
+} from '../components/ContractServiceBottomSheet';
 
 type TabKey = 'experiencia' | 'opinioes' | 'servicos';
 
@@ -39,6 +44,41 @@ export default function ProfessionalProfileScreen() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isOwner, setIsOwner] = useState(false);
+  const [servicesSheetVisible, setServicesSheetVisible] = useState(false);
+  const [contractSheetVisible, setContractSheetVisible] = useState(false);
+  const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
+
+  function handleSelectService(service: ProfessionalService) {
+    setServicesSheetVisible(false);
+    setSelectedService(service);
+    setContractSheetVisible(true);
+  }
+
+  function handleConfirmContract(form: ContractFormResult) {
+    setContractSheetVisible(false);
+    if (!professional) return;
+
+    router.push({
+      pathname: '/contratations/accep-contract',
+      params: {
+        servicoId: String(form.service.id),
+        prestadorId: professional.id,
+        servicoNome: form.service.name,
+        servicoDescricao: form.service.description,
+        preco: String(form.service.price),
+        prestadorNome: professional.name,
+        prestadorFoto: professional.photoUrl ?? '',
+        prestadorCategoria: professional.category,
+        prestadorRating: String(professional.rating),
+        prestadorClientes: String(professional.clientsCount),
+        modo: form.mode,
+        data: form.date,
+        hora: form.time,
+        endereco: form.address,
+        observacoes: form.observations,
+      },
+    });
+  }
 
   useEffect(() => {
     let isMounted = true;
@@ -177,7 +217,10 @@ export default function ProfessionalProfileScreen() {
         {/* Action buttons */}
         {!isOwner && (
           <View style={styles.actionsRow}>
-            <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              activeOpacity={0.85}
+              onPress={() => setServicesSheetVisible(true)}>
               <Text style={styles.primaryButtonText}>Contratar</Text>
               <HandyIcon name="hugeicons:agreement-02" size={22} color={colors.textWhite} />
             </TouchableOpacity>
@@ -255,6 +298,25 @@ export default function ProfessionalProfileScreen() {
       </ScrollView>
 
       {!isOwner && <BottomNavBar activeTab="search" />}
+
+      {!isOwner && (
+        <>
+          <ServicesBottomSheet
+            visible={servicesSheetVisible}
+            providerName={professional.name}
+            services={professional.services}
+            onClose={() => setServicesSheetVisible(false)}
+            onSelect={handleSelectService}
+          />
+          <ContractServiceBottomSheet
+            visible={contractSheetVisible}
+            service={selectedService}
+            providerName={professional.name}
+            onClose={() => setContractSheetVisible(false)}
+            onConfirm={handleConfirmContract}
+          />
+        </>
+      )}
     </ImageBackground>
   );
 }

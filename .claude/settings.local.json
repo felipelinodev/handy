@@ -1,13 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(ipconfig)",
-      "Bash(curl *)",
-      "PowerShell(Get-NetFirewallProfile *)",
-      "Bash(netstat -ano)",
-      "Bash(findstr :8081)",
-      "Bash(npx expo *)",
-      "Bash(npx tsc *)"
+      "Bash(git checkout *)",
+      "Bash(git stash *)",
+      "Bash(git restore *)"
     ]
   }
 }
