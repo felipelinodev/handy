@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { AppState } from 'react-native';
 import {
   OpenSans_400Regular,
   OpenSans_600SemiBold,
@@ -7,6 +9,10 @@ import {
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import colors from '../utils/colors';
+import { performClientNotificationSync } from '../services/notificationService';
+import { InAppNotificationToaster } from '../components/InAppNotificationToaster';
+
+const NOTIFICATION_POLL_MS = 20000;
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
@@ -14,6 +20,29 @@ export default function RootLayout() {
     OpenSans_600SemiBold,
     OpenSans_700Bold,
   });
+
+  useEffect(() => {
+    let cancelled = false;
+    let interval: ReturnType<typeof setInterval> | null = null;
+
+    function runOnce() {
+      if (cancelled) return;
+      performClientNotificationSync();
+    }
+
+    runOnce();
+    interval = setInterval(runOnce, NOTIFICATION_POLL_MS);
+
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') runOnce();
+    });
+
+    return () => {
+      cancelled = true;
+      if (interval) clearInterval(interval);
+      sub.remove();
+    };
+  }, []);
 
   if (!fontsLoaded) return null;
 
@@ -25,6 +54,7 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: colors.muttedSurface },
         }}
       />
+      <InAppNotificationToaster />
     </SafeAreaProvider>
   );
 }

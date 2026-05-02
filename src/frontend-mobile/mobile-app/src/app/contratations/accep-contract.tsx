@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import colors from '../../utils/colors';
 import { createContract } from '../../services/contractService';
 import { NotificationBell } from '../../components/NotificationBell';
+import { recordContractNotification } from '../../services/notificationService';
 
 type Params = {
   servicoId?: string;
@@ -128,6 +129,11 @@ export default function AcceptContractScreen() {
         Alert.alert('Erro', 'Contrato criado, mas não foi possível abrir o detalhe.');
         return;
       }
+
+      await recordContractNotification(novoId, 'Pendente', {
+        servicoNome: params.servicoNome,
+        prestadorNome: params.prestadorNome,
+      });
 
       router.replace({
         pathname: '/contratations/[id]' as any,
