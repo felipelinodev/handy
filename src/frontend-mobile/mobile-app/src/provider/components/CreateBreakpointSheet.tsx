@@ -25,7 +25,8 @@ const MAX_DESCRICAO = 300;
 export interface ContractOption {
   contratacao_id: number;
   cliente_id: number;
-  cliente_nome: string | null;
+  prestador_id?: number;
+  cliente_nome?: string | null;
   titulo: string | null;
   status: string | null;
 }
