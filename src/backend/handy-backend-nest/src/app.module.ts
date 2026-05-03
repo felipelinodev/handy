@@ -12,6 +12,7 @@ import { SupportModule } from './support/support.module';
 import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { CategoryModule } from './category/category.module';
+import { ReviewModule } from './review/review.module';
 
 @Module({
   imports: [
@@ -25,7 +26,8 @@ import { CategoryModule } from './category/category.module';
     SupportModule,
     MessagesModule,
     ConversationsModule,
-    CategoryModule
+    CategoryModule,
+    ReviewModule
   ],
   controllers: [AppController],
   providers: [AppService],

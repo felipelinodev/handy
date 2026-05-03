@@ -1,5 +1,5 @@
 # Handy — Projetos Integrados 2 (VIA231) — 2026/1
-
+#
 ## 👥 Integrantes
 
 | Nome | GitLab |

@@ -11,6 +11,7 @@ import { CategoryGrid } from '../components/CategoryGrid';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { categories } from '../data/mockData';
 import { fetchProfessionals, ProfessionalListItem } from '../services/professionalService';
+import { ConcludedContractChecker } from '../components/ConcludedContractChecker';
 import colors from '../utils/colors';
 
 export const HomeScreen: React.FC = () => {
@@ -107,6 +108,7 @@ export const HomeScreen: React.FC = () => {
       </ScrollView>
 
       <BottomNavBar activeTab="home" />
+      <ConcludedContractChecker />
     </ImageBackground>
   );
 };

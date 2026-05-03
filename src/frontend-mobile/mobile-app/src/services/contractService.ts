@@ -5,7 +5,9 @@ const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  return `http://192.168.18.180:${API_PORT}`;
+  const hostUri = Constants.expoConfig?.hostUri?.split(':')[0];
+  const ip = hostUri || '192.168.24.6';
+  return `http://${ip}:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();
@@ -74,7 +76,7 @@ export async function fetchPrestadorContracts(prestadorId: number): Promise<Cont
   return all.filter((c) => c.prestador_id === prestadorId);
 }
 
-const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado'];
+const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado', 'concluída'];
 
 /**
  * Busca todos os contratos e retorna apenas os do cliente logado
@@ -95,11 +97,25 @@ export async function fetchConcludedContracts(clienteId: number): Promise<Contra
 
   const data: Contratacao[] = await response.json();
 
-  return data.filter(
-    (c) =>
-      c.cliente_id === clienteId &&
-      STATUS_CONCLUIDO.includes((c.status ?? '').toLowerCase().trim()),
-  );
+  return data.filter((c: any) => {
+    const matchUser = Number(c.cliente_id) === Number(clienteId);
+    
+    // Normaliza o status (remove acentos e espaços) para comparação segura
+    const statusLimpo = (c.status ?? '')
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+      
+    const statusValidos = ['concluida', 'concluido', 'finalizado'];
+    const isConcluido = statusValidos.includes(statusLimpo);
+    
+    const jaAvaliado = !!c.avaliacao;
+
+    console.log(`[CHECKER] Contrato ${c.contratacao_id}: ClienteID=${c.cliente_id} (Match=${matchUser}), Status='${c.status}' (Match=${isConcluido}), JáAvaliado=${jaAvaliado}`);
+
+    return matchUser && isConcluido && !jaAvaliado;
+  });
 }
 
 export interface CreateContratationPayload {

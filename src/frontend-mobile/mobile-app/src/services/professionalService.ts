@@ -5,7 +5,7 @@ const API_PORT = 4001;
 
 function resolveBaseUrl(): string {
   if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  return `http://192.168.18.180:${API_PORT}`;
+  const hostUri = Constants.expoConfig?.hostUri?.split(`:`)[0]; const ip = hostUri || `192.168.24.6`; return `http://${ip}:${API_PORT}`;
 }
 
 const BASE_URL = resolveBaseUrl();
