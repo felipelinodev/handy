@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.env
+.github
+.gitlab-ci.yml
+docker-compose.yml
+Dockerfile
+README.md
