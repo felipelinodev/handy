@@ -3,6 +3,7 @@ import { ConversationsService } from './conversations.service';
 import { conversaSchema, updateConversaSchema } from './schemas/conversations.schema';
 import { z } from 'zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('conversations')
 export class ConversationsController {
@@ -89,15 +90,11 @@ export class ConversationsController {
     return this.conversationsService.updateChat(conversaId, result.data.status);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Delete('delete-chat/:conversaId')
   async deleteChat(
-    @Param('conversaId', ParseIntPipe) conversaId: number,
-    @Headers('admin-key') chaveAdmin: string,
+    @Param('conversaId', ParseIntPipe) conversaId: number
   ) {
-    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-      throw new UnauthorizedException('Apenas administradores podem excluir conversas.');
-    }
-
     return this.conversationsService.deleteChat(conversaId);
   }
 }

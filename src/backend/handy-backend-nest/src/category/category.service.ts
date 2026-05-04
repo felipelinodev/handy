@@ -30,11 +30,7 @@ export class CategoryService {
     return await this.categoryRepository.searchAllCategories();
   }
 
-  async deleteCategory(id: number, chaveAdmin: string) {
-    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-      throw new UnauthorizedException('Você não tem permissão para excluir essa categoria.');
-    }
-
+  async deleteCategory(id: number) {
     const category = await this.categoryRepository.searchCategory('categoria_id', id);
 
     if (!category) {

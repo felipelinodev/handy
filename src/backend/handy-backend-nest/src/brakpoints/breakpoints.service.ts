@@ -33,11 +33,7 @@ export class BreakpointsService {
         return this.breakpointsRepository.updateBreakpoint(id, data);
     }
 
-    async deleteBreakpoint(id: number, chaveAdmin: string) {
-        if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-            throw new UnauthorizedException("Você não tem permissão para excluir este breakpoint.");
-        }
-
+    async deleteBreakpoint(id: number) {
         const breakpoint = await this.searchBreakpointById(id);
         if (!breakpoint) {
             throw new NotFoundException("Breakpoint não encontrado.");

@@ -26,11 +26,7 @@ export class ReviewService {
         return this.reviewRepository.listAllReviewsByPrestador(prestador_id);
     }
 
-    async deleteReview(id: number, chaveAdmin: string) {
-        if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-            throw new UnauthorizedException("Você não tem permissão para excluir esta avaliação.");
-        }
-
+    async deleteReview(id: number) {
         const review = await this.searchReviewById(id);
         if (!review) {
             throw new NotFoundException("Avaliação não encontrada.");

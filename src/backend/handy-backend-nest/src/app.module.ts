@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ClientModule } from './client/client.module';
@@ -13,6 +14,8 @@ import { MessagesModule } from './messages/messages.module';
 import { ConversationsModule } from './conversations/conversations.module';
 import { CategoryModule } from './category/category.module';
 import { ReviewModule } from './review/review.module';
+import { AuthModule } from './auth/auth.module';
+import { DevAuthGuard } from './auth/dev-auth.guard';
 
 @Module({
   imports: [
@@ -27,9 +30,16 @@ import { ReviewModule } from './review/review.module';
     MessagesModule,
     ConversationsModule,
     CategoryModule,
-    ReviewModule
+    ReviewModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: DevAuthGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import type { CreateReviewDto } from './schemas/review.schema';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('review')
 export class ReviewController {
@@ -43,13 +44,13 @@ export class ReviewController {
         return reviews;
     }
 
+    @UseGuards(SuperAdminGuard)
     @Delete('delete-a-review/:id')
     async deleteAvaliation(
-        @Param('id', ParseIntPipe) id: number,
-        @Headers('admin-key') chave_admin: string
+        @Param('id', ParseIntPipe) id: number
     ) {
         try {
-            return await this.reviewService.deleteReview(id, chave_admin);
+            return await this.reviewService.deleteReview(id);
         } catch (error) {
             if (error.status) throw error;
             throw new InternalServerErrorException(error);
