@@ -6,7 +6,9 @@ type IconName =
   | 'carbon:chat'
   | 'material-symbols:home-rounded'
   | 'carbon:for-loop'
-  | 'hugeicons:menu-11';
+  | 'hugeicons:menu-11'
+  | 'solar:star-bold'
+  | 'solar:star-line-duotone';
 
 interface HandyIconProps {
   name: IconName;
@@ -69,6 +71,27 @@ const ICONS: Record<IconName, IconDefinition> = {
         strokeLinejoin="round"
         strokeWidth={1.5}
         d="M20 12H10m10-7H4m16 14H4"
+      />
+    ),
+  },
+  'solar:star-bold': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <Path
+        fill={color}
+        d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"
+      />
+    ),
+  },
+  'solar:star-line-duotone': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <Path
+        fill="none"
+        stroke={color}
+        strokeWidth={1.5}
+        strokeLinejoin="round"
+        d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"
       />
     ),
   },

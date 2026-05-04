@@ -1,13 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_PORT = 4001;
-
-function resolveBaseUrl(): string {
-  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri = Constants.expoConfig?.hostUri?.split(`:`)[0]; const ip = hostUri || `192.168.24.6`; return `http://${ip}:${API_PORT}`;
-}
-
-const BASE_URL = resolveBaseUrl();
+import { BASE_URL, getHeaders } from './apiConfig';
 
 export interface BackendBreakpoint {
   breakpoint_id: number;
@@ -32,18 +23,10 @@ export interface UpdateBreakpointPayload {
   descricao?: string | null;
 }
 
-async function authHeaders(): Promise<Record<string, string>> {
-  const token = await AsyncStorage.getItem('@auth_token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  };
-}
-
 export async function createBreakpoint(
   payload: CreateBreakpointPayload,
 ): Promise<BackendBreakpoint> {
-  const headers = await authHeaders();
+  const headers = await getHeaders();
   const response = await fetch(`${BASE_URL}/breakpoints/create-new-breakpoints`, {
     method: 'POST',
     headers,
@@ -66,7 +49,7 @@ export async function createBreakpoint(
 export async function listBreakpointsByPrestador(
   prestadorId: number,
 ): Promise<BackendBreakpoint[]> {
-  const headers = await authHeaders();
+  const headers = await getHeaders();
   const response = await fetch(
     `${BASE_URL}/breakpoints/view-breakpoints/${prestadorId}`,
     { method: 'GET', headers },
@@ -86,7 +69,7 @@ export async function updateBreakpoint(
   id: number,
   payload: UpdateBreakpointPayload,
 ): Promise<BackendBreakpoint> {
-  const headers = await authHeaders();
+  const headers = await getHeaders();
   const response = await fetch(
     `${BASE_URL}/breakpoints/edit-a-breakpoint/${id}`,
     {

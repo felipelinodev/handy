@@ -1,15 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_PORT = 4001;
-
-function resolveBaseUrl(): string {
-  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri = Constants.expoConfig?.hostUri?.split(':')[0];
-  const ip = hostUri || '192.168.24.6';
-  return `http://${ip}:${API_PORT}`;
-}
-
-const BASE_URL = resolveBaseUrl();
+import { BASE_URL, getHeaders } from './apiConfig';
 
 export interface CreateReviewPayload {
   contratacao_id: number;
@@ -20,14 +9,11 @@ export interface CreateReviewPayload {
 }
 
 export async function createReview(payload: CreateReviewPayload) {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/review/create-new-review`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
@@ -42,4 +28,28 @@ export async function createReview(payload: CreateReviewPayload) {
   }
 
   return data;
+}
+
+export interface ReviewItem {
+  avaliacao_id: number;
+  contratacao_id: number;
+  prestador_id: number;
+  cliente_id: number;
+  nota: number;
+  comentario: string | null;
+  created_at: string | null;
+}
+
+export async function fetchReviewsByPrestador(prestadorId: number | string): Promise<ReviewItem[]> {
+  const headers = await getHeaders();
+
+  const response = await fetch(`${BASE_URL}/review/view-all-review/${prestadorId}`, {
+    method: 'GET',
+    headers,
+  });
+
+  if (!response.ok) return [];
+
+  const data = await response.json().catch(() => []);
+  return Array.isArray(data) ? data : [];
 }

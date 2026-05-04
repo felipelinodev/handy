@@ -1,16 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
-
-const API_PORT = 4001;
-
-function resolveBaseUrl(): string {
-  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  const hostUri = Constants.expoConfig?.hostUri?.split(':')[0];
-  const ip = hostUri || '192.168.24.6';
-  return `http://${ip}:${API_PORT}`;
-}
-
-const BASE_URL = resolveBaseUrl();
+import { BASE_URL, getHeaders } from './apiConfig';
 
 export interface Contratacao {
   contratacao_id: number;
@@ -29,14 +18,11 @@ export interface Contratacao {
 }
 
 export async function fetchContrato(id: number): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-a-contract/${id}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   const data = await response.json();
@@ -49,14 +35,11 @@ export async function fetchContrato(id: number): Promise<Contratacao> {
 }
 
 export async function fetchAllContracts(): Promise<Contratacao[]> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-all-contracts`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -83,14 +66,11 @@ const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado', 'concluída']
  * com status concluído (sem avaliação registrada ainda).
  */
 export async function fetchConcludedContracts(clienteId: number): Promise<Contratacao[]> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-all-contracts`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) return [];
@@ -133,14 +113,11 @@ export interface CreateContratationPayload {
 export async function createContract(
   payload: CreateContratationPayload,
 ): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/create-a-contratation`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 

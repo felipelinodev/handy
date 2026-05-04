@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   ActivityIndicator,
   View,
@@ -16,6 +16,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../utils/colors';
 import { fetchProfessionalById, ProfessionalListItem, ProfessionalService } from '../services/professionalService';
+import { fetchReviewsByPrestador, ReviewItem } from '../services/reviewService';
+import { fetchClientById, ClientInfo } from '../services/clientService';
 import { BottomNavBar } from '../components/BottomNavBar';
 import { ServiceCard } from '../components/ServiceCard';
 import { HandyIcon } from '@/components/HandyIcon';
@@ -48,6 +50,10 @@ export default function ProfessionalProfileScreen() {
   const [servicesSheetVisible, setServicesSheetVisible] = useState(false);
   const [contractSheetVisible, setContractSheetVisible] = useState(false);
   const [selectedService, setSelectedService] = useState<ProfessionalService | null>(null);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [reviewsFetched, setReviewsFetched] = useState(false);
+  const [clientNames, setClientNames] = useState<Record<number, string>>({});
 
   function handleSelectService(service: ProfessionalService) {
     setServicesSheetVisible(false);
@@ -80,6 +86,37 @@ export default function ProfessionalProfileScreen() {
       },
     });
   }
+
+  const loadReviews = useCallback(async () => {
+    if (!id || reviewsFetched) return;
+    setReviewsLoading(true);
+    try {
+      const data = await fetchReviewsByPrestador(id);
+      setReviews(data);
+      setReviewsFetched(true);
+
+      // Resolve client names
+      const uniqueClientIds = [...new Set(data.map((r) => r.cliente_id))];
+      const names: Record<number, string> = {};
+      await Promise.all(
+        uniqueClientIds.map(async (cid) => {
+          const info = await fetchClientById(cid);
+          names[cid] = info?.nome ?? `Cliente #${cid}`;
+        }),
+      );
+      setClientNames(names);
+    } catch {
+      // silently fail
+    } finally {
+      setReviewsLoading(false);
+    }
+  }, [id, reviewsFetched]);
+
+  useEffect(() => {
+    if (activeTab === 'opinioes') {
+      loadReviews();
+    }
+  }, [activeTab, loadReviews]);
 
   useEffect(() => {
     let isMounted = true;
@@ -272,9 +309,54 @@ export default function ProfessionalProfileScreen() {
             </>
           )}
           {activeTab === 'opinioes' && (
-            <Text style={styles.paragraph}>
-              Sem opiniões cadastradas ainda.
-            </Text>
+            <View>
+              {reviewsLoading ? (
+                <ActivityIndicator color={colors.primary} style={{ marginTop: 20 }} />
+              ) : reviews.length === 0 ? (
+                <Text style={styles.paragraph}>
+                  Sem opiniões cadastradas ainda.
+                </Text>
+              ) : (
+                reviews.map((review) => {
+                  const authorName = clientNames[review.cliente_id] ?? `Cliente #${review.cliente_id}`;
+                  const dateFormatted = review.created_at
+                    ? new Date(review.created_at).toLocaleDateString('pt-BR', {
+                      day: '2-digit',
+                      month: 'long',
+                      year: 'numeric',
+                    })
+                    : '';
+                  return (
+                    <View key={review.avaliacao_id} style={styles.reviewCard}>
+                      <View style={styles.reviewHeader}>
+                        <View style={styles.reviewAuthorInfo}>
+                          <View style={styles.reviewAvatarPlaceholder}>
+                            <Icon name="person" size={16} color={colors.primary} />
+                          </View>
+                          <Text style={styles.reviewAuthorName}>{authorName}</Text>
+                        </View>
+                        <View style={styles.reviewStarsRow}>
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Icon
+                              key={star}
+                              name={star <= review.nota ? 'star' : 'star-outline'}
+                              size={14}
+                              color={star <= review.nota ? '#FFB800' : colors.border}
+                            />
+                          ))}
+                        </View>
+                      </View>
+                      {review.comentario ? (
+                        <Text style={styles.reviewComment}>{review.comentario}</Text>
+                      ) : null}
+                      {dateFormatted ? (
+                        <Text style={styles.reviewDate}>{dateFormatted}</Text>
+                      ) : null}
+                    </View>
+                  );
+                })
+              )}
+            </View>
           )}
           {activeTab === 'servicos' && (
             <View>
@@ -535,5 +617,67 @@ const styles = StyleSheet.create({
     color: colors.textWhite,
     fontSize: 14,
     fontFamily: 'OpenSans_700Bold',
+  },
+  reviewCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+
+    marginBottom: 12,
+    shadowColor: '#000',
+    shadowOpacity: 0.05,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+  },
+  reviewHeader: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#C5ACED',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  reviewAuthorInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  reviewAvatarPlaceholder: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: colors.muttedSurface,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 10,
+  },
+  reviewAuthorName: {
+    fontFamily: 'OpenSans_600SemiBold',
+    fontSize: 14,
+    color: colors.textDark,
+  },
+  reviewStarsRow: {
+    flexDirection: 'row',
+    gap: 2,
+  },
+  reviewComment: {
+    fontFamily: 'OpenSans_400Regular',
+    fontSize: 13,
+    color: colors.textDark,
+    lineHeight: 20,
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  reviewDate: {
+    fontFamily: 'OpenSans_400Regular',
+    fontSize: 12,
+    color: '#695095',
+    textAlign: 'right',
+    backgroundColor: '#F0E6FF',
+    padding: 10,
+    borderBottomEndRadius: 16,
+    borderBottomStartRadius: 16,
+
   },
 });
