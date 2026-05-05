@@ -3,6 +3,7 @@ import { ConversationsService } from './conversations.service';
 import { conversaSchema, updateConversaSchema } from './schemas/conversations.schema';
 import { z } from 'zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('conversations')
 export class ConversationsController {
@@ -12,6 +13,29 @@ export class ConversationsController {
   @Get('view-chat/:conversaId')
   async viewChat(@Param('conversaId', ParseIntPipe) conversaId: number) {
     return this.conversationsService.viewChat(conversaId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('list-by-prestador/:prestadorId')
+  async listByPrestador(
+    @Param('prestadorId', ParseIntPipe) prestadorId: number,
+  ) {
+    return this.conversationsService.listByPrestador(prestadorId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('ensure-by-contratacao/:contratacaoId')
+  async ensureByContratacao(
+    @Param('contratacaoId', ParseIntPipe) contratacaoId: number,
+  ) {
+    try {
+      return await this.conversationsService.ensureByContratacao(contratacaoId);
+    } catch (error) {
+      console.error('[ensure-by-contratacao] ERROR:', error);
+      if (error.status) throw error;
+      const msg = error?.message ?? 'Erro interno ao criar conversa.';
+      throw new InternalServerErrorException(msg);
+    }
   }
 
   @UseGuards(JwtAuthGuard)
@@ -66,15 +90,11 @@ export class ConversationsController {
     return this.conversationsService.updateChat(conversaId, result.data.status);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Delete('delete-chat/:conversaId')
   async deleteChat(
-    @Param('conversaId', ParseIntPipe) conversaId: number,
-    @Headers('admin-key') chaveAdmin: string,
+    @Param('conversaId', ParseIntPipe) conversaId: number
   ) {
-    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-      throw new UnauthorizedException('Apenas administradores podem excluir conversas.');
-    }
-
     return this.conversationsService.deleteChat(conversaId);
   }
 }

@@ -26,7 +26,6 @@ import {
   fetchCategorias,
   fetchServiceById,
   updateService,
-  deleteService,
 } from '../services/professionalService';
 
 export default function EditServiceScreen() {
@@ -37,7 +36,6 @@ export default function EditServiceScreen() {
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [deleting, setDeleting] = useState(false);
 
   const [nomeServico, setNomeServico] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -219,47 +217,6 @@ export default function EditServiceScreen() {
             <View style={{ marginTop: 16 }}>
               <AuthButton label="Salvar alterações" onPress={handleSave} loading={saving} />
             </View>
-
-            <TouchableOpacity
-              style={styles.deleteButton}
-              activeOpacity={0.7}
-              disabled={deleting}
-              onPress={() => {
-                Alert.alert(
-                  'Excluir serviço',
-                  'Tem certeza que deseja excluir este serviço? Esta ação não pode ser desfeita.',
-                  [
-                    { text: 'Cancelar', style: 'cancel' },
-                    {
-                      text: 'Excluir',
-                      style: 'destructive',
-                      onPress: async () => {
-                        if (!id) return;
-                        setDeleting(true);
-                        try {
-                          await deleteService(id);
-                          Alert.alert('Sucesso', 'Serviço excluído com sucesso.', [
-                            { text: 'OK', onPress: () => router.back() },
-                          ]);
-                        } catch (error: any) {
-                          Alert.alert('Erro', error?.message ?? 'Não foi possível excluir o serviço.');
-                        } finally {
-                          setDeleting(false);
-                        }
-                      },
-                    },
-                  ],
-                );
-              }}>
-              {deleting ? (
-                <ActivityIndicator color={colors.error} size="small" />
-              ) : (
-                <>
-                  <Icon name="trash-outline" size={18} color={colors.error} />
-                  <Text style={styles.deleteButtonText}>Excluir serviço</Text>
-                </>
-              )}
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -481,22 +438,5 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: colors.border,
-  },
-  deleteButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    marginTop: 16,
-    paddingVertical: 14,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: colors.error,
-    backgroundColor: '#FEF2F2',
-  },
-  deleteButtonText: {
-    fontSize: 14,
-    fontFamily: 'OpenSans_700Bold',
-    color: colors.error,
   },
 });

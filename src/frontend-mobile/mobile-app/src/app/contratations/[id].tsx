@@ -76,6 +76,7 @@ export default function ContractDetailsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
+  console.log('RENDERIZANDO DETALHES DO CONTRATO ID:', params?.id);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
   const status = params.status ?? 'Pendente';
@@ -261,24 +262,27 @@ export default function ContractDetailsScreen() {
 
           <View style={styles.actionsRow}>
             <TouchableOpacity
-              style={styles.outlineButton}
-              activeOpacity={0.85}
-              onPress={() =>
-                router.push({
-                  pathname: '/contratations/cancel-contract',
-                  params: { id: params.id ?? '' },
-                })
-              }>
-              <Text style={{ color: colors.buttonDark }}>Cancelar</Text>
+              style={styles.actionButtonOutline}
+              onPress={() => router.push({ pathname: '/contratations/cancel-contract', params: { id: params.id } })}>
+              <Text style={styles.actionButtonText}>Cancelar</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.fullButton}
-              activeOpacity={0.85}>
-              <HandyIcon name="carbon:chat" size={20} color={colors.primary} />
-              <Text style={{ color: colors.buttonDark }}>Ver mensagens</Text>
+
+            <TouchableOpacity style={styles.actionButtonFull}>
+              <HandyIcon name="carbon:chat" size={16} color={colors.primary} />
+              <Text style={styles.actionButtonText}>Mensagens</Text>
             </TouchableOpacity>
           </View>
         </View>
+
+        <TouchableOpacity
+          style={styles.timelineButtonOutline}
+          onPress={() => router.push({
+            pathname: '/maintenance',
+            params: { contratoId: params.id, titulo: params.servicoNome }
+          })}>
+          <Icon name="analytics-outline" size={18} color={colors.primary} />
+          <Text style={styles.timelineButtonText}>Acompanhar Timeline</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <BottomNavBar activeTab="history" />
@@ -509,30 +513,49 @@ const styles = StyleSheet.create({
   },
   actionsRow: {
     flexDirection: 'row',
-    gap: 11,
+    gap: 8,
     marginTop: 18,
-
+    justifyContent: 'space-between',
   },
-  outlineButton: {
-    width: '48%',
-    flexDirection: 'row',
+  actionButtonOutline: {
+    flex: 1,
     height: 40,
     borderRadius: 50,
     borderWidth: 1.5,
     borderColor: '#BFBADE',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
     backgroundColor: colors.surface,
   },
-  fullButton: {
-    width: '48%',
+  actionButtonFull: {
+    flex: 1,
     flexDirection: 'row',
     height: 40,
     borderRadius: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 6,
+    gap: 4,
     backgroundColor: "#DCD5FE"
+  },
+  actionButtonText: {
+    fontSize: 11,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.buttonDark,
+  },
+  timelineButtonOutline: {
+    flexDirection: 'row',
+    height: 40,
+    borderRadius: 50,
+    borderWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 16,
+    gap: 8,
+    backgroundColor: colors.surface,
+  },
+  timelineButtonText: {
+    fontSize: 14,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.primary,
   },
 });

@@ -6,6 +6,7 @@ import { z } from "zod";
 import type { CreateProviderDto } from './schemas/provider.schema';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('provider')
 export class ProviderController {
@@ -107,13 +108,13 @@ export class ProviderController {
     }
 
 
+    @UseGuards(SuperAdminGuard)
     @Delete('delete-a-service-provider/:email')
     async deleteServiceProvider(
-        @Param('email') email: string,
-        @Headers('admin-key') chave_admin: string
+        @Param('email') email: string
     ) {
         try {
-            return await this.providerService.deleteUserAccount(email, chave_admin);
+            return await this.providerService.deleteUserAccount(email);
         } catch (error) {
             if (error.status) throw error;
             throw new InternalServerErrorException(error);

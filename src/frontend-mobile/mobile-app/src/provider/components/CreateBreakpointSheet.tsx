@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -18,21 +18,35 @@ import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/dat
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '../../utils/colors';
-
 const SCREEN_HEIGHT = Dimensions.get('window').height;
-const SHEET_MAX_HEIGHT = SCREEN_HEIGHT * 0.75;
+const SHEET_MAX_HEIGHT = SCREEN_HEIGHT * 0.85;
 const MAX_DESCRICAO = 300;
+
+export interface ContractOption {
+  contratacao_id: number;
+  cliente_id: number;
+  prestador_id?: number;
+  cliente_nome?: string | null;
+  titulo: string | null;
+  status: string | null;
+}
 
 export interface BreakpointFormResult {
   titulo: string;
   descricao: string;
   data: string;
+  contratacaoId: number;
+  clienteId: number;
 }
 
 interface CreateBreakpointSheetProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (data: BreakpointFormResult) => void;
+  onSave: (data: BreakpointFormResult) => void | Promise<void>;
+  contracts: ContractOption[];
+  contractsLoading?: boolean;
+  defaultContratacaoId?: number;
+  submitting?: boolean;
 }
 
 function formatDate(date: Date): string {
@@ -46,6 +60,10 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
   visible,
   onClose,
   onSave,
+  contracts,
+  contractsLoading = false,
+  defaultContratacaoId,
+  submitting = false,
 }) => {
   const insets = useSafeAreaInsets();
   const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
@@ -53,9 +71,19 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
 
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
+  const [selectedContratacaoId, setSelectedContratacaoId] = useState<number | null>(
+    null,
+  );
+  const [showPicker, setShowPicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  const selectedContract = useMemo(
+    () =>
+      contracts.find((c) => c.contratacao_id === selectedContratacaoId) ?? null,
+    [contracts, selectedContratacaoId],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -63,7 +91,13 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
       setDescricao('');
       setSelectedDate(new Date());
       setShowDatePicker(false);
+      setShowPicker(false);
       setErrorMsg(null);
+      const fallback =
+        defaultContratacaoId ??
+        contracts[0]?.contratacao_id ??
+        null;
+      setSelectedContratacaoId(fallback ?? null);
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: 0,
@@ -90,7 +124,7 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
         }),
       ]).start();
     }
-  }, [visible, translateY, backdropOpacity]);
+  }, [visible, translateY, backdropOpacity, contracts, defaultContratacaoId]);
 
   function handleDateChange(_event: DateTimePickerEvent, date?: Date) {
     if (Platform.OS === 'android') {
@@ -110,13 +144,26 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
       setErrorMsg('Informe a descrição do breakpoint.');
       return;
     }
+    if (!selectedContract) {
+      setErrorMsg('Selecione um contrato.');
+      return;
+    }
 
     setErrorMsg(null);
     onSave({
       titulo: titulo.trim(),
       descricao: descricao.trim(),
       data: formatDate(selectedDate),
+      contratacaoId: selectedContract.contratacao_id,
+      clienteId: selectedContract.cliente_id,
     });
+  }
+
+  function pickerLabel(): string {
+    if (!selectedContract) return 'Selecionar contrato';
+    const nome = selectedContract.cliente_nome ?? `Cliente #${selectedContract.cliente_id}`;
+    const titulo = selectedContract.titulo ? ` · ${selectedContract.titulo}` : '';
+    return `${nome}${titulo}`;
   }
 
   return (
@@ -150,6 +197,30 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}>
+            <Text style={styles.fieldLabel}>Contrato</Text>
+            <TouchableOpacity
+              style={styles.pickerButton}
+              activeOpacity={0.7}
+              onPress={() => setShowPicker(true)}
+              disabled={contractsLoading || contracts.length === 0}>
+              <View style={styles.pickerButtonLeft}>
+                <Icon name="document-text-outline" size={18} color={colors.primary} />
+                <Text
+                  style={[
+                    styles.pickerButtonText,
+                    !selectedContract && styles.pickerButtonPlaceholder,
+                  ]}
+                  numberOfLines={1}>
+                  {contractsLoading
+                    ? 'Carregando contratos...'
+                    : contracts.length === 0
+                    ? 'Nenhum contrato como prestador'
+                    : pickerLabel()}
+                </Text>
+              </View>
+              <Icon name="chevron-down" size={18} color={colors.primary} />
+            </TouchableOpacity>
+
             <Text style={styles.fieldLabel}>Título</Text>
             <TextInput
               style={styles.input}
@@ -227,14 +298,73 @@ export const CreateBreakpointSheet: React.FC<CreateBreakpointSheetProps> = ({
               </TouchableOpacity>
 
               <TouchableOpacity
-                style={styles.saveButton}
+                style={[styles.saveButton, submitting && styles.saveButtonDisabled]}
                 activeOpacity={0.85}
+                disabled={submitting}
                 onPress={handleSave}>
-                <Text style={styles.saveButtonText}>Salvar</Text>
+                <Text style={styles.saveButtonText}>
+                  {submitting ? 'Salvando...' : 'Salvar'}
+                </Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
         </Animated.View>
+
+        <Modal
+          visible={showPicker}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setShowPicker(false)}>
+          <Pressable
+            style={styles.dropdownBackdrop}
+            onPress={() => setShowPicker(false)}>
+            <View style={styles.dropdownContainer}>
+              <Text style={styles.dropdownHeader}>Selecione</Text>
+              <ScrollView style={{ maxHeight: SCREEN_HEIGHT * 0.5 }}>
+                {contracts.map((c) => {
+                  const isActive = c.contratacao_id === selectedContratacaoId;
+                  return (
+                    <TouchableOpacity
+                      key={c.contratacao_id}
+                      style={[
+                        styles.dropdownItem,
+                        isActive && styles.dropdownItemActive,
+                      ]}
+                      activeOpacity={0.7}
+                      onPress={() => {
+                        setSelectedContratacaoId(c.contratacao_id);
+                        setShowPicker(false);
+                      }}>
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          style={[
+                            styles.dropdownItemTitle,
+                            isActive && styles.dropdownItemTitleActive,
+                          ]}
+                          numberOfLines={1}>
+                          {c.cliente_nome ?? `Cliente #${c.cliente_id}`}
+                        </Text>
+                        {!!c.titulo && (
+                          <Text style={styles.dropdownItemSubtitle} numberOfLines={1}>
+                            {c.titulo}
+                          </Text>
+                        )}
+                        {!!c.status && (
+                          <Text style={styles.dropdownItemHint}>
+                            Status: {c.status}
+                          </Text>
+                        )}
+                      </View>
+                      {isActive && (
+                        <Icon name="checkmark" size={18} color={colors.primary} />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Modal>
       </KeyboardAvoidingView>
     </Modal>
   );
@@ -317,6 +447,40 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_600SemiBold',
     color: colors.textMuted,
   },
+  pickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    marginBottom: 8,
+  },
+  pickerButtonLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  pickerButtonText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textDark,
+  },
+  pickerButtonPlaceholder: {
+    color: colors.textMuted,
+    fontFamily: 'OpenSans_400Regular',
+  },
+  warningText: {
+    marginBottom: 14,
+    fontSize: 11,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: '#B91C1C',
+  },
   dateButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -391,9 +555,73 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  saveButtonDisabled: {
+    backgroundColor: '#CBC3F8',
+  },
   saveButtonText: {
     fontSize: 15,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textWhite,
+  },
+  dropdownBackdrop: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(18, 19, 65, 0.45)',
+    paddingHorizontal: 24,
+  },
+  dropdownContainer: {
+    width: '100%',
+    backgroundColor: colors.surface,
+    borderRadius: 18,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    shadowColor: '#4A1D96',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.18,
+    shadowRadius: 24,
+    elevation: 12,
+  },
+  dropdownHeader: {
+    paddingHorizontal: 12,
+    paddingBottom: 10,
+    fontSize: 13,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.primary,
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    gap: 8,
+    borderRadius: 12,
+  },
+  dropdownItemActive: {
+    backgroundColor: colors.muttedSurface,
+  },
+  dropdownItemDisabled: {
+    opacity: 0.5,
+  },
+  dropdownItemTitle: {
+    fontSize: 14,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textDark,
+  },
+  dropdownItemTitleActive: {
+    color: colors.primary,
+    fontFamily: 'OpenSans_700Bold',
+  },
+  dropdownItemSubtitle: {
+    fontSize: 12,
+    fontFamily: 'OpenSans_400Regular',
+    color: colors.textMuted,
+    marginTop: 2,
+  },
+  dropdownItemHint: {
+    marginTop: 4,
+    fontSize: 11,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: '#B91C1C',
   },
 });

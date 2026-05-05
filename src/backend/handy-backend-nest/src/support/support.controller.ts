@@ -3,6 +3,7 @@ import { SupportService } from './support.service';
 import { supportSchema, updateTicketSchema } from './schemas/support.schema';
 import { z } from 'zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('support')
 export class SupportController {
@@ -46,16 +47,12 @@ export class SupportController {
     return this.supportService.viewATicket(ticketId);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Patch('update-ticket/:ticketId')
   async updateTicket(
     @Param('ticketId', ParseIntPipe) ticketId: number,
-    @Body() body: any,
-    @Headers('admin-key') chaveAdmin: string,
+    @Body() body: any
   ) {
-    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-      throw new UnauthorizedException('Apenas administradores podem atualizar tickets.');
-    }
-
     const result = updateTicketSchema.safeParse(body);
 
     if (!result.success) {
@@ -67,15 +64,11 @@ export class SupportController {
     return this.supportService.updateTicket(ticketId, result.data);
   }
 
+  @UseGuards(SuperAdminGuard)
   @Delete('delete-a-ticket/:ticketId')
   async deleteATicket(
-    @Param('ticketId', ParseIntPipe) ticketId: number,
-    @Headers('admin-key') chaveAdmin: string,
+    @Param('ticketId', ParseIntPipe) ticketId: number
   ) {
-    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
-      throw new UnauthorizedException('Apenas administradores podem excluir tickets.');
-    }
-
     return this.supportService.deleteTicket(ticketId);
   }
 }

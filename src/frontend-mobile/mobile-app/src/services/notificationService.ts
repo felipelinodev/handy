@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Contratacao } from './contractService';
+import { Contratacao, fetchClientContracts } from './contractService';
+import { fetchProfessionalById } from './professionalService';
 
 export interface AppNotification {
   id: string;
@@ -29,13 +30,13 @@ export function statusFriendlyMessage(
     case 'Pendente':
       return `Seu pedido de "${s}" foi enviado e aguarda a confirmação de ${p}.`;
     case 'Aceita':
-      return `Boa notícia! ${p} aceitou o seu contrato de "${s}". 🎉`;
+      return `Boa notícia! ${p} aceitou o seu contrato de "${s}".`;
     case 'Em_Andamento':
     case 'Em Andamento':
-      return `${p} Começou o serviço de "${s}". Acompanhe o andamento por aqui.`;
+      return `${p} começou o serviço de "${s}". Acompanhe o andamento por aqui.`;
     case 'Concluida':
     case 'Concluída':
-      return `${p} Concluiu o serviço de "${s}". Que tal deixar uma avaliação?`;
+      return `${p} concluiu o serviço de "${s}". Que tal deixar uma avaliação?`;
     case 'Cancelada':
       return `O contrato de "${s}" com ${p} foi cancelado.`;
     default:
@@ -61,6 +62,26 @@ async function saveNotifications(list: AppNotification[]): Promise<void> {
   await AsyncStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(list));
 }
 
+type NotificationListener = (n: AppNotification) => void;
+const notificationListeners = new Set<NotificationListener>();
+
+export function subscribeToNotifications(
+  listener: NotificationListener,
+): () => void {
+  notificationListeners.add(listener);
+  return () => {
+    notificationListeners.delete(listener);
+  };
+}
+
+function emitNotification(n: AppNotification): void {
+  for (const fn of Array.from(notificationListeners)) {
+    try {
+      fn(n);
+    } catch {}
+  }
+}
+
 export async function getUnreadCount(): Promise<number> {
   const list = await loadNotifications();
   return list.filter((n) => !n.read).length;
@@ -80,6 +101,34 @@ export async function clearAllNotifications(): Promise<void> {
 export interface ContractMeta {
   servicoNome?: string;
   prestadorNome?: string;
+}
+
+export async function recordContractNotification(
+  contratoId: number,
+  status: string,
+  meta?: ContractMeta,
+): Promise<void> {
+  const lastStatuses = await readJson<Record<string, string>>(STATUSES_KEY, {});
+  const list = await loadNotifications();
+
+  const notification: AppNotification = {
+    id: `${contratoId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+    contratoId,
+    status,
+    message: statusFriendlyMessage(status, meta?.servicoNome, meta?.prestadorNome),
+    servicoNome: meta?.servicoNome,
+    prestadorNome: meta?.prestadorNome,
+    read: false,
+    createdAt: Date.now(),
+  };
+
+  const merged = [notification, ...list].slice(0, MAX_NOTIFICATIONS);
+  await saveNotifications(merged);
+
+  lastStatuses[String(contratoId)] = status;
+  await AsyncStorage.setItem(STATUSES_KEY, JSON.stringify(lastStatuses));
+
+  emitNotification(notification);
 }
 
 export async function syncContractNotifications(
@@ -104,7 +153,7 @@ export async function syncContractNotifications(
 
     if (prev !== current) {
       const meta = metaResolver?.(c) ?? {};
-      newOnes.push({
+      const entry: AppNotification = {
         id: `${id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
         contratoId: c.contratacao_id,
         status: current,
@@ -113,7 +162,8 @@ export async function syncContractNotifications(
         prestadorNome: meta.prestadorNome,
         read: false,
         createdAt: Date.now(),
-      });
+      };
+      newOnes.push(entry);
       updated[id] = current;
     }
   }
@@ -121,92 +171,42 @@ export async function syncContractNotifications(
   if (newOnes.length > 0) {
     const merged = [...newOnes, ...list].slice(0, MAX_NOTIFICATIONS);
     await saveNotifications(merged);
+    for (const n of newOnes) emitNotification(n);
   }
 
   await AsyncStorage.setItem(STATUSES_KEY, JSON.stringify(updated));
   return newOnes;
 }
 
-const PROVIDER_STATUSES_KEY = '@provider_contract_statuses';
+const prestadorNameCache = new Map<number, string>();
 
-export function providerStatusFriendlyMessage(
-  status: string,
-  servicoNome?: string,
-  clienteNome?: string,
-): string {
-  const s = servicoNome && servicoNome.trim().length > 0 ? servicoNome : 'serviço';
-  const c = clienteNome && clienteNome.trim().length > 0 ? clienteNome : 'um cliente';
+export async function performClientNotificationSync(): Promise<AppNotification[]> {
+  try {
+    const userDataStr = await AsyncStorage.getItem('@auth_user');
+    if (!userDataStr) return [];
+    const u = JSON.parse(userDataStr);
+    const clienteId = Number(u?.user_id);
+    if (!clienteId) return [];
 
-  switch (status) {
-    case 'Pendente':
-      return `${c} solicitou o serviço "${s}". Confira os detalhes e aceite o contrato.`;
-    case 'Aceita':
-      return `Você aceitou o contrato de "${s}" com ${c}.`;
-    case 'Em_Andamento':
-    case 'Em Andamento':
-      return `O serviço "${s}" para ${c} está em andamento.`;
-    case 'Concluida':
-    case 'Concluída':
-      return `O serviço "${s}" para ${c} foi concluído.`;
-    case 'Cancelada':
-      return `O contrato de "${s}" com ${c} foi cancelado.`;
-    default:
-      return `O status do contrato "${s}" foi atualizado para "${status}".`;
-  }
-}
+    const contratos = await fetchClientContracts(clienteId);
 
-export async function syncProviderContractNotifications(
-  contratos: Contratacao[],
-  metaResolver?: (c: Contratacao) => { servicoNome?: string; clienteNome?: string } | undefined,
-): Promise<AppNotification[]> {
-  const lastStatuses = await readJson<Record<string, string>>(PROVIDER_STATUSES_KEY, {});
-  const list = await loadNotifications();
-
-  const newOnes: AppNotification[] = [];
-  const updated = { ...lastStatuses };
-
-  for (const c of contratos) {
-    const id = String(c.contratacao_id);
-    const current = c.status ?? 'Pendente';
-    const prev = updated[id];
-
-    if (prev === undefined) {
-      const meta = metaResolver?.(c) ?? {};
-      newOnes.push({
-        id: `prov-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        contratoId: c.contratacao_id,
-        status: current,
-        message: providerStatusFriendlyMessage(current, meta.servicoNome, meta.clienteNome),
-        servicoNome: meta.servicoNome,
-        prestadorNome: meta.clienteNome,
-        read: false,
-        createdAt: Date.now(),
-      });
-      updated[id] = current;
-      continue;
+    const pending = contratos
+      .map((c) => c.prestador_id)
+      .filter((id) => !prestadorNameCache.has(id));
+    for (const id of Array.from(new Set(pending))) {
+      try {
+        const p = await fetchProfessionalById(id);
+        prestadorNameCache.set(id, p.name);
+      } catch {
+        prestadorNameCache.set(id, '');
+      }
     }
 
-    if (prev !== current) {
-      const meta = metaResolver?.(c) ?? {};
-      newOnes.push({
-        id: `prov-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        contratoId: c.contratacao_id,
-        status: current,
-        message: providerStatusFriendlyMessage(current, meta.servicoNome, meta.clienteNome),
-        servicoNome: meta.servicoNome,
-        prestadorNome: meta.clienteNome,
-        read: false,
-        createdAt: Date.now(),
-      });
-      updated[id] = current;
-    }
+    return await syncContractNotifications(contratos, (c) => ({
+      servicoNome: c.titulo,
+      prestadorNome: prestadorNameCache.get(c.prestador_id) || undefined,
+    }));
+  } catch {
+    return [];
   }
-
-  if (newOnes.length > 0) {
-    const merged = [...newOnes, ...list].slice(0, MAX_NOTIFICATIONS);
-    await saveNotifications(merged);
-  }
-
-  await AsyncStorage.setItem(PROVIDER_STATUSES_KEY, JSON.stringify(updated));
-  return newOnes;
 }

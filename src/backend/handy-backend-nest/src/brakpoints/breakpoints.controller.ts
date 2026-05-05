@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import type { CreateBreakpointDto } from './schemas/breakpoints.schema';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('breakpoints')
 export class BreakpointsController {
@@ -65,13 +66,13 @@ export class BreakpointsController {
         }
     }
 
+    @UseGuards(SuperAdminGuard)
     @Delete('delete-a-breakpoint/:id')
     async deleteBreakpoint(
-        @Param('id', ParseIntPipe) id: number,
-        @Headers('admin-key') chave_admin: string
+        @Param('id', ParseIntPipe) id: number
     ) {
         try {
-            return await this.breakpointsService.deleteBreakpoint(id, chave_admin);
+            return await this.breakpointsService.deleteBreakpoint(id);
         } catch (error) {
             if (error.status) throw error;
             throw new InternalServerErrorException(error);

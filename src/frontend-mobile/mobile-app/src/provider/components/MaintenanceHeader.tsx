@@ -14,6 +14,8 @@ import colors from '../../utils/colors';
 import { NotificationBell } from '../../components/NotificationBell';
 import { FILTER_OPTIONS, FilterOption } from '../data/mockMaintenance';
 
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
+
 interface MaintenanceHeaderProps {
   titulo: string;
   subtitulo: string;
@@ -66,7 +68,7 @@ export const MaintenanceHeader: React.FC<MaintenanceHeaderProps> = ({
           style={styles.contractPill}
           activeOpacity={0.7}
           onPress={handleVerContrato}>
-          <Icon name="document-text-outline" size={14} color={colors.primary} />
+          <MaterialCommunityIcons name="text-box-outline" size={20} color={colors.textDark} />
           <Text style={styles.contractPillText}>Ver contrato</Text>
         </TouchableOpacity>
 
@@ -76,7 +78,7 @@ export const MaintenanceHeader: React.FC<MaintenanceHeaderProps> = ({
             activeOpacity={0.7}
             onPress={() => setShowFilterDropdown(true)}>
             <Text style={styles.filterPillText}>{activeFilter}</Text>
-            <Icon name="chevron-down" size={14} color={colors.primary} />
+            <MaterialCommunityIcons name="filter-variant" size={24} color={colors.textDark} />
           </TouchableOpacity>
 
           <Modal
@@ -159,7 +161,7 @@ const styles = StyleSheet.create({
   },
   subtitulo: {
     fontSize: 13,
-    fontFamily: 'OpenSans_400Regular',
+    fontFamily: 'OpenSans_600SemiBold',
     color: colors.textMuted,
   },
   actionsRow: {
@@ -170,32 +172,31 @@ const styles = StyleSheet.create({
   contractPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.surface,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    gap: 8,
+    backgroundColor: '#E0D7FF',
+    paddingHorizontal: 16,
+    paddingVertical: 5,
     borderRadius: 50,
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   contractPillText: {
-    fontSize: 13,
-    fontFamily: 'OpenSans_600SemiBold',
+    fontSize: 14,
+    fontFamily: 'OpenSans_400Regular',
     color: colors.textDark,
+    textDecorationLine: 'underline',
   },
   filterPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: colors.muttedSurface,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
+    gap: 8,
+    backgroundColor: '#CBC3F8',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
     borderRadius: 50,
   },
   filterPillText: {
-    fontSize: 13,
-    fontFamily: 'OpenSans_600SemiBold',
-    color: colors.primary,
+    fontSize: 14,
+    fontFamily: 'OpenSans_400Regular',
+    color: '#695095',
   },
   dropdownBackdrop: {
     flex: 1,

@@ -1,14 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Constants from 'expo-constants';
-
-const API_PORT = 4000;
-
-function resolveBaseUrl(): string {
-  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
-  return `http://192.168.18.180:${API_PORT}`;
-}
-
-const BASE_URL = resolveBaseUrl();
+import { BASE_URL, getHeaders } from './apiConfig';
 
 export interface Contratacao {
   contratacao_id: number;
@@ -27,14 +18,11 @@ export interface Contratacao {
 }
 
 export async function fetchContrato(id: number): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-a-contract/${id}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   const data = await response.json();
@@ -47,14 +35,11 @@ export async function fetchContrato(id: number): Promise<Contratacao> {
 }
 
 export async function fetchAllContracts(): Promise<Contratacao[]> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-all-contracts`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) {
@@ -69,32 +54,48 @@ export async function fetchClientContracts(clienteId: number): Promise<Contratac
   return all.filter((c) => c.cliente_id === clienteId);
 }
 
-const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado'];
+export async function fetchPrestadorContracts(prestadorId: number): Promise<Contratacao[]> {
+  const all = await fetchAllContracts();
+  return all.filter((c) => c.prestador_id === prestadorId);
+}
+
+const STATUS_CONCLUIDO = ['concluido', 'concluído', 'finalizado', 'concluída'];
 
 /**
  * Busca todos os contratos e retorna apenas os do cliente logado
  * com status concluído (sem avaliação registrada ainda).
  */
 export async function fetchConcludedContracts(clienteId: number): Promise<Contratacao[]> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/view-all-contracts`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers,
   });
 
   if (!response.ok) return [];
 
   const data: Contratacao[] = await response.json();
 
-  return data.filter(
-    (c) =>
-      c.cliente_id === clienteId &&
-      STATUS_CONCLUIDO.includes((c.status ?? '').toLowerCase().trim()),
-  );
+  return data.filter((c: any) => {
+    const matchUser = Number(c.cliente_id) === Number(clienteId);
+    
+    // Normaliza o status (remove acentos e espaços) para comparação segura
+    const statusLimpo = (c.status ?? '')
+      .toLowerCase()
+      .trim()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "");
+      
+    const statusValidos = ['concluida', 'concluido', 'finalizado'];
+    const isConcluido = statusValidos.includes(statusLimpo);
+    
+    const jaAvaliado = !!c.avaliacao;
+
+    console.log(`[CHECKER] Contrato ${c.contratacao_id}: ClienteID=${c.cliente_id} (Match=${matchUser}), Status='${c.status}' (Match=${isConcluido}), JáAvaliado=${jaAvaliado}`);
+
+    return matchUser && isConcluido && !jaAvaliado;
+  });
 }
 
 export interface CreateContratationPayload {
@@ -112,14 +113,11 @@ export interface CreateContratationPayload {
 export async function createContract(
   payload: CreateContratationPayload,
 ): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/create-a-contratation`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
     body: JSON.stringify(payload),
   });
 
@@ -134,37 +132,4 @@ export async function createContract(
   }
 
   return (data?.data ?? data) as Contratacao;
-}
-
-export async function fetchProviderContracts(prestadorId: number): Promise<Contratacao[]> {
-  const all = await fetchAllContracts();
-  return all.filter((c) => c.prestador_id === prestadorId);
-}
-
-export async function updateContractStatus(
-  id: number,
-  status: string,
-): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
-
-  const response = await fetch(`${BASE_URL}/contratations/update/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    body: JSON.stringify({ status }),
-  });
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const msg =
-      typeof data?.message === 'string'
-        ? data.message
-        : 'Erro ao atualizar o contrato.';
-    throw new Error(msg);
-  }
-
-  return (data?.contratation ?? data) as Contratacao;
 }
