@@ -32,10 +32,10 @@ export function statusFriendlyMessage(
       return `Boa notícia! ${p} aceitou o seu contrato de "${s}". 🎉`;
     case 'Em_Andamento':
     case 'Em Andamento':
-      return `${p} começou o serviço de "${s}". Acompanhe o andamento por aqui.`;
+      return `${p} Começou o serviço de "${s}". Acompanhe o andamento por aqui.`;
     case 'Concluida':
     case 'Concluída':
-      return `${p} concluiu o serviço de "${s}". Que tal deixar uma avaliação?`;
+      return `${p} Concluiu o serviço de "${s}". Que tal deixar uma avaliação?`;
     case 'Cancelada':
       return `O contrato de "${s}" com ${p} foi cancelado.`;
     default:
@@ -124,5 +124,89 @@ export async function syncContractNotifications(
   }
 
   await AsyncStorage.setItem(STATUSES_KEY, JSON.stringify(updated));
+  return newOnes;
+}
+
+const PROVIDER_STATUSES_KEY = '@provider_contract_statuses';
+
+export function providerStatusFriendlyMessage(
+  status: string,
+  servicoNome?: string,
+  clienteNome?: string,
+): string {
+  const s = servicoNome && servicoNome.trim().length > 0 ? servicoNome : 'serviço';
+  const c = clienteNome && clienteNome.trim().length > 0 ? clienteNome : 'um cliente';
+
+  switch (status) {
+    case 'Pendente':
+      return `${c} solicitou o serviço "${s}". Confira os detalhes e aceite o contrato.`;
+    case 'Aceita':
+      return `Você aceitou o contrato de "${s}" com ${c}.`;
+    case 'Em_Andamento':
+    case 'Em Andamento':
+      return `O serviço "${s}" para ${c} está em andamento.`;
+    case 'Concluida':
+    case 'Concluída':
+      return `O serviço "${s}" para ${c} foi concluído.`;
+    case 'Cancelada':
+      return `O contrato de "${s}" com ${c} foi cancelado.`;
+    default:
+      return `O status do contrato "${s}" foi atualizado para "${status}".`;
+  }
+}
+
+export async function syncProviderContractNotifications(
+  contratos: Contratacao[],
+  metaResolver?: (c: Contratacao) => { servicoNome?: string; clienteNome?: string } | undefined,
+): Promise<AppNotification[]> {
+  const lastStatuses = await readJson<Record<string, string>>(PROVIDER_STATUSES_KEY, {});
+  const list = await loadNotifications();
+
+  const newOnes: AppNotification[] = [];
+  const updated = { ...lastStatuses };
+
+  for (const c of contratos) {
+    const id = String(c.contratacao_id);
+    const current = c.status ?? 'Pendente';
+    const prev = updated[id];
+
+    if (prev === undefined) {
+      const meta = metaResolver?.(c) ?? {};
+      newOnes.push({
+        id: `prov-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        contratoId: c.contratacao_id,
+        status: current,
+        message: providerStatusFriendlyMessage(current, meta.servicoNome, meta.clienteNome),
+        servicoNome: meta.servicoNome,
+        prestadorNome: meta.clienteNome,
+        read: false,
+        createdAt: Date.now(),
+      });
+      updated[id] = current;
+      continue;
+    }
+
+    if (prev !== current) {
+      const meta = metaResolver?.(c) ?? {};
+      newOnes.push({
+        id: `prov-${id}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        contratoId: c.contratacao_id,
+        status: current,
+        message: providerStatusFriendlyMessage(current, meta.servicoNome, meta.clienteNome),
+        servicoNome: meta.servicoNome,
+        prestadorNome: meta.clienteNome,
+        read: false,
+        createdAt: Date.now(),
+      });
+      updated[id] = current;
+    }
+  }
+
+  if (newOnes.length > 0) {
+    const merged = [...newOnes, ...list].slice(0, MAX_NOTIFICATIONS);
+    await saveNotifications(merged);
+  }
+
+  await AsyncStorage.setItem(PROVIDER_STATUSES_KEY, JSON.stringify(updated));
   return newOnes;
 }
