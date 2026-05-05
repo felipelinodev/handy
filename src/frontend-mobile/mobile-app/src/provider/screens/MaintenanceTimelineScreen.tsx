@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useLocalSearchParams } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../../utils/colors';
@@ -25,31 +26,48 @@ import {
 } from '../data/mockMaintenance';
 import { Breakpoint } from '../types/provider.types';
 
-const STORAGE_KEY = '@maintenance_breakpoints';
+function storageKey(contratacaoId?: string) {
+  if (contratacaoId) return `@maintenance_breakpoints_${contratacaoId}`;
+  return '@maintenance_breakpoints';
+}
 
 export default function MaintenanceTimelineScreen() {
   const insets = useSafeAreaInsets();
+  const params = useLocalSearchParams<{
+    contratacaoId?: string;
+    servicoNome?: string;
+    clienteNome?: string;
+  }>();
+  const contratacaoId = params.contratacaoId;
+  const titulo = params.servicoNome || mockMaintenanceData.titulo;
+  const subtitulo = params.clienteNome
+    ? `Acompanhamento - ${params.clienteNome}`
+    : mockMaintenanceData.subtitulo;
+
   const [breakpoints, setBreakpoints] = useState<Breakpoint[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [activeFilter, setActiveFilter] = useState<FilterOption>('Geral');
   const [showSheet, setShowSheet] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((raw) => {
+    const key = storageKey(contratacaoId);
+    AsyncStorage.getItem(key).then((raw) => {
       if (raw) {
         setBreakpoints(JSON.parse(raw));
-      } else {
+      } else if (!contratacaoId) {
         setBreakpoints(mockMaintenanceData.breakpoints);
+      } else {
+        setBreakpoints([]);
       }
       setLoaded(true);
     });
-  }, []);
+  }, [contratacaoId]);
 
   useEffect(() => {
     if (loaded) {
-      AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(breakpoints));
+      AsyncStorage.setItem(storageKey(contratacaoId), JSON.stringify(breakpoints));
     }
-  }, [breakpoints, loaded]);
+  }, [breakpoints, loaded, contratacaoId]);
 
   const STATUS_MAP: Record<string, Breakpoint['status']> = {
     Geral: 'pendente',
@@ -135,9 +153,9 @@ export default function MaintenanceTimelineScreen() {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}>
         <MaintenanceHeader
-          titulo={mockMaintenanceData.titulo}
-          subtitulo={mockMaintenanceData.subtitulo}
-          contratoId={mockMaintenanceData.contratoId}
+          titulo={titulo}
+          subtitulo={subtitulo}
+          contratoId={contratacaoId || mockMaintenanceData.contratoId}
           activeFilter={activeFilter}
           onFilterChange={handleFilterChange}
         />
