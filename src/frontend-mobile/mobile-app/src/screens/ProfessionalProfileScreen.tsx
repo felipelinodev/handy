@@ -25,6 +25,8 @@ import {
   ContractServiceBottomSheet,
 } from '../components/ContractServiceBottomSheet';
 import { NotificationBell } from '../components/NotificationBell';
+import { fetchProviderContracts } from '../services/contractService';
+import { syncProviderContractNotifications } from '../services/notificationService';
 
 type TabKey = 'experiencia' | 'opinioes' | 'servicos';
 
@@ -101,6 +103,13 @@ export default function ProfessionalProfileScreen() {
           const u = JSON.parse(userDataString);
           if (u && String(u.user_id) === String(id)) {
             setIsOwner(true);
+            try {
+              const contratos = await fetchProviderContracts(Number(id));
+              await syncProviderContractNotifications(contratos, (c) => ({
+                servicoNome: data.services.find((s) => s.id === c.servico_id)?.name ?? c.titulo,
+                clienteNome: undefined,
+              }));
+            } catch { }
           } else {
             setIsOwner(false);
           }
@@ -179,11 +188,11 @@ export default function ProfessionalProfileScreen() {
         {/* Profile card */}
         <View style={styles.profileRow}>
           <Image
-            source={professional.photoUrl ? { uri: professional.photoUrl } : PROFILE_PLACEHOLDER}
+            source={professional.photoUrl ? { uri: professional.photoUrl + `?_t=${Date.now()}` } : PROFILE_PLACEHOLDER}
             style={styles.avatar}
             contentFit="cover"
             transition={200}
-            cachePolicy="memory-disk"
+            cachePolicy="none"
           />
           <View style={styles.profileInfo}>
             <Text style={styles.name} numberOfLines={1}>
@@ -236,9 +245,9 @@ export default function ProfessionalProfileScreen() {
             <TouchableOpacity
               style={styles.primaryButton}
               activeOpacity={0.85}
-              onPress={() => router.push('/maintenance' as any)}>
-              <Icon name="construct-outline" size={20} color={colors.textWhite} />
-              <Text style={styles.primaryButtonText}>Acompanhar Manutenção</Text>
+              onPress={() => router.push('/contratations/provider-contracts' as any)}>
+              <Icon name="people-outline" size={20} color={colors.textWhite} />
+              <Text style={styles.primaryButtonText}>Clientes Atuais</Text>
             </TouchableOpacity>
           </View>
         )}
