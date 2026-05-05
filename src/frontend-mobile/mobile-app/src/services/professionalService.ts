@@ -109,10 +109,13 @@ export async function fetchProfessionals(page = 1): Promise<ProfessionalListItem
 
 export async function fetchProfessionalById(id: number | string): Promise<ProfessionalListItem> {
   const token = await AsyncStorage.getItem('@auth_token');
-  const response = await fetch(`${BASE_URL}/provider/view-service-provider/${id}`, {
+  const response = await fetch(`${BASE_URL}/provider/view-service-provider/${id}?_t=${Date.now()}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
   });
@@ -283,6 +286,25 @@ export async function updateService(serviceId: number | string, payload: UpdateS
   });
   if (!response.ok) {
     let msg = 'Não foi possível atualizar o serviço.';
+    try {
+      const data = await response.json();
+      if (typeof data?.message === 'string') msg = data.message;
+    } catch { }
+    throw new Error(msg);
+  }
+}
+
+export async function deleteService(serviceId: number | string): Promise<void> {
+  const token = await AsyncStorage.getItem('@auth_token');
+  const response = await fetch(`${BASE_URL}/services/delete-a-service/${serviceId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) {
+    let msg = 'Não foi possível excluir o serviço.';
     try {
       const data = await response.json();
       if (typeof data?.message === 'string') msg = data.message;
