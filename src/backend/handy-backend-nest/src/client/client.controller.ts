@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, UseGuards, Patch, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, Req, UseGuards, Patch, NotFoundException } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { clientSchema } from './schemas/client.schema';
 import {z} from "zod"
@@ -6,7 +6,7 @@ import {z} from "zod"
 import type { CreateClientDto } from './schemas/client.schema';
 import { JwtService } from '@nestjs/jwt';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { SuperAdminGuard } from 'src/auth/super-admin.guard';
+
 
 
 @Controller('client')
@@ -97,13 +97,13 @@ export class ClientController {
     
   }
  
-  @UseGuards(SuperAdminGuard)
   @Delete('delete-a-client/:email')
   async excluirConta(
-    @Param('email') email: string
+    @Param('email') email: string, 
+    @Headers('admin-key') chave_admin: string
   ) {
     try {
-      return this.clientService.deleteUserAccount(email);
+      return this.clientService.deleteUserAccount(email, chave_admin);
     } catch (error) {
       return {error}
     }

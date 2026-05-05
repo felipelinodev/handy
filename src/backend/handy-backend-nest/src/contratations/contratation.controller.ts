@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import type { CreateContratationDto } from './schemas/contratation.schema';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('contratations')
 export class ContratationController {
@@ -66,13 +65,13 @@ export class ContratationController {
     }
   }
 
-  @UseGuards(SuperAdminGuard)
   @Delete('cancel-a-contratation/:id')
   async cancelContratation(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Headers('admin-key') chave_admin: string
   ) {
     try {
-      return this.contratationService.cancelContratation(id);
+      return this.contratationService.cancelContratation(id, chave_admin);
     } catch (error) {
       throw new InternalServerErrorException(error)
     }

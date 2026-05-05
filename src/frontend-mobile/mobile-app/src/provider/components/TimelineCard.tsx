@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import {
-  Dimensions,
   LayoutAnimation,
   Platform,
   StyleSheet,
@@ -10,11 +9,9 @@ import {
   View,
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import Svg, { Path } from 'react-native-svg';
 
 import colors from '../../utils/colors';
 import { Breakpoint } from '../types/provider.types';
-import Ionicons from '@expo/vector-icons/Ionicons';
 
 if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
@@ -30,12 +27,8 @@ interface TimelineCardProps {
 const STATUS_DOT: Record<string, { color: string; filled: boolean }> = {
   concluido: { color: '#22C55E', filled: true },
   em_andamento: { color: colors.primary, filled: true },
-  pendente: { color: '#968BE7', filled: false },
+  pendente: { color: colors.primary, filled: false },
 };
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const CONNECTOR_WIDTH = SCREEN_WIDTH * 0.4;
-const CONNECTOR_HEIGHT = 55;
 
 export function TimelineCard({
   breakpoint,
@@ -73,14 +66,12 @@ export function TimelineCard({
           <Text style={styles.title} numberOfLines={1}>
             {breakpoint.titulo}
           </Text>
-          {onEdit && (
-            <TouchableOpacity
-              style={styles.editBtn}
-              activeOpacity={0.7}
-              onPress={() => onEdit?.(breakpoint)}>
-              <Icon name="pencil" size={13} color={colors.primary} />
-            </TouchableOpacity>
-          )}
+          <TouchableOpacity
+            style={styles.editBtn}
+            activeOpacity={0.7}
+            onPress={() => onEdit?.(breakpoint)}>
+            <Icon name="pencil" size={13} color={colors.primary} />
+          </TouchableOpacity>
         </View>
 
         <View style={styles.card}>
@@ -141,26 +132,12 @@ export function TimelineCard({
       {showConnector && (
         <View
           style={[
-            styles.connectorContainer,
-            alignment === 'left' ? styles.connectorLeft : styles.connectorRight,
-          ]}>
-          <Svg
-            width={CONNECTOR_WIDTH}
-            height={CONNECTOR_HEIGHT}
-            viewBox={`0 0 ${CONNECTOR_WIDTH} ${CONNECTOR_HEIGHT}`}>
-            <Path
-              d={
-                alignment === 'left'
-                  ? `M 0 0 C 0 ${CONNECTOR_HEIGHT / 2}, ${CONNECTOR_WIDTH} ${CONNECTOR_HEIGHT / 2}, ${CONNECTOR_WIDTH} ${CONNECTOR_HEIGHT}`
-                  : `M ${CONNECTOR_WIDTH} 0 C ${CONNECTOR_WIDTH} ${CONNECTOR_HEIGHT / 2}, 0 ${CONNECTOR_HEIGHT / 2}, 0 ${CONNECTOR_HEIGHT}`
-              }
-              stroke="#7C3AED"
-              strokeWidth="2"
-              fill="none"
-              opacity="0.3"
-            />
-          </Svg>
-        </View>
+            styles.connectorLine,
+            alignment === 'left'
+              ? styles.connectorFromLeft
+              : styles.connectorFromRight,
+          ]}
+        />
       )}
     </View>
   );
@@ -168,11 +145,10 @@ export function TimelineCard({
 
 const styles = StyleSheet.create({
   outerWrapper: {
-    marginBottom: 55,
+    marginBottom: 8,
   },
   wrapper: {
-    width: '60%',
-
+    width: '72%',
   },
   wrapperLeft: {
     alignSelf: 'flex-start',
@@ -186,12 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 2,
-    backgroundColor: '#F0E6FF',
-    borderColor: '#CBC3F8',
-    borderWidth: 1,
-    padding: 9,
-    borderTopEndRadius: 14,
-    borderTopStartRadius: 14,
+    marginBottom: 4,
   },
   dot: {
     width: 13,
@@ -199,14 +170,12 @@ const styles = StyleSheet.create({
     borderRadius: 7,
     borderWidth: 2.5,
     marginRight: 7,
-    marginLeft: 10
   },
   title: {
     flex: 1,
     fontSize: 15,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
-
   },
   editBtn: {
     width: 30,
@@ -218,28 +187,27 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: 'rgba(255,255,255,0.92)',
-    borderBottomEndRadius: 14,
-    borderBottomStartRadius: 14,
+    borderRadius: 14,
     paddingHorizontal: 14,
     paddingTop: 12,
     paddingBottom: 10,
+    borderWidth: 1,
     borderColor: 'rgba(139, 92, 246, 0.10)',
     shadowColor: '#4A1D96',
     shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.05,
     shadowRadius: 10,
-
+    elevation: 3,
   },
   description: {
     fontSize: 12,
     lineHeight: 17,
     fontFamily: 'OpenSans_400Regular',
-    color: '#',
+    color: '#4B5563',
     marginBottom: 10,
   },
   pillsRow: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
     alignItems: 'center',
     gap: 8,
   },
@@ -266,7 +234,7 @@ const styles = StyleSheet.create({
     color: colors.surface,
   },
   datePill: {
-    backgroundColor: '#CBC3F8',
+    backgroundColor: '#EDE9FE',
     borderRadius: 50,
     paddingHorizontal: 11,
     paddingVertical: 4,
@@ -274,7 +242,7 @@ const styles = StyleSheet.create({
   dateLabel: {
     fontSize: 10,
     fontFamily: 'OpenSans_600SemiBold',
-    color: colors.textDark,
+    color: colors.primary,
   },
   commentsSection: {
     marginTop: 10,
@@ -323,17 +291,21 @@ const styles = StyleSheet.create({
     color: '#4B5563',
     paddingLeft: 24,
   },
-  connectorContainer: {
+  connectorLine: {
     position: 'absolute',
-    bottom: -CONNECTOR_HEIGHT,
-    height: CONNECTOR_HEIGHT,
-    width: CONNECTOR_WIDTH,
-    zIndex: -1,
+    bottom: -8,
+    width: 70,
+    height: 2,
+    backgroundColor: colors.primary,
+    opacity: 0.18,
+    borderRadius: 1,
   },
-  connectorLeft: {
-    left: '30%',
+  connectorFromLeft: {
+    left: '60%',
+    transform: [{ rotate: '40deg' }],
   },
-  connectorRight: {
-    right: '30%',
+  connectorFromRight: {
+    right: '60%',
+    transform: [{ rotate: '-40deg' }],
   },
 });

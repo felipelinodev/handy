@@ -21,15 +21,12 @@ export const NotificationBell: React.FC<NotificationBellProps> = ({
   useFocusEffect(
     useCallback(() => {
       let active = true;
-      async function refresh() {
+      (async () => {
         const count = await getUnreadCount();
         if (active) setUnread(count);
-      }
-      refresh();
-      const interval = setInterval(refresh, 5000);
+      })();
       return () => {
         active = false;
-        clearInterval(interval);
       };
     }, []),
   );

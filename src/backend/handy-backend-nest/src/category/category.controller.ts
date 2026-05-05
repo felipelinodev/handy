@@ -5,7 +5,6 @@ import { z } from "zod";
 
 import type { CreateCategoryDto } from './schemas/category.schema';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('category')
 export class CategoryController {
@@ -48,13 +47,13 @@ export class CategoryController {
     return await this.categoryService.viewAllCategories();
   }
 
-  @UseGuards(SuperAdminGuard)
   @Delete('remove-category/:id')
   async removeCategory(
-    @Param('id', ParseIntPipe) id: number
+    @Param('id', ParseIntPipe) id: number,
+    @Headers('admin-key') chave_admin: string
   ) {
     try {
-      return await this.categoryService.deleteCategory(id);
+      return await this.categoryService.deleteCategory(id, chave_admin);
     } catch (error) {
       return { error };
     }

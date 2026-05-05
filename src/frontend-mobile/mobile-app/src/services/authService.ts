@@ -1,5 +1,16 @@
+import Constants from 'expo-constants';
 import { LoginPayload, RegisterPayload, AuthResponse } from '../types/auth';
-import { BASE_URL, getPublicHeaders } from './apiConfig';
+
+const API_PORT = 4000;
+
+function resolveBaseUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) {
+    return process.env.EXPO_PUBLIC_API_URL;
+  }
+  return `http://192.168.18.180:${API_PORT}`;
+}
+
+const BASE_URL = resolveBaseUrl();
 
 class ApiError extends Error {
   field: string | null;
@@ -22,10 +33,9 @@ async function parseError(response: Response, fallback: string): Promise<ApiErro
 }
 
 export async function loginClient(payload: LoginPayload): Promise<AuthResponse> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/client/login-client`, {
     method: 'POST',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
 
@@ -37,10 +47,9 @@ export async function loginClient(payload: LoginPayload): Promise<AuthResponse> 
 }
 
 export async function registerClient(payload: RegisterPayload): Promise<any> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/client/create-client-account`, {
     method: 'POST',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
 
@@ -52,10 +61,9 @@ export async function registerClient(payload: RegisterPayload): Promise<any> {
 }
 
 export async function loginProvider(payload: LoginPayload): Promise<AuthResponse> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/provider/login-service-provider`, {
     method: 'POST',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
   });
 
@@ -67,12 +75,9 @@ export async function loginProvider(payload: LoginPayload): Promise<AuthResponse
 }
 
 export async function registerProvider(payload: RegisterPayload): Promise<any> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/provider/create-service-provider-account`, {
     method: 'POST',
-    headers: {
-      ...headers,
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...payload, tipo_usuario: 'prestador' }),
   });
 

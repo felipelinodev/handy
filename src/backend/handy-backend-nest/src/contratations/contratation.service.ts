@@ -33,7 +33,11 @@ export class ContratationService {
     };
   }
 
-  async cancelContratation(id: number){
+  async cancelContratation(id: number, chaveAdmin: string){
+    if(chaveAdmin !== process.env.CHAVE_ADMIN){
+      throw new UnauthorizedException('Você não tem permissão para cancelar essa contratação.');
+    }
+
     const contratation = await this.viewContratation(id);
     
     if (!contratation) {

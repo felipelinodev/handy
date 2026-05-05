@@ -24,9 +24,7 @@ export class ContratationRepository {
     }
 
     async buscarTodasContratacoes() {
-        return await this.prisma.contratacoes.findMany({
-            include: { avaliacao: true }
-        });
+        return await this.prisma.contratacoes.findMany();
     }
 
     async deletarContratacao(id: number){

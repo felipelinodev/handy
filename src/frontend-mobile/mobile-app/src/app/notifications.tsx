@@ -10,6 +10,7 @@ import {
 import Icon from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '../utils/colors';
 import {
@@ -92,11 +93,19 @@ export default function NotificationsScreen() {
     setItems([]);
   }
 
-  function openContract(n: AppNotification) {
-    router.push({
-      pathname: '/contratations/[id]' as any,
-      params: { id: String(n.contratoId) },
-    });
+  async function openContract(n: AppNotification) {
+    const userDataStr = await AsyncStorage.getItem('@auth_user');
+    const u = userDataStr ? JSON.parse(userDataStr) : null;
+    const tipo = String(u?.tipo_usuario ?? '').toLowerCase();
+
+    if (tipo === 'prestador') {
+      router.push('/contratations/provider-contracts' as any);
+    } else {
+      router.push({
+        pathname: '/contratations/[id]' as any,
+        params: { id: String(n.contratoId) },
+      });
+    }
   }
 
   return (

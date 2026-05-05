@@ -3,7 +3,6 @@ import { MessagesService } from './messages.service';
 import { mensagemSchema, createNewMensagemSchema } from './schemas/messages.schema';
 import { z } from 'zod';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { SuperAdminGuard } from 'src/auth/super-admin.guard';
 
 @Controller('messages')
 export class MessagesController {
@@ -58,11 +57,15 @@ export class MessagesController {
     }
   }
 
-  @UseGuards(SuperAdminGuard)
   @Delete('delete-a-menssage/:mensagemId')
   async deleteAMenssage(
-    @Param('mensagemId', ParseIntPipe) mensagemId: number
+    @Param('mensagemId', ParseIntPipe) mensagemId: number,
+    @Headers('admin-key') chaveAdmin: string,
   ) {
+    if (chaveAdmin !== process.env.CHAVE_ADMIN) {
+      throw new UnauthorizedException('Apenas administradores podem excluir mensagens.');
+    }
+
     return this.messagesService.deleteMenssage(mensagemId);
   }
 }

@@ -1,5 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL, getHeaders, getPublicHeaders } from './apiConfig';
+import Constants from 'expo-constants';
+
+const API_PORT = 4000;
+
+function resolveBaseUrl(): string {
+  if (process.env.EXPO_PUBLIC_API_URL) return process.env.EXPO_PUBLIC_API_URL;
+  return `http://192.168.18.180:${API_PORT}`;
+}
+
+const BASE_URL = resolveBaseUrl();
 
 export interface BackendProvider {
   user_id: number;
@@ -85,10 +94,9 @@ export function mapProvider(p: BackendProvider): ProfessionalListItem {
 }
 
 export async function fetchProfessionals(page = 1): Promise<ProfessionalListItem[]> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/provider/list-service-providers?page=${page}`, {
     method: 'GET',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!response.ok) {
@@ -100,10 +108,16 @@ export async function fetchProfessionals(page = 1): Promise<ProfessionalListItem
 }
 
 export async function fetchProfessionalById(id: number | string): Promise<ProfessionalListItem> {
-  const headers = await getHeaders();
-  const response = await fetch(`${BASE_URL}/provider/view-service-provider/${id}`, {
+  const token = await AsyncStorage.getItem('@auth_token');
+  const response = await fetch(`${BASE_URL}/provider/view-service-provider/${id}?_t=${Date.now()}`, {
     method: 'GET',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
 
   if (!response.ok) {
@@ -134,20 +148,22 @@ export interface Categoria {
 }
 
 export async function fetchEspecialidades(): Promise<Especialidade[]> {
-  const headers = await getPublicHeaders();
   const response = await fetch(`${BASE_URL}/provider/especialidades`, {
     method: 'GET',
-    headers,
+    headers: { 'Content-Type': 'application/json' },
   });
   if (!response.ok) throw new Error('Não foi possível carregar especialidades.');
   return await response.json();
 }
 
 export async function fetchProviderEspecialidadeIds(id: number | string): Promise<number[]> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const response = await fetch(`${BASE_URL}/provider/view-service-provider/${id}`, {
     method: 'GET',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
   if (!response.ok) return [];
   const data: any = await response.json();
@@ -158,13 +174,16 @@ export async function fetchProviderEspecialidadeIds(id: number | string): Promis
 }
 
 export async function fetchCategorias(): Promise<Categoria[]> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const url = `${BASE_URL}/category/view-all-category`;
-  console.log('[fetchCategorias] GET', url, 'token?', !!headers['Authorization']);
+  console.log('[fetchCategorias] GET', url, 'token?', !!token);
 
   const response = await fetch(url, {
     method: 'GET',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
 
   console.log('[fetchCategorias] status', response.status);
@@ -203,10 +222,13 @@ export interface CreateServicePayload {
 }
 
 export async function createService(payload: CreateServicePayload): Promise<void> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const response = await fetch(`${BASE_URL}/services/create-new-service`, {
     method: 'POST',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
@@ -233,10 +255,13 @@ export async function fetchServiceById(serviceId: number | string): Promise<{
   preco: number;
   categoria_id: number;
 }> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const response = await fetch(`${BASE_URL}/services/list-a-service/${serviceId}`, {
     method: 'GET',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
   });
   if (!response.ok) throw new Error('Não foi possível carregar o serviço.');
   const data = await response.json();
@@ -250,10 +275,13 @@ export async function fetchServiceById(serviceId: number | string): Promise<{
 }
 
 export async function updateService(serviceId: number | string, payload: UpdateServicePayload): Promise<void> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const response = await fetch(`${BASE_URL}/services/edit-a-service/${serviceId}`, {
     method: 'PATCH',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
   if (!response.ok) {
@@ -266,11 +294,33 @@ export async function updateService(serviceId: number | string, payload: UpdateS
   }
 }
 
+export async function deleteService(serviceId: number | string): Promise<void> {
+  const token = await AsyncStorage.getItem('@auth_token');
+  const response = await fetch(`${BASE_URL}/services/delete-a-service/${serviceId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  });
+  if (!response.ok) {
+    let msg = 'Não foi possível excluir o serviço.';
+    try {
+      const data = await response.json();
+      if (typeof data?.message === 'string') msg = data.message;
+    } catch { }
+    throw new Error(msg);
+  }
+}
+
 export async function updateProfessional(id: number | string, payload: UpdateProviderPayload): Promise<void> {
-  const headers = await getHeaders();
+  const token = await AsyncStorage.getItem('@auth_token');
   const response = await fetch(`${BASE_URL}/provider/update-service-provider/${id}`, {
     method: 'PATCH',
-    headers,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
     body: JSON.stringify(payload),
   });
 

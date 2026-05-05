@@ -68,7 +68,12 @@ export class ClientService {
     return user;
   }
 
-  async deleteUserAccount(email: string){
+  async deleteUserAccount(email: string, chaveAdmin: string){
+
+    if(chaveAdmin !== process.env.CHAVE_ADMIN){
+      throw new UnauthorizedException('Você não tem permissão para excluir essa conta.');
+    }
+
     const user = await this.searchClientByEmail(email);
     
     if (!user) {
