@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, getHeaders, getPublicHeaders } from './apiConfig';
 
 export interface BackendProvider {
@@ -272,13 +271,10 @@ export async function updateService(serviceId: number | string, payload: UpdateS
 }
 
 export async function deleteService(serviceId: number | string): Promise<void> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
   const response = await fetch(`${BASE_URL}/services/delete-a-service/${serviceId}`, {
     method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
   });
   if (!response.ok) {
     let msg = 'Não foi possível excluir o serviço.';

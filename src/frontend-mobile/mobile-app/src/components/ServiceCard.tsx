@@ -29,7 +29,10 @@ export const ServiceCard: React.FC<ServiceCardProps> = ({
           <Text style={styles.priceLabel}>
             Valor mínimo{' '}
             <Text style={styles.priceValue}>
-              R$ {service.price.toLocaleString('pt-BR')}
+              R$ {service.price.toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
             </Text>
           </Text>
           {onPressEdit && (

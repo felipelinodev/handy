@@ -26,11 +26,14 @@ import {
   createService,
   fetchCategorias,
 } from '../services/professionalService';
+import { brlMaskToNumber, maskBrlInput } from '../utils/currency';
+import { useProviderGuard } from '../utils/useProviderGuard';
 
 export default function AddServiceScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const guardAllowed = useProviderGuard({ ownerId: id });
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,8 +90,8 @@ export default function AddServiceScreen() {
       setNomeError('');
     }
 
-    const precoNum = Number(preco.replace(',', '.'));
-    if (!preco || Number.isNaN(precoNum) || precoNum <= 0) {
+    const precoNum = brlMaskToNumber(preco);
+    if (!preco || precoNum <= 0) {
       setPrecoError('Preço inválido.');
       valid = false;
     } else {
@@ -114,7 +117,7 @@ export default function AddServiceScreen() {
         categoria_id: categoriaId as number,
         nome_servico: nomeServico.trim(),
         descricao: descricao.trim() || null,
-        preco: Number(preco.replace(',', '.')),
+        preco: brlMaskToNumber(preco),
       });
       Alert.alert('Sucesso', 'Serviço criado com sucesso.', [
         { text: 'OK', onPress: () => router.back() },
@@ -126,7 +129,7 @@ export default function AddServiceScreen() {
     }
   }
 
-  if (loading) {
+  if (loading || guardAllowed === null || guardAllowed === false) {
     return (
       <ImageBackground source={require('../assets/fundo_neutro_clean.png')} style={styles.background}>
         <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
@@ -172,13 +175,13 @@ export default function AddServiceScreen() {
               onChangeText={setDescricao}
             />
             <InputField
-              placeholder="Preço (ex: 150.00)"
+              placeholder="Preço (R$ 0,00)"
               value={preco}
               onChangeText={(t) => {
-                setPreco(t);
+                setPreco(maskBrlInput(t));
                 if (precoError) setPrecoError('');
               }}
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
               errorMessage={precoError}
             />
 

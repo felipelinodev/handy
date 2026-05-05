@@ -1,6 +1,7 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Animated,
   Dimensions,
   ImageBackground,
@@ -25,12 +26,14 @@ import { NotificationBell } from '../../components/NotificationBell';
 import {
   Contratacao,
   fetchProviderContracts,
+  updateContractStatus,
 } from '../../services/contractService';
 import {
   fetchProfessionalById,
   ProfessionalListItem,
   ProfessionalService,
 } from '../../services/professionalService';
+import { useProviderGuard } from '../../utils/useProviderGuard';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -111,12 +114,14 @@ function prazoLabel(p: ParsedDetalhes): string {
 export default function ProviderContractsScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const guardAllowed = useProviderGuard();
   const [items, setItems] = useState<EnrichedContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [selectedItem, setSelectedItem] = useState<EnrichedContract | null>(null);
   const [sheetVisible, setSheetVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [rejecting, setRejecting] = useState(false);
   const [slideAnim] = useState(new Animated.Value(SCREEN_HEIGHT));
 
   const load = useCallback(async () => {
@@ -136,7 +141,7 @@ export default function ProviderContractsScreen() {
       let prestadorData: ProfessionalListItem | null = null;
       try {
         prestadorData = await fetchProfessionalById(prestadorId);
-      } catch {}
+      } catch { }
 
       const enriched: EnrichedContract[] = [];
       for (const contrato of contratos) {
@@ -163,9 +168,9 @@ export default function ProviderContractsScreen() {
               item.clienteNome = clientData?.nome ?? item.clienteNome;
               item.clienteFoto = clientData?.photo_url ?? null;
             }
-          } catch {}
+          } catch { }
         }
-      } catch {}
+      } catch { }
 
       enriched.sort((a, b) => b.contrato.contratacao_id - a.contrato.contratacao_id);
       setItems(enriched);
@@ -203,6 +208,35 @@ export default function ProviderContractsScreen() {
       setSheetVisible(false);
       setSelectedItem(null);
     });
+  }
+
+  function handleRecusar() {
+    if (!selectedItem) return;
+    const item = selectedItem;
+    Alert.alert(
+      'Recusar solicitação',
+      `Tem certeza que deseja recusar o serviço "${item.servico?.name ?? item.contrato.titulo}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Recusar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              setRejecting(true);
+              await updateContractStatus(item.contrato.contratacao_id, 'Cancelada');
+              setModalVisible(false);
+              setSelectedItem(null);
+              await load();
+            } catch (error: any) {
+              Alert.alert('Erro', error?.message ?? 'Não foi possível recusar a solicitação.');
+            } finally {
+              setRejecting(false);
+            }
+          },
+        },
+      ],
+    );
   }
 
   async function handleProsseguir() {
@@ -253,7 +287,7 @@ export default function ProviderContractsScreen() {
         </TouchableOpacity>
       </View>
 
-      {loading ? (
+      {loading || guardAllowed === null || guardAllowed === false ? (
         <View style={styles.centered}>
           <ActivityIndicator color={colors.primary} />
         </View>
@@ -352,8 +386,8 @@ export default function ProviderContractsScreen() {
                         {selectedItem.contrato.endereco
                           ? selectedItem.contrato.endereco.split(',')[0]?.trim()
                           : selectedItem.parsed.modo === 'digital'
-                          ? 'Plataforma'
-                          : '—'}
+                            ? 'Plataforma'
+                            : '—'}
                       </Text>
                     </View>
                   </View>
@@ -388,7 +422,7 @@ export default function ProviderContractsScreen() {
       )}
 
       <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={() => setModalVisible(false)}>
-        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => !rejecting && setModalVisible(false)}>
           <View style={styles.modalOverlay}>
             <TouchableWithoutFeedback>
               <View style={styles.modalContent}>
@@ -399,34 +433,92 @@ export default function ProviderContractsScreen() {
                   <View style={styles.modalDecorDot3} />
                   <View style={styles.modalDecorDot4} />
                   <View style={styles.modalIconCircle}>
-                    <Icon name="clipboard-outline" size={32} color={colors.primary} />
+                    <Icon name="clipboard-outline" size={36} color="#5C67F2" />
                   </View>
                 </View>
-                <Text style={styles.modalTitle}>Nova solicitação{'\n'}de serviço</Text>
-                <Text style={styles.modalSubtitle}>
-                  Um cliente solicitou um serviço de{' '}
-                  {selectedItem?.servico?.category?.toLowerCase() ?? 'serviço'}.
-                </Text>
-                <View style={styles.modalInfoCard}>
-                  <View style={styles.modalInfoRow}>
-                    <Icon name="person-outline" size={20} color={colors.textMuted} />
-                    <View>
-                      <Text style={styles.modalInfoLabel}>Cliente</Text>
-                      <Text style={styles.modalInfoValue}>{selectedItem?.clienteNome ?? '—'}</Text>
-                    </View>
-                  </View>
-                  <View style={styles.modalInfoRow}>
-                    <Icon name="calendar-outline" size={20} color={colors.textMuted} />
-                    <View>
-                      <Text style={styles.modalInfoLabel}>Prazo</Text>
-                      <Text style={styles.modalInfoValue}>
-                        {selectedItem ? prazoLabel(selectedItem.parsed) : '—'}
+
+                <View style={styles.modalServiceCard}>
+                  <Text style={styles.modalServiceTitle} numberOfLines={2}>
+                    {selectedItem?.servico?.name ?? selectedItem?.contrato.titulo ?? '—'}
+                  </Text>
+                  <View style={styles.modalServiceDescBox}>
+                    <Text style={styles.modalServiceDesc}>
+                      {selectedItem?.servico?.description?.trim()
+                        ? selectedItem.servico.description
+                        : 'Sem descrição cadastrada para este serviço.'}
+                    </Text>
+                    {selectedItem?.parsed.observacoes ? (
+                      <Text style={styles.modalServiceObs}>
+                        <Text style={styles.modalServiceObsLabel}>Observações: </Text>
+                        {selectedItem.parsed.observacoes}
                       </Text>
-                    </View>
+                    ) : null}
                   </View>
                 </View>
-                <TouchableOpacity style={styles.sheetButton} activeOpacity={0.85} onPress={handleProsseguir}>
-                  <Text style={styles.sheetButtonText}>Prosseguir</Text>
+
+                <View style={styles.modalInfoCard}>
+                  <View style={styles.infoGridTop}>
+                    <View style={styles.infoColTop}>
+                      <View style={styles.infoIconCircle}>
+                        <Icon name="person-outline" size={18} color="#4A5568" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.modalInfoLabel}>Cliente</Text>
+                        <Text style={styles.modalInfoValue} numberOfLines={1}>{selectedItem?.clienteNome ?? '—'}</Text>
+                      </View>
+                    </View>
+                    
+                    <View style={styles.infoVerticalDivider} />
+                    
+                    <View style={styles.infoColTop}>
+                      <View style={styles.infoIconCircle}>
+                        <Icon name="calendar-outline" size={18} color="#4A5568" />
+                      </View>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.modalInfoLabel}>Prazo</Text>
+                        <Text style={styles.modalInfoValue} numberOfLines={1}>
+                          {selectedItem ? prazoLabel(selectedItem.parsed) : '—'}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                  
+                  {!!selectedItem?.servico?.price && (
+                    <View style={styles.infoBottomWrap}>
+                      <View style={styles.infoHorizontalDivider} />
+                      <View style={styles.infoColBottom}>
+                        <View style={styles.infoIconCircle}>
+                          <Icon name="card-outline" size={18} color="#4A5568" />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                          <Text style={styles.modalInfoLabel}>Valor</Text>
+                          <Text style={[styles.modalInfoValue, { color: '#5A67D8', fontSize: 16 }]}>
+                            {precoFormat(selectedItem.servico.price)}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                  )}
+                </View>
+
+                <TouchableOpacity
+                  style={[styles.prosseguirButton, rejecting && styles.buttonDisabled]}
+                  activeOpacity={0.85}
+                  disabled={rejecting}
+                  onPress={handleProsseguir}>
+                  <Text style={styles.prosseguirButtonText}>Prosseguir</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[styles.recusarButton, rejecting && styles.buttonDisabled]}
+                  activeOpacity={0.85}
+                  disabled={rejecting}
+                  onPress={handleRecusar}>
+                  {rejecting ? (
+                    <ActivityIndicator color="#5C67F2" />
+                  ) : (
+                    <Text style={styles.recusarButtonText}>Recusar</Text>
+                  )}
                 </TouchableOpacity>
               </View>
             </TouchableWithoutFeedback>
@@ -516,7 +608,7 @@ const styles = StyleSheet.create({
   sheetMetaLabel: { fontSize: 11, fontFamily: 'OpenSans_400Regular', color: colors.textMuted },
   sheetMetaValue: { fontSize: 13, fontFamily: 'OpenSans_700Bold', color: colors.textDark },
   sheetButton: {
-    width: '100%', backgroundColor: colors.primary, borderRadius: 50, height: 54,
+    width: '100%', backgroundColor: colors.primary, borderRadius: 16, height: 54,
     alignItems: 'center', justifyContent: 'center',
   },
   sheetButtonText: { color: colors.textWhite, fontSize: 16, fontFamily: 'OpenSans_700Bold' },
@@ -532,55 +624,106 @@ const styles = StyleSheet.create({
     flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end',
   },
   modalContent: {
-    backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28,
-    paddingHorizontal: 28, paddingTop: 12, paddingBottom: 40, alignItems: 'center',
+    backgroundColor: '#F7F5FF', borderTopLeftRadius: 32, borderTopRightRadius: 32,
+    paddingHorizontal: 24, paddingTop: 16, paddingBottom: 40, alignItems: 'center',
   },
   modalIconWrap: {
     width: 140, height: 140, alignItems: 'center', justifyContent: 'center',
-    marginVertical: 20, position: 'relative',
+    marginVertical: 4, position: 'relative',
   },
   modalIconCircle: {
-    width: 90, height: 90, borderRadius: 45, backgroundColor: '#E0DDF7',
-    alignItems: 'center', justifyContent: 'center',
+    width: 80, height: 80, borderRadius: 40, backgroundColor: '#EBE6FA',
+    alignItems: 'center', justifyContent: 'center', borderWidth: 3, borderColor: '#F7F5FF'
   },
   modalDecorDot1: {
-    position: 'absolute', top: 10, left: 10, width: 10, height: 10,
-    borderRadius: 5, backgroundColor: '#CBC3F8',
+    position: 'absolute', top: 20, left: 16, width: 10, height: 10,
+    borderRadius: 5, backgroundColor: '#DCD4F6',
   },
   modalDecorDot2: {
-    position: 'absolute', top: 5, right: 15, width: 14, height: 14,
-    borderRadius: 7, backgroundColor: '#E0DDF7',
+    position: 'absolute', top: 10, right: 20, width: 16, height: 16,
+    borderRadius: 8, backgroundColor: '#EBE6FA',
   },
   modalDecorDot3: {
-    position: 'absolute', bottom: 15, left: 5, width: 8, height: 8,
-    borderRadius: 4, backgroundColor: '#CBC3F8',
+    position: 'absolute', bottom: 25, left: 15, width: 20, height: 20,
+    borderRadius: 10, backgroundColor: '#E0DDF7',
   },
   modalDecorDot4: {
-    position: 'absolute', bottom: 8, right: 10, width: 12, height: 12,
-    borderRadius: 6, backgroundColor: '#E0DDF7',
+    position: 'absolute', bottom: 18, right: 25, width: 26, height: 26,
+    borderRadius: 13, backgroundColor: '#DCD4F6',
   },
-  modalTitle: {
-    fontSize: 24, fontFamily: 'OpenSans_700Bold', color: colors.primary,
-    textAlign: 'center', marginBottom: 10,
+  modalServiceCard: {
+    width: '100%',
+    backgroundColor: '#EFEBF5',
+    borderRadius: 20,
+    padding: 16,
+    marginBottom: 16,
+    gap: 12,
   },
-  modalSubtitle: {
-    fontSize: 14, fontFamily: 'OpenSans_400Regular', color: colors.textMuted,
-    textAlign: 'center', marginBottom: 24, paddingHorizontal: 16,
+  modalServiceTitle: {
+    fontSize: 17,
+    fontFamily: 'OpenSans_700Bold',
+    color: '#1A202C',
+  },
+  modalServiceDescBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalServiceDesc: {
+    fontSize: 14,
+    lineHeight: 22,
+    fontFamily: 'OpenSans_400Regular',
+    color: '#4A5568',
+  },
+  modalServiceObs: {
+    fontSize: 13, lineHeight: 20, fontFamily: 'OpenSans_400Regular',
+    color: '#718096', marginTop: 12,
+  },
+  modalServiceObsLabel: {
+    fontFamily: 'OpenSans_700Bold', color: '#4A5568',
   },
   modalInfoCard: {
-    width: '100%', backgroundColor: colors.muttedSurface, borderRadius: 16,
-    padding: 18, gap: 16, marginBottom: 24,
+    width: '100%', backgroundColor: '#EFEBF5', borderRadius: 20,
+    padding: 16, marginBottom: 24,
   },
-  modalInfoRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  modalInfoLabel: { fontSize: 12, fontFamily: 'OpenSans_400Regular', color: colors.textMuted },
-  modalInfoValue: { fontSize: 15, fontFamily: 'OpenSans_700Bold', color: colors.textDark },
-  modalOutlineButton: {
+  infoGridTop: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+  },
+  infoColTop: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10,
+  },
+  infoColBottom: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, width: '100%'
+  },
+  infoBottomWrap: {
+    width: '100%',
+  },
+  infoIconCircle: {
+    width: 40, height: 40, borderRadius: 20, backgroundColor: '#E2DEF8',
+    alignItems: 'center', justifyContent: 'center',
+  },
+  infoVerticalDivider: {
+    width: 1, height: 40, backgroundColor: '#D1CBE3', marginHorizontal: 12,
+  },
+  infoHorizontalDivider: {
+    height: 1, width: '100%', backgroundColor: '#D1CBE3', marginVertical: 14,
+  },
+  modalInfoLabel: { fontSize: 11, fontFamily: 'OpenSans_400Regular', color: '#718096', marginBottom: 2 },
+  modalInfoValue: { fontSize: 14, fontFamily: 'OpenSans_700Bold', color: '#1A202C' },
+  prosseguirButton: {
+    width: '100%', backgroundColor: '#5A67D8', borderRadius: 14, height: 54,
+    alignItems: 'center', justifyContent: 'center', marginBottom: 12,
+  },
+  prosseguirButtonText: { color: '#FFFFFF', fontSize: 16, fontFamily: 'OpenSans_700Bold' },
+  recusarButton: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 8, width: '100%', height: 54, borderRadius: 50,
-    borderWidth: 1.5, borderColor: colors.border, marginTop: 12,
+    width: '100%', height: 54, borderRadius: 14, borderWidth: 1.5,
+    borderColor: '#5A67D8', backgroundColor: 'transparent',
   },
-  modalOutlineText: {
-    fontSize: 15, fontFamily: 'OpenSans_700Bold', color: colors.textDark,
-    textDecorationLine: 'underline',
+  recusarButtonText: {
+    fontSize: 16, fontFamily: 'OpenSans_700Bold', color: '#5A67D8',
+  },
+  buttonDisabled: {
+    opacity: 0.6,
   },
 });

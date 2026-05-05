@@ -8,6 +8,7 @@ export interface RegisterPayload {
   email: string;
   cpf: string;
   senha: string;
+  especialidades?: number[];
 }
 
 export interface AuthUser {

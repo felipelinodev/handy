@@ -28,11 +28,18 @@ import {
   updateService,
   deleteService,
 } from '../services/professionalService';
+import {
+  brlMaskToNumber,
+  maskBrlInput,
+  numberToBrlMask,
+} from '../utils/currency';
+import { useProviderGuard } from '../utils/useProviderGuard';
 
 export default function EditServiceScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const guardAllowed = useProviderGuard();
 
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [loading, setLoading] = useState(true);
@@ -77,7 +84,7 @@ export default function EditServiceScreen() {
         if (isMounted) {
           setNomeServico(service.nome_servico);
           setDescricao(service.descricao ?? '');
-          setPreco(String(service.preco));
+          setPreco(numberToBrlMask(service.preco));
           setCategoriaId(service.categoria_id);
           setCategorias(cats);
         }
@@ -103,8 +110,8 @@ export default function EditServiceScreen() {
       setNomeError('');
     }
 
-    const precoNum = Number(preco.replace(',', '.'));
-    if (!preco || Number.isNaN(precoNum) || precoNum <= 0) {
+    const precoNum = brlMaskToNumber(preco);
+    if (!preco || precoNum <= 0) {
       setPrecoError('Preço inválido.');
       valid = false;
     } else {
@@ -129,7 +136,7 @@ export default function EditServiceScreen() {
         categoria_id: categoriaId as number,
         nome_servico: nomeServico.trim(),
         descricao: descricao.trim() || null,
-        preco: Number(preco.replace(',', '.')),
+        preco: brlMaskToNumber(preco),
       });
       Alert.alert('Sucesso', 'Serviço atualizado com sucesso.', [
         { text: 'OK', onPress: () => router.back() },
@@ -141,7 +148,7 @@ export default function EditServiceScreen() {
     }
   }
 
-  if (loading) {
+  if (loading || guardAllowed === null || guardAllowed === false) {
     return (
       <ImageBackground source={require('../assets/fundo_neutro_clean.png')} style={styles.background}>
         <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
@@ -187,13 +194,13 @@ export default function EditServiceScreen() {
               onChangeText={setDescricao}
             />
             <InputField
-              placeholder="Preço (ex: 150.00)"
+              placeholder="Preço (R$ 0,00)"
               value={preco}
               onChangeText={(t) => {
-                setPreco(t);
+                setPreco(maskBrlInput(t));
                 if (precoError) setPrecoError('');
               }}
-              keyboardType="decimal-pad"
+              keyboardType="numeric"
               errorMessage={precoError}
             />
 

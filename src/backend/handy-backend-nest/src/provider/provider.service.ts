@@ -55,12 +55,19 @@ export class ProviderService {
             throw new UnauthorizedException('E-mail ou senha incorretos.');
         }
 
-        // CORRIGIDO PARA comparePassword E ADICIONADO AWAIT
         const isPasswordValid = await this.hashProvider.comparePassword(senha, user.hash_password);
-        
+
         if (!isPasswordValid) {
             throw new UnauthorizedException('E-mail ou senha incorretos.');
         }
+
+        const tipo = String((user as any).tipo_usuario ?? '').toLowerCase();
+        if (tipo !== 'prestador') {
+            throw new UnauthorizedException(
+                'Esta conta é de cliente. Entre pela área do cliente.',
+            );
+        }
+
         return user;
     }
 

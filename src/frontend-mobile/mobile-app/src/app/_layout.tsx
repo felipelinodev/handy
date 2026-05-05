@@ -9,7 +9,10 @@ import {
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import colors from '../utils/colors';
-import { performClientNotificationSync } from '../services/notificationService';
+import {
+  clearLegacyGlobalNotifications,
+  performClientNotificationSync,
+} from '../services/notificationService';
 import { InAppNotificationToaster } from '../components/InAppNotificationToaster';
 
 const NOTIFICATION_POLL_MS = 20000;
@@ -30,7 +33,7 @@ export default function RootLayout() {
       performClientNotificationSync();
     }
 
-    runOnce();
+    clearLegacyGlobalNotifications().finally(runOnce);
     interval = setInterval(runOnce, NOTIFICATION_POLL_MS);
 
     const sub = AppState.addEventListener('change', (state) => {

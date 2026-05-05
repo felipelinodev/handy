@@ -312,10 +312,13 @@ export default function ProfessionalProfileScreen() {
         {/* Tab content */}
         <View style={styles.tabContent}>
           {activeTab === 'experiencia' && (
-            <>
-              <Text style={styles.paragraph}>{professional.description}</Text>
-              <Text style={styles.paragraph}>{professional.description}</Text>
-            </>
+            <Text style={styles.paragraph}>
+              {professional.description?.trim()
+                ? professional.description
+                : isOwner
+                  ? 'Adicione sua experiência editando o perfil.'
+                  : 'Sem descrição cadastrada.'}
+            </Text>
           )}
           {activeTab === 'opinioes' && (
             <View>
@@ -382,6 +385,9 @@ export default function ProfessionalProfileScreen() {
                       isOwner
                         ? () => router.push(`/professional/edit-service/${s.id}` as any)
                         : undefined
+                    }
+                    onPressHire={
+                      !isOwner ? () => handleSelectService(s) : undefined
                     }
                   />
                 ))

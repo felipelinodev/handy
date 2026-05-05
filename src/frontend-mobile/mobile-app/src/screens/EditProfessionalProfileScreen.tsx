@@ -27,11 +27,15 @@ import {
   fetchProviderEspecialidadeIds,
   updateProfessional,
 } from '../services/professionalService';
+import { EspecialidadePicker } from '../components/common/EspecialidadePicker';
+import { useProviderGuard } from '../utils/useProviderGuard';
 
 export default function EditProfessionalProfileScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id } = useLocalSearchParams<{ id: string }>();
+
+  const guardAllowed = useProviderGuard({ ownerId: id });
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -84,12 +88,6 @@ export default function EditProfessionalProfileScreen() {
       isMounted = false;
     };
   }, [id]);
-
-  function toggleEspecialidade(eid: number) {
-    setSelectedEspecialidades((prev) =>
-      prev.includes(eid) ? prev.filter((x) => x !== eid) : [...prev, eid]
-    );
-  }
 
   function validate(): boolean {
     let valid = true;
@@ -155,7 +153,7 @@ export default function EditProfessionalProfileScreen() {
     }
   }
 
-  if (loading) {
+  if (loading || guardAllowed === null || guardAllowed === false) {
     return (
       <ImageBackground source={require('../assets/fundo_neutro_clean.png')} style={styles.background}>
         <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
@@ -227,27 +225,16 @@ export default function EditProfessionalProfileScreen() {
               onChangeText={setDescricao}
             />
 
-            {especialidades.length > 0 && (
-              <View style={styles.chipSection}>
-                <Text style={styles.sectionLabel}>Especialidades</Text>
-                <View style={styles.chipsRow}>
-                  {especialidades.map((esp) => {
-                    const selected = selectedEspecialidades.includes(esp.especialidade_id);
-                    return (
-                      <TouchableOpacity
-                        key={esp.especialidade_id}
-                        style={[styles.chip, selected && styles.chipSelected]}
-                        activeOpacity={0.7}
-                        onPress={() => toggleEspecialidade(esp.especialidade_id)}>
-                        <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                          {esp.nome_especialidade}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-              </View>
-            )}
+            <View style={styles.chipSection}>
+              <Text style={styles.sectionLabel}>Especialidades</Text>
+              <EspecialidadePicker
+                especialidades={especialidades}
+                selectedIds={selectedEspecialidades}
+                onChange={setSelectedEspecialidades}
+                multi
+                placeholder="Selecionar especialidades"
+              />
+            </View>
 
             <AuthButton label="Salvar alterações" onPress={handleSave} loading={saving} />
           </View>

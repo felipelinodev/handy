@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,11 @@ import AuthButton from '../../components/auth/AuthButton';
 import colors from '../../utils/colors';
 import { isValidEmail, isValidCpf } from '../../utils/validation';
 import { loginProvider, registerProvider } from '../../services/authService';
+import {
+  Especialidade,
+  fetchEspecialidades,
+} from '../../services/professionalService';
+import { EspecialidadePicker } from '../../components/common/EspecialidadePicker';
 
 export default function ProviderRegisterScreen() {
   const router = useRouter();
@@ -31,10 +36,26 @@ export default function ProviderRegisterScreen() {
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
+  const [selectedEspecialidades, setSelectedEspecialidades] = useState<number[]>([]);
+
   const [nomeError, setNomeError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [cpfError, setCpfError] = useState('');
   const [senhaError, setSenhaError] = useState('');
+  const [especialidadeError, setEspecialidadeError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchEspecialidades()
+      .then((list) => {
+        if (!cancelled) setEspecialidades(list);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   function validate(): boolean {
     let valid = true;
@@ -79,6 +100,13 @@ export default function ProviderRegisterScreen() {
       setSenhaError('');
     }
 
+    if (especialidades.length > 0 && selectedEspecialidades.length === 0) {
+      setEspecialidadeError('Selecione ao menos uma especialidade.');
+      valid = false;
+    } else {
+      setEspecialidadeError('');
+    }
+
     return valid;
   }
 
@@ -107,6 +135,7 @@ export default function ProviderRegisterScreen() {
         email: email.trim(),
         cpf: cpf.replace(/\D/g, ''),
         senha,
+        especialidades: selectedEspecialidades,
       });
 
       Alert.alert(
@@ -205,11 +234,26 @@ export default function ProviderRegisterScreen() {
                 errorMessage={senhaError}
               />
 
-              <AuthButton
-                label="Criar conta de prestador"
-                onPress={handleRegister}
-                loading={loading}
+              <Text style={styles.fieldLabel}>Especialidades</Text>
+              <EspecialidadePicker
+                especialidades={especialidades}
+                selectedIds={selectedEspecialidades}
+                onChange={(ids) => {
+                  setSelectedEspecialidades(ids);
+                  if (especialidadeError) setEspecialidadeError('');
+                }}
+                multi
+                placeholder="Selecionar especialidades"
+                errorMessage={especialidadeError}
               />
+
+              <View style={{ marginTop: 16 }}>
+                <AuthButton
+                  label="Criar conta de prestador"
+                  onPress={handleRegister}
+                  loading={loading}
+                />
+              </View>
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Já tem uma conta? </Text>
@@ -267,6 +311,14 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     marginBottom: 20,
     paddingVertical: 12,
+  },
+  fieldLabel: {
+    fontSize: 13,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textDark,
+    marginBottom: 8,
+    marginTop: 4,
+    marginLeft: 4,
   },
   footer: {
     flexDirection: 'row',

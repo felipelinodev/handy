@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, getHeaders } from './apiConfig';
 
 export interface Contratacao {
@@ -143,14 +142,11 @@ export async function updateContractStatus(
   id: number,
   status: string,
 ): Promise<Contratacao> {
-  const token = await AsyncStorage.getItem('@auth_token');
+  const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/update/${id}`, {
     method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
+    headers,
     body: JSON.stringify({ status }),
   });
 

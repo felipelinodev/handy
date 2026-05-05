@@ -54,15 +54,22 @@ export class ClientService {
 
   async validateAccess(email: string, senhaPassada: string) {
     const user = await this.searchClientByEmail(email);
-    
+
     if (!user) {
       throw new UnauthorizedException('Email ou senha inválidos');
     }
 
     const isPasswordValid = await this.hashProvier.comparePassword(senhaPassada, user.hash_password);
-    
+
     if (!isPasswordValid) {
       throw new UnauthorizedException('Email ou senha inválidos');
+    }
+
+    const tipo = String(user.tipo_usuario ?? '').toLowerCase();
+    if (tipo !== 'cliente') {
+      throw new UnauthorizedException(
+        'Esta conta é de prestador. Entre pela área do prestador.',
+      );
     }
 
     return user;

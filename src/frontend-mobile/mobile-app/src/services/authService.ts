@@ -68,12 +68,21 @@ export async function loginProvider(payload: LoginPayload): Promise<AuthResponse
 
 export async function registerProvider(payload: RegisterPayload): Promise<any> {
   const headers = await getPublicHeaders();
+  const body: Record<string, any> = {
+    nome: payload.nome,
+    email: payload.email,
+    cpf: payload.cpf,
+    senha: payload.senha,
+    tipo_usuario: 'prestador',
+  };
+  if (Array.isArray(payload.especialidades) && payload.especialidades.length > 0) {
+    body.especialidades = payload.especialidades;
+  }
+
   const response = await fetch(`${BASE_URL}/provider/create-service-provider-account`, {
     method: 'POST',
-    headers: {
-      ...headers,
-    },
-    body: JSON.stringify({ ...payload, tipo_usuario: 'prestador' }),
+    headers,
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {

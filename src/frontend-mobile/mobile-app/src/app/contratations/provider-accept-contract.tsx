@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '../../utils/colors';
 import { updateContractStatus } from '../../services/contractService';
 import { NotificationBell } from '../../components/NotificationBell';
+import { useProviderGuard } from '../../utils/useProviderGuard';
 
 type Params = {
   id?: string;
@@ -36,6 +37,7 @@ export default function ProviderAcceptContractScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
+  const guardAllowed = useProviderGuard();
 
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -68,6 +70,18 @@ export default function ProviderAcceptContractScreen() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (guardAllowed === null || guardAllowed === false) {
+    return (
+      <ImageBackground
+        source={require('../../assets/fundo_neutro_clean.png')}
+        style={styles.background}>
+        <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      </ImageBackground>
+    );
   }
 
   return (
@@ -106,7 +120,23 @@ export default function ProviderAcceptContractScreen() {
             {'\n'}
             <Text style={styles.contractBold}>CONTRATADO:</Text>{' '}
             {params.prestadorNome ?? 'Prestador'}
+            {'\n\n'}
+            <Text style={styles.contractBold}>SERVIÇO CONTRATADO</Text>
             {'\n'}
+            <Text style={styles.contractBold}>Nome:</Text>{' '}
+            {params.servicoNome ?? '—'}
+            {'\n'}
+            <Text style={styles.contractBold}>Descrição:</Text>{' '}
+            {params.servicoDescricao && params.servicoDescricao.trim().length > 0
+              ? params.servicoDescricao
+              : 'Sem descrição cadastrada para este serviço.'}
+            {params.modo
+              ? `\nModalidade: ${params.modo === 'digital' ? 'Digital (remota)' : 'Presencial'}`
+              : ''}
+            {params.endereco && params.modo === 'presencial'
+              ? `\nLocal: ${params.endereco}`
+              : ''}
+            {'\n\n'}
             <Text style={styles.contractBold}>CLÁUSULA 1 – OBJETO</Text>
             {'\n'}
             O presente contrato tem como objeto a prestação do serviço{' '}
