@@ -133,3 +133,36 @@ export async function createContract(
 
   return (data?.data ?? data) as Contratacao;
 }
+
+export async function fetchProviderContracts(prestadorId: number): Promise<Contratacao[]> {
+  const all = await fetchAllContracts();
+  return all.filter((c) => c.prestador_id === prestadorId);
+}
+
+export async function updateContractStatus(
+  id: number,
+  status: string,
+): Promise<Contratacao> {
+  const token = await AsyncStorage.getItem('@auth_token');
+
+  const response = await fetch(`${BASE_URL}/contratations/update/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ status }),
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    const msg =
+      typeof data?.message === 'string'
+        ? data.message
+        : 'Erro ao atualizar o contrato.';
+    throw new Error(msg);
+  }
+
+  return (data?.contratation ?? data) as Contratacao;
+}
