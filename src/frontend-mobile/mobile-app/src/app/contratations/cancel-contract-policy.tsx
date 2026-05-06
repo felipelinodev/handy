@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ImageBackground,
-  KeyboardAvoidingView,
-  Platform,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
@@ -19,11 +17,43 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '../../utils/colors';
 import { BottomNavBar } from '../../components/BottomNavBar';
 import { NotificationBell } from '../../components/NotificationBell';
+import { fetchContrato, updateContractStatus } from '../../services/contractService';
+import { createSupportTicket } from '../../services/supportService';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const FREE_CANCEL_WINDOW_MS = 5 * 60 * 1000;
+const CLOCK_SKEW_TOLERANCE_MS = 60 * 1000;
+
+function parseServerDate(raw: string | null | undefined): number | null {
+  if (!raw) return null;
+  let t = new Date(raw).getTime();
+  if (Number.isFinite(t)) return t;
+  // Fallback: server may have sent "YYYY-MM-DD HH:mm:ss" without timezone info.
+  // Force UTC interpretation by replacing space with 'T' and appending 'Z'.
+  if (typeof raw === 'string') {
+    const normalized = raw.replace(' ', 'T');
+    const withZ = /[zZ]|[+-]\d{2}:?\d{2}$/.test(normalized) ? normalized : normalized + 'Z';
+    t = new Date(withZ).getTime();
+    if (Number.isFinite(t)) return t;
+  }
+  return null;
+}
+
+function isWithinFreeWindow(createdAtRaw: string | null | undefined): boolean {
+  const createdAt = parseServerDate(createdAtRaw);
+  if (createdAt == null) return false;
+  const elapsed = Date.now() - createdAt;
+  // Tolerate small clock skew between client and server in both directions.
+  return (
+    elapsed >= -CLOCK_SKEW_TOLERANCE_MS &&
+    elapsed <= FREE_CANCEL_WINDOW_MS + CLOCK_SKEW_TOLERANCE_MS
+  );
+}
 
 type Params = {
   contratoId?: string;
+  motivo?: string;
+  detalhes?: string;
   prestadorNome?: string;
   prestadorFoto?: string;
   prestadorCategoria?: string;
@@ -31,40 +61,77 @@ type Params = {
   prestadorClientes?: string;
 };
 
-export default function CancelContractScreen() {
+export default function CancelContractPolicyScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const params = useLocalSearchParams<Params>();
 
-  const [motivo, setMotivo] = useState('');
-  const [detalhes, setDetalhes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [motivoFocus, setMotivoFocus] = useState(false);
-  const [detalhesFocus, setDetalhesFocus] = useState(false);
 
-  function handleSubmit() {
-    if (!motivo.trim()) {
-      Alert.alert(
-        'Motivo obrigatório',
-        'Informe o motivo do cancelamento antes de solicitar.',
-      );
+  async function handleProceed() {
+    const idStr = params.contratoId;
+    const id = Number(idStr);
+    if (!idStr || !Number.isFinite(id) || id <= 0) {
+      Alert.alert('Erro', 'Contrato inválido.');
       return;
     }
+    const motivo = (params.motivo ?? '').trim();
+    if (!motivo) {
+      Alert.alert('Erro', 'O motivo do cancelamento não foi informado.');
+      return;
+    }
+
     setSubmitting(true);
     try {
-      router.push({
-        pathname: '/contratations/cancel-contract-policy',
-        params: {
-          contratoId: params.contratoId,
-          motivo: motivo.trim(),
-          detalhes: detalhes.trim(),
-          prestadorNome: params.prestadorNome,
-          prestadorFoto: params.prestadorFoto,
-          prestadorCategoria: params.prestadorCategoria,
-          prestadorRating: params.prestadorRating,
-          prestadorClientes: params.prestadorClientes,
-        },
+      const contrato = await fetchContrato(id);
+
+      const status = (contrato.status ?? '').toLowerCase();
+      if (status.startsWith('conclu')) {
+        Alert.alert(
+          'Não permitido',
+          'Este contrato já foi concluído e não pode ser cancelado.',
+        );
+        return;
+      }
+      if (status === 'cancelada') {
+        Alert.alert('Não permitido', 'Este contrato já foi cancelado.');
+        return;
+      }
+
+      const withinFreeWindow = isWithinFreeWindow(contrato.created_at);
+
+      if (withinFreeWindow) {
+        await updateContractStatus(id, 'Cancelada');
+        Alert.alert(
+          'Contrato cancelado',
+          'Seu cancelamento foi processado sem custos.',
+          [{ text: 'OK', onPress: () => router.replace('/contratations' as any) }],
+        );
+        return;
+      }
+
+      const detalhes = (params.detalhes ?? '').trim();
+      const descricao = [
+        `Contrato #${id}`,
+        `Motivo: ${motivo}`,
+        detalhes ? `Detalhes: ${detalhes}` : null,
+      ]
+        .filter(Boolean)
+        .join('\n');
+
+      await createSupportTicket({
+        titulo: `Cancelamento do contrato #${id}`,
+        descricao,
+        categoria: 'cancelamento',
       });
+
+      Alert.alert(
+        'Solicitação enviada',
+        'Sua solicitação foi encaminhada à equipe de suporte e será analisada em até 24 horas.',
+        [{ text: 'OK', onPress: () => router.replace('/contratations' as any) }],
+      );
+    } catch (error: any) {
+      Alert.alert('Erro', error?.message ?? 'Não foi possível concluir a solicitação.');
     } finally {
       setSubmitting(false);
     }
@@ -74,9 +141,7 @@ export default function CancelContractScreen() {
     <ImageBackground
       source={require('../../assets/fundo_neutro_clean.png')}
       style={styles.background}>
-      <KeyboardAvoidingView
-        style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={styles.flex}>
         <View style={[styles.topArea, { paddingTop: insets.top + 8 }]}>
           <View style={styles.topBar}>
             <TouchableOpacity
@@ -130,65 +195,42 @@ export default function CancelContractScreen() {
         <View style={styles.sheet}>
           <ScrollView
             contentContainerStyle={styles.sheetContent}
-            keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}>
             <View style={styles.handle} />
 
-            <Text style={styles.title}>Solicitar Cancelamento</Text>
+            <Text style={styles.title}>Politica de Cancelamento</Text>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Motivo</Text>
-              <TextInput
-                style={[styles.input, motivoFocus && styles.inputFocused]}
-                placeholder="Fale o motivo do cancelamento"
-                placeholderTextColor={colors.textMuted}
-                value={motivo}
-                onChangeText={setMotivo}
-                onFocus={() => setMotivoFocus(true)}
-                onBlur={() => setMotivoFocus(false)}
-              />
-            </View>
+            <Text style={styles.policyText}>
+              Cancelamentos realizados em até 5 minutos após a confirmação do pedido são
+              processados imediatamente e sem custos.
+              {'\n'}
+              Passado esse prazo, se o serviço já constar com o status{' '}
+              <Text style={styles.bold}>Em Andamento</Text> (indicando que o prestador já
+              iniciou o trabalho ou deslocamento), será aplicada uma taxa irrenunciável de{' '}
+              <Text style={styles.bold}>10%</Text> sobre o valor total para cobrir custos
+              operacionais e a reserva da agenda.
+              {'\n'}
+              Para garantir a segurança e justiça para ambas as partes, cancelamentos nesta
+              etapa não são automáticos. A solicitação passará por uma análise individual
+              da nossa equipe de suporte em até <Text style={styles.bold}>24 horas</Text>.
+              O valor final do estorno será calculado de forma proporcional à quantidade
+              de trabalho já executada pelo prestador até o momento do cancelamento.
+            </Text>
 
-            <View style={styles.field}>
-              <Text style={styles.label}>Detalhes</Text>
-              <TextInput
-                style={[
-                  styles.input,
-                  styles.textarea,
-                  detalhesFocus && styles.inputFocused,
-                ]}
-                placeholder="Forneça mais detalhes, para podermos compreender sua situação."
-                placeholderTextColor={colors.textMuted}
-                value={detalhes}
-                onChangeText={setDetalhes}
-                onFocus={() => setDetalhesFocus(true)}
-                onBlur={() => setDetalhesFocus(false)}
-                multiline
-                numberOfLines={5}
-                textAlignVertical="top"
-              />
-            </View>
-
-            <View style={styles.actions}>
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                activeOpacity={0.8}
-                onPress={() => router.back()}>
-                <Text style={styles.cancelBtnText}>Desistir</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.submitBtn, submitting && styles.submitBtnDisabled]}
-                activeOpacity={0.85}
-                disabled={submitting}
-                onPress={handleSubmit}>
-                <Text style={styles.submitBtnText}>
-                  {submitting ? 'Enviando...' : 'Solicitar'}
-                </Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={[styles.proceedBtn, submitting && styles.proceedBtnDisabled]}
+              activeOpacity={0.85}
+              disabled={submitting}
+              onPress={handleProceed}>
+              {submitting ? (
+                <ActivityIndicator color={colors.textWhite} />
+              ) : (
+                <Text style={styles.proceedBtnText}>Prosseguir</Text>
+              )}
+            </TouchableOpacity>
           </ScrollView>
         </View>
-      </KeyboardAvoidingView>
+      </View>
 
       <BottomNavBar activeTab="history" />
     </ImageBackground>
@@ -316,67 +358,29 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
     textAlign: 'center',
-    marginBottom: 22,
+    marginBottom: 18,
   },
-  field: {
-    marginBottom: 16,
-  },
-  label: {
-    fontSize: 13,
-    fontFamily: 'OpenSans_600SemiBold',
-    color: colors.textDark,
-    marginBottom: 8,
-    marginLeft: 4,
-  },
-  input: {
-    backgroundColor: colors.surfaceInput,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
+  policyText: {
     fontSize: 14,
+    lineHeight: 22,
     fontFamily: 'OpenSans_400Regular',
     color: colors.textDark,
+    marginBottom: 24,
   },
-  inputFocused: {
-    borderColor: colors.borderFocus,
-    backgroundColor: colors.surface,
-  },
-  textarea: {
-    minHeight: 130,
-    paddingTop: 14,
-  },
-  actions: {
-    flexDirection: 'row',
-    gap: 10,
-    marginTop: 8,
-  },
-  cancelBtn: {
-    flex: 1,
-    height: 50,
-    borderRadius: 14,
-    backgroundColor: '#E2DEF1',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cancelBtnText: {
-    fontSize: 14,
+  bold: {
     fontFamily: 'OpenSans_700Bold',
-    color: colors.buttonDark,
   },
-  submitBtn: {
-    flex: 1,
-    height: 50,
+  proceedBtn: {
+    height: 52,
     borderRadius: 14,
     backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  submitBtnDisabled: {
+  proceedBtnDisabled: {
     opacity: 0.7,
   },
-  submitBtnText: {
+  proceedBtnText: {
     fontSize: 14,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textWhite,

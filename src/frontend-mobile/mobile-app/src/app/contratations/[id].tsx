@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
+  Alert,
   ImageBackground,
   ScrollView,
   StyleSheet,
@@ -263,7 +264,34 @@ export default function ContractDetailsScreen() {
           <View style={styles.actionsRow}>
             <TouchableOpacity
               style={styles.actionButtonOutline}
-              onPress={() => router.push({ pathname: '/contratations/cancel-contract', params: { id: params.id } })}>
+              onPress={() => {
+                const s = (params.status ?? '').toLowerCase();
+                if (s.startsWith('conclu')) {
+                  Alert.alert(
+                    'Não permitido',
+                    'Este contrato já foi concluído e não pode ser cancelado.',
+                  );
+                  return;
+                }
+                if (s === 'cancelada') {
+                  Alert.alert(
+                    'Não permitido',
+                    'Este contrato já foi cancelado.',
+                  );
+                  return;
+                }
+                router.push({
+                  pathname: '/contratations/cancel-contract',
+                  params: {
+                    contratoId: params.id,
+                    prestadorNome: params.prestadorNome,
+                    prestadorFoto: params.prestadorFoto,
+                    prestadorCategoria: params.prestadorCategoria,
+                    prestadorRating: params.prestadorRating,
+                    prestadorClientes: params.prestadorClientes,
+                  },
+                });
+              }}>
               <Text style={styles.actionButtonText}>Cancelar</Text>
             </TouchableOpacity>
 
