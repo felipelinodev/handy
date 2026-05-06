@@ -27,7 +27,7 @@ import {
   fetchProviderEspecialidadeIds,
   updateProfessional,
 } from '../services/professionalService';
-import { EspecialidadePicker } from '../components/common/EspecialidadePicker';
+import { SpecialtyPickerSheet } from '../components/SpecialtyPickerSheet';
 import { useProviderGuard } from '../utils/useProviderGuard';
 
 export default function EditProfessionalProfileScreen() {
@@ -39,6 +39,7 @@ export default function EditProfessionalProfileScreen() {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [pickerVisible, setPickerVisible] = useState(false);
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -227,12 +228,27 @@ export default function EditProfessionalProfileScreen() {
 
             <View style={styles.chipSection}>
               <Text style={styles.sectionLabel}>Especialidades</Text>
-              <EspecialidadePicker
+              <TouchableOpacity
+                style={styles.pickerTrigger}
+                activeOpacity={0.7}
+                onPress={() => setPickerVisible(true)}>
+                <Text style={selectedEspecialidades.length > 0 ? styles.pickerValue : styles.pickerPlaceholder}>
+                  {selectedEspecialidades.length > 0
+                    ? `${selectedEspecialidades.length} selecionada${selectedEspecialidades.length > 1 ? 's' : ''}`
+                    : 'Selecionar especialidades'}
+                </Text>
+                <Icon name="chevron-down" size={20} color={colors.textMuted} />
+              </TouchableOpacity>
+              <SpecialtyPickerSheet
+                visible={pickerVisible}
+                onClose={() => setPickerVisible(false)}
                 especialidades={especialidades}
                 selectedIds={selectedEspecialidades}
-                onChange={setSelectedEspecialidades}
-                multi
-                placeholder="Selecionar especialidades"
+                onToggle={(id) =>
+                  setSelectedEspecialidades((prev) =>
+                    prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+                  )
+                }
               />
             </View>
 
@@ -290,28 +306,25 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     marginBottom: 10,
   },
-  chipsRow: {
+  pickerTrigger: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
     borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
     borderWidth: 1.5,
-    borderColor: colors.primary,
-    backgroundColor: 'transparent',
+    borderColor: colors.border,
   },
-  chipSelected: {
-    backgroundColor: colors.primary,
+  pickerPlaceholder: {
+    fontSize: 14,
+    color: colors.textMuted,
+    fontFamily: 'OpenSans_400Regular',
   },
-  chipText: {
-    fontSize: 12,
+  pickerValue: {
+    fontSize: 14,
+    color: colors.textDark,
     fontFamily: 'OpenSans_600SemiBold',
-    color: colors.primary,
-  },
-  chipTextSelected: {
-    color: colors.textWhite,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,15 @@ import {
   ScrollView,
   Alert,
   ImageBackground,
+  ActivityIndicator,
+  Animated,
+  LayoutAnimation,
+  UIManager,
 } from 'react-native';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 
@@ -18,14 +26,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Logo from '../../components/common/Logo';
 import InputField from '../../components/auth/InputField';
 import AuthButton from '../../components/auth/AuthButton';
+import { SpecialtyPickerSheet } from '../../components/SpecialtyPickerSheet';
 import colors from '../../utils/colors';
 import { isValidEmail, isValidCpf } from '../../utils/validation';
 import { loginProvider, registerProvider } from '../../services/authService';
-import {
-  Especialidade,
-  fetchEspecialidades,
-} from '../../services/professionalService';
-import { EspecialidadePicker } from '../../components/common/EspecialidadePicker';
+import { Especialidade, fetchEspecialidades } from '../../services/professionalService';
 
 export default function ProviderRegisterScreen() {
   const router = useRouter();
@@ -36,26 +41,28 @@ export default function ProviderRegisterScreen() {
   const [senha, setSenha] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
-  const [selectedEspecialidades, setSelectedEspecialidades] = useState<number[]>([]);
-
   const [nomeError, setNomeError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [cpfError, setCpfError] = useState('');
   const [senhaError, setSenhaError] = useState('');
-  const [especialidadeError, setEspecialidadeError] = useState('');
+
+  const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
+  const [selectedEspecialidades, setSelectedEspecialidades] = useState<number[]>([]);
+  const [loadingEspecialidades, setLoadingEspecialidades] = useState(true);
+  const [showSpecialties, setShowSpecialties] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
     fetchEspecialidades()
-      .then((list) => {
-        if (!cancelled) setEspecialidades(list);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
+      .then(setEspecialidades)
+      .catch(() => { })
+      .finally(() => setLoadingEspecialidades(false));
   }, []);
+
+  function toggleEspecialidade(eid: number) {
+    setSelectedEspecialidades((prev) =>
+      prev.includes(eid) ? prev.filter((x) => x !== eid) : [...prev, eid]
+    );
+  }
 
   function validate(): boolean {
     let valid = true;
@@ -100,13 +107,6 @@ export default function ProviderRegisterScreen() {
       setSenhaError('');
     }
 
-    if (especialidades.length > 0 && selectedEspecialidades.length === 0) {
-      setEspecialidadeError('Selecione ao menos uma especialidade.');
-      valid = false;
-    } else {
-      setEspecialidadeError('');
-    }
-
     return valid;
   }
 
@@ -135,7 +135,7 @@ export default function ProviderRegisterScreen() {
         email: email.trim(),
         cpf: cpf.replace(/\D/g, ''),
         senha,
-        especialidades: selectedEspecialidades,
+        especialidades: selectedEspecialidades.length > 0 ? selectedEspecialidades : undefined,
       });
 
       Alert.alert(
@@ -234,26 +234,32 @@ export default function ProviderRegisterScreen() {
                 errorMessage={senhaError}
               />
 
-              <Text style={styles.fieldLabel}>Especialidades</Text>
-              <EspecialidadePicker
-                especialidades={especialidades}
-                selectedIds={selectedEspecialidades}
-                onChange={(ids) => {
-                  setSelectedEspecialidades(ids);
-                  if (especialidadeError) setEspecialidadeError('');
-                }}
-                multi
-                placeholder="Selecionar especialidades"
-                errorMessage={especialidadeError}
-              />
-
-              <View style={{ marginTop: 16 }}>
-                <AuthButton
-                  label="Criar conta de prestador"
-                  onPress={handleRegister}
-                  loading={loading}
-                />
+              <View style={styles.chipSection}>
+                <TouchableOpacity
+                  style={styles.accordionHeader}
+                  activeOpacity={0.7}
+                  onPress={() => setShowSpecialties(true)}>
+                  <View style={styles.accordionLeft}>
+                    <Text style={styles.sectionLabel}>Especialidades</Text>
+                    {selectedEspecialidades.length > 0 && (
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>
+                          {selectedEspecialidades.length} selecionada{selectedEspecialidades.length > 1 ? 's' : ''}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.chevron}>
+                    {selectedEspecialidades.length > 0 ? 'Editar' : 'Selecionar'}
+                  </Text>
+                </TouchableOpacity>
               </View>
+
+              <AuthButton
+                label="Criar conta de prestador"
+                onPress={handleRegister}
+                loading={loading}
+              />
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Já tem uma conta? </Text>
@@ -268,6 +274,13 @@ export default function ProviderRegisterScreen() {
           </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
+      <SpecialtyPickerSheet
+        visible={showSpecialties}
+        onClose={() => setShowSpecialties(false)}
+        especialidades={especialidades}
+        selectedIds={selectedEspecialidades}
+        onToggle={toggleEspecialidade}
+      />
     </ImageBackground>
   );
 }
@@ -312,14 +325,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingVertical: 12,
   },
-  fieldLabel: {
-    fontSize: 13,
-    fontFamily: 'OpenSans_600SemiBold',
-    color: colors.textDark,
-    marginBottom: 8,
-    marginTop: 4,
-    marginLeft: 4,
-  },
   footer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -335,5 +340,82 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.textLink,
     fontFamily: 'OpenSans_700Bold',
+  },
+  chipSection: {
+    marginTop: 4,
+    marginBottom: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
+  accordionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  chevron: {
+    fontSize: 11,
+    color: colors.primary,
+  },
+  badge: {
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textWhite,
+  },
+  accordionBody: {
+    paddingHorizontal: 14,
+    paddingBottom: 14,
+  },
+  sectionLabel: {
+    fontSize: 13,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textDark,
+    marginBottom: 4,
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 14,
+    borderWidth: 1.5,
+    borderColor: colors.primary,
+    backgroundColor: 'transparent',
+  },
+  chipSelected: {
+    backgroundColor: colors.primary,
+  },
+  chipText: {
+    fontSize: 12,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.primary,
+  },
+  chipTextSelected: {
+    color: colors.textWhite,
+  },
+  chipEmpty: {
+    fontSize: 12,
+    fontFamily: 'OpenSans_400Regular',
+    color: colors.textMuted,
+    fontStyle: 'italic',
   },
 });

@@ -19,6 +19,7 @@ import { fetchProfessionalById, ProfessionalListItem, ProfessionalService } from
 import { fetchReviewsByPrestador, ReviewItem } from '../services/reviewService';
 import { fetchClientById, ClientInfo } from '../services/clientService';
 import { BottomNavBar } from '../components/BottomNavBar';
+import { ProviderBottomNavBar } from '../components/ProviderBottomNavBar';
 import { ServiceCard } from '../components/ServiceCard';
 import { HandyIcon } from '@/components/HandyIcon';
 import { ServicesBottomSheet } from '../components/ServicesBottomSheet';
@@ -406,7 +407,7 @@ export default function ProfessionalProfileScreen() {
         </View>
       </ScrollView>
 
-      <BottomNavBar activeTab={isOwner ? "history" : "search"} />
+      {isOwner ? <ProviderBottomNavBar activeTab="menu" /> : <BottomNavBar activeTab="search" />}
 
       {!isOwner && (
         <>

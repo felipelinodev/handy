@@ -21,7 +21,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, getHeaders } from '../../services/apiConfig';
 
 import colors from '../../utils/colors';
-import { BottomNavBar } from '../../components/BottomNavBar';
+import { ProviderBottomNavBar } from '../../components/ProviderBottomNavBar';
 import { NotificationBell } from '../../components/NotificationBell';
 import {
   Contratacao,
@@ -526,7 +526,7 @@ export default function ProviderContractsScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <BottomNavBar activeTab="history" />
+      <ProviderBottomNavBar activeTab="menu" />
     </ImageBackground>
   );
 }

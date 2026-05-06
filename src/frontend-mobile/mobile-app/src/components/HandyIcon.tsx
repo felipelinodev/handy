@@ -8,7 +8,10 @@ type IconName =
   | 'carbon:for-loop'
   | 'hugeicons:menu-11'
   | 'solar:star-bold'
-  | 'solar:star-line-duotone';
+  | 'solar:star-line-duotone'
+  | 'hugeicons:user-group'
+  | 'solar:chart-square'
+  | 'hugeicons:credit-card';
 
 interface HandyIconProps {
   name: IconName;
@@ -93,6 +96,36 @@ const ICONS: Record<IconName, IconDefinition> = {
         strokeLinejoin="round"
         d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14l-5-4.87 6.91-1.01L12 2z"
       />
+    ),
+  },
+  'hugeicons:user-group': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+        <Path d="M9 3a4 4 0 1 1 0 8 4 4 0 0 1 0-8z" />
+        <Path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+        <Path d="M16 3.13a4 4 0 0 1 0 7.75" />
+      </G>
+    ),
+  },
+  'solar:chart-square': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M3 6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6z" />
+        <Path d="M7 14l3-3 3 3 4-4" />
+      </G>
+    ),
+  },
+  'hugeicons:credit-card': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M3 8a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V8z" />
+        <Path d="M3 11h18" />
+        <Path d="M7 15h2m4 0h4" />
+      </G>
     ),
   },
 };
