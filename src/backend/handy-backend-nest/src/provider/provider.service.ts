@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { Injectable, NotFoundException, UnauthorizedException, ConflictException } from "@nestjs/common";
 import { ProviderRepository } from "./repository/provider.repository";
 import { HashProvider } from "common/security/security.module";
 import { CreatePrestadorInput, CreateServicoInput, CreateUsuarioInput } from "./types/provider.types";
@@ -8,12 +8,11 @@ export class ProviderService {
     constructor(
         private readonly providerRepository: ProviderRepository,
         private readonly hashProvider: HashProvider
-    ) {}
+    ) { }
 
     async createServiceProvider(data: CreateUsuarioInput) {
         const { senha, ...rest } = data as any;
-        
-        // ADICIONADO AWAIT
+
         const hashSenha = await this.hashProvider.hashGenerator(senha);
 
         const providerData = {
@@ -21,8 +20,23 @@ export class ProviderService {
             ...rest
         }
 
-        const serviceProvider = await this.providerRepository.createProvider(providerData);
-        return { message: "Prestador de serviços criado com sucesso.", serviceProvider }
+        try {
+            const serviceProvider = await this.providerRepository.createProvider(providerData);
+            return { message: "Prestador de serviços criado com sucesso.", serviceProvider }
+        } catch (error: any) {
+            if (error.code === 'P2002') {
+                const target = error.meta?.target ?? error.meta?.driverAdapterError?.cause?.fields ?? '';
+                const targetStr = Array.isArray(target) ? target.join(',') : String(target ?? '');
+                if (targetStr.includes('cpf')) {
+                    throw new ConflictException({ message: 'Este CPF já está cadastrado.', field: 'cpf' });
+                }
+                if (targetStr.includes('email')) {
+                    throw new ConflictException({ message: 'Este e-mail já está cadastrado.', field: 'email' });
+                }
+                throw new ConflictException({ message: 'Já existe um cadastro com esses dados.', field: null });
+            }
+            throw error;
+        }
     }
 
     async viewServiceProviderByEmail(email: string) {
@@ -57,7 +71,7 @@ export class ProviderService {
 
         // CORRIGIDO PARA comparePassword E ADICIONADO AWAIT
         const isPasswordValid = await this.hashProvider.comparePassword(senha, user.hash_password);
-        
+
         if (!isPasswordValid) {
             throw new UnauthorizedException('E-mail ou senha incorretos.');
         }

@@ -166,12 +166,16 @@ export default function ProfessionalProfileScreen() {
         showsVerticalScrollIndicator={false}>
         {/* Top bar */}
         <View style={styles.topBar}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            activeOpacity={0.7}
-            onPress={() => router.back()}>
-            <Icon name="chevron-back" size={22} color={colors.primary} />
-          </TouchableOpacity>
+          {isOwner ? (
+            <View style={{ width: 44, height: 44 }} />
+          ) : (
+            <TouchableOpacity
+              style={styles.iconButton}
+              activeOpacity={0.7}
+              onPress={() => router.back()}>
+              <Icon name="chevron-back" size={22} color={colors.primary} />
+            </TouchableOpacity>
+          )}
           <View style={styles.topBarRight}>
             {isOwner && (
               <TouchableOpacity
@@ -318,7 +322,7 @@ export default function ProfessionalProfileScreen() {
         </View>
       </ScrollView>
 
-      <BottomNavBar activeTab={isOwner ? "history" : "search"} />
+      <BottomNavBar activeTab={isOwner ? "dashboard" : "search"} variant={isOwner ? "provider" : "client"} />
 
       {!isOwner && (
         <>

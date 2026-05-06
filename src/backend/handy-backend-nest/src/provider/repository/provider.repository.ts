@@ -6,9 +6,9 @@ export type BuscarPor = 'email' | 'user_id';
 
 @Injectable()
 export class ProviderRepository {
-    constructor(private readonly prisma: PrismaService){}
+    constructor(private readonly prisma: PrismaService) { }
 
-    async createProvider(data: CreateUsuarioInput){
+    async createProvider(data: CreateUsuarioInput) {
         const { especialidades, ...userData } = data;
 
         return await this.prisma.usuario.create({
@@ -37,7 +37,7 @@ export class ProviderRepository {
     async searchProvider(campo: BuscarPor, valor: string | number) {
         return await this.prisma.usuario.findUnique({
             where: {
-                [campo]: valor 
+                [campo]: valor
             },
             include: {
                 prestador: {

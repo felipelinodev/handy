@@ -135,7 +135,7 @@ export default function ProviderContractsScreen() {
       let prestadorData: ProfessionalListItem | null = null;
       try {
         prestadorData = await fetchProfessionalById(prestadorId);
-      } catch {}
+      } catch { }
 
       const enriched: EnrichedContract[] = [];
       for (const contrato of contratos) {
@@ -167,9 +167,9 @@ export default function ProviderContractsScreen() {
               item.clienteNome = clientData?.nome ?? item.clienteNome;
               item.clienteFoto = clientData?.photo_url ?? null;
             }
-          } catch {}
+          } catch { }
         }
-      } catch {}
+      } catch { }
 
       enriched.sort((a, b) => b.contrato.contratacao_id - a.contrato.contratacao_id);
       setItems(enriched);
@@ -356,8 +356,8 @@ export default function ProviderContractsScreen() {
                         {selectedItem.contrato.endereco
                           ? selectedItem.contrato.endereco.split(',')[0]?.trim()
                           : selectedItem.parsed.modo === 'digital'
-                          ? 'Plataforma'
-                          : '—'}
+                            ? 'Plataforma'
+                            : '—'}
                       </Text>
                     </View>
                   </View>
@@ -438,7 +438,7 @@ export default function ProviderContractsScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <BottomNavBar activeTab="history" />
+      <BottomNavBar activeTab="clients" variant="provider" />
     </ImageBackground>
   );
 }

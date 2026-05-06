@@ -1,16 +1,23 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
+  Animated,
   ImageBackground,
   KeyboardAvoidingView,
+  LayoutAnimation,
   Platform,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
+  UIManager,
   View,
 } from 'react-native';
+
+if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+  UIManager.setLayoutAnimationEnabledExperimental(true);
+}
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -18,6 +25,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 
 import InputField from '../components/auth/InputField';
 import AuthButton from '../components/auth/AuthButton';
+import { SpecialtyPickerSheet } from '../components/SpecialtyPickerSheet';
 import colors from '../utils/colors';
 import { isValidEmail } from '../utils/validation';
 import {
@@ -48,6 +56,7 @@ export default function EditProfessionalProfileScreen() {
 
   const [especialidades, setEspecialidades] = useState<Especialidade[]>([]);
   const [selectedEspecialidades, setSelectedEspecialidades] = useState<number[]>([]);
+  const [showSpecialties, setShowSpecialties] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -90,6 +99,8 @@ export default function EditProfessionalProfileScreen() {
       prev.includes(eid) ? prev.filter((x) => x !== eid) : [...prev, eid]
     );
   }
+
+
 
   function validate(): boolean {
     let valid = true;
@@ -229,23 +240,24 @@ export default function EditProfessionalProfileScreen() {
 
             {especialidades.length > 0 && (
               <View style={styles.chipSection}>
-                <Text style={styles.sectionLabel}>Especialidades</Text>
-                <View style={styles.chipsRow}>
-                  {especialidades.map((esp) => {
-                    const selected = selectedEspecialidades.includes(esp.especialidade_id);
-                    return (
-                      <TouchableOpacity
-                        key={esp.especialidade_id}
-                        style={[styles.chip, selected && styles.chipSelected]}
-                        activeOpacity={0.7}
-                        onPress={() => toggleEspecialidade(esp.especialidade_id)}>
-                        <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
-                          {esp.nome_especialidade}
+                <TouchableOpacity
+                  style={styles.accordionHeader}
+                  activeOpacity={0.7}
+                  onPress={() => setShowSpecialties(true)}>
+                  <View style={styles.accordionLeft}>
+                    <Text style={styles.sectionLabel}>Especialidades</Text>
+                    {selectedEspecialidades.length > 0 && (
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>
+                          {selectedEspecialidades.length} selecionada{selectedEspecialidades.length > 1 ? 's' : ''}
                         </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+                      </View>
+                    )}
+                  </View>
+                  <Text style={styles.chevron}>
+                    {selectedEspecialidades.length > 0 ? 'Editar' : 'Selecionar'}
+                  </Text>
+                </TouchableOpacity>
               </View>
             )}
 
@@ -253,6 +265,13 @@ export default function EditProfessionalProfileScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <SpecialtyPickerSheet
+        visible={showSpecialties}
+        onClose={() => setShowSpecialties(false)}
+        especialidades={especialidades}
+        selectedIds={selectedEspecialidades}
+        onToggle={toggleEspecialidade}
+      />
     </ImageBackground>
   );
 }
@@ -296,12 +315,48 @@ const styles = StyleSheet.create({
   chipSection: {
     marginTop: 8,
     marginBottom: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+  },
+  accordionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 14,
+  },
+  accordionLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flex: 1,
+  },
+  chevron: {
+    fontSize: 11,
+    color: colors.primary,
+  },
+  badge: {
+    backgroundColor: colors.primary,
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+  },
+  badgeText: {
+    fontSize: 11,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.textWhite,
+  },
+  accordionBody: {
+    paddingHorizontal: 14,
+    paddingBottom: 14,
   },
   sectionLabel: {
     fontSize: 13,
     fontFamily: 'OpenSans_600SemiBold',
     color: colors.textDark,
-    marginBottom: 10,
   },
   chipsRow: {
     flexDirection: 'row',

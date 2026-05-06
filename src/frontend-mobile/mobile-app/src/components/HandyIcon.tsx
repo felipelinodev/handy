@@ -6,7 +6,10 @@ type IconName =
   | 'carbon:chat'
   | 'material-symbols:home-rounded'
   | 'carbon:for-loop'
-  | 'hugeicons:menu-11';
+  | 'hugeicons:menu-11'
+  | 'handy:people'
+  | 'handy:chart'
+  | 'handy:credit-card';
 
 interface HandyIconProps {
   name: IconName;
@@ -70,6 +73,40 @@ const ICONS: Record<IconName, IconDefinition> = {
         strokeWidth={1.5}
         d="M20 12H10m10-7H4m16 14H4"
       />
+    ),
+  },
+  'handy:people': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M18 7.16C17.94 7.15 17.87 7.15 17.81 7.16C16.43 7.11 15.33 5.98 15.33 4.58C15.33 3.15 16.48 2 17.91 2C19.34 2 20.49 3.16 20.49 4.58C20.48 5.98 19.38 7.11 18 7.16Z" />
+        <Path d="M16.97 14.44C18.34 14.67 19.85 14.43 20.91 13.72C22.32 12.78 22.32 11.24 20.91 10.3C19.84 9.59 18.31 9.35 16.97 9.59" />
+        <Path d="M5.97 7.16C6.03 7.15 6.1 7.15 6.16 7.16C7.54 7.11 8.64 5.98 8.64 4.58C8.64 3.15 7.49 2 6.06 2C4.63 2 3.48 3.16 3.48 4.58C3.49 5.98 4.59 7.11 5.97 7.16Z" />
+        <Path d="M7 14.44C5.63 14.67 4.12 14.43 3.06 13.72C1.65 12.78 1.65 11.24 3.06 10.3C4.13 9.59 5.66 9.35 7 9.59" />
+        <Path d="M12 14.63C11.94 14.62 11.87 14.62 11.81 14.63C10.43 14.58 9.33 13.45 9.33 12.05C9.33 10.62 10.48 9.47 11.91 9.47C13.34 9.47 14.49 10.63 14.49 12.05C14.48 13.45 13.38 14.59 12 14.63Z" />
+        <Path d="M9.09 17.78C7.68 18.72 7.68 20.26 9.09 21.2C10.69 22.27 13.31 22.27 14.91 21.2C16.32 20.26 16.32 18.72 14.91 17.78C13.32 16.72 10.69 16.72 9.09 17.78Z" />
+      </G>
+    ),
+  },
+  'handy:chart': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" />
+        <Path d="M7.33 14.49L9.71 11.4C10.05 10.96 10.68 10.88 11.12 11.22L12.95 12.66C13.39 13 14.02 12.92 14.36 12.49L16.67 9.51" />
+      </G>
+    ),
+  },
+  'handy:credit-card': {
+    viewBox: '0 0 24 24',
+    render: (color) => (
+      <G fill="none" stroke={color} strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}>
+        <Path d="M2 12.61H19" />
+        <Path d="M19 10.28V17.43C18.97 20.28 18.19 21 15.22 21H5.78C2.76 21 2 20.25 2 17.27V10.28C2 7.58 2.63 6.71 5 6.57C5.24 6.55 5.5 6.55 5.78 6.55H15.22C18.24 6.55 19 7.3 19 10.28Z" />
+        <Path d="M22 6.73V13.72C22 16.42 21.37 17.29 19 17.43V10.28C19 7.3 18.24 6.55 15.22 6.55H5.78C5.5 6.55 5.24 6.55 5 6.57C5.03 3.72 5.81 3 8.78 3H18.22C21.24 3 22 3.75 22 6.73Z" />
+        <Path d="M5.25 17.81H6.97" />
+        <Path d="M9.27 17.81H12.71" />
+      </G>
     ),
   },
 };
