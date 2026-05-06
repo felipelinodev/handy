@@ -280,7 +280,7 @@ export default function ProviderContractsScreen() {
       </View>
 
       <View style={styles.titleRow}>
-        <Text style={styles.screenTitle}>Clientes Atuais</Text>
+        <Text style={styles.screenTitle}>Meus Contratos</Text>
         <TouchableOpacity style={styles.filterButton} activeOpacity={0.7}>
           <Text style={styles.filterText}>Todos</Text>
           <Icon name="options-outline" size={16} color={colors.textDark} />
@@ -467,9 +467,9 @@ export default function ProviderContractsScreen() {
                         <Text style={styles.modalInfoValue} numberOfLines={1}>{selectedItem?.clienteNome ?? '—'}</Text>
                       </View>
                     </View>
-                    
+
                     <View style={styles.infoVerticalDivider} />
-                    
+
                     <View style={styles.infoColTop}>
                       <View style={styles.infoIconCircle}>
                         <Icon name="calendar-outline" size={18} color="#4A5568" />
@@ -482,7 +482,7 @@ export default function ProviderContractsScreen() {
                       </View>
                     </View>
                   </View>
-                  
+
                   {!!selectedItem?.servico?.price && (
                     <View style={styles.infoBottomWrap}>
                       <View style={styles.infoHorizontalDivider} />

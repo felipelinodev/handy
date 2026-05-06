@@ -283,8 +283,8 @@ export default function ProfessionalProfileScreen() {
               style={styles.primaryButton}
               activeOpacity={0.85}
               onPress={() => router.push('/contratations/provider-contracts' as any)}>
-              <Icon name="people-outline" size={20} color={colors.textWhite} />
-              <Text style={styles.primaryButtonText}>Clientes Atuais</Text>
+              <Icon name="document-text-outline" size={20} color={colors.textWhite} />
+              <Text style={styles.primaryButtonText}>Meus Contratos</Text>
             </TouchableOpacity>
           </View>
         )}

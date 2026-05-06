@@ -4,10 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const API_PORT = 4001;
 const API_PREFIX = '/api/v1';
 
-/**
- * Token JWT de desenvolvimento para autenticação na camada de segurança da API.
- * Enviado no header `x-dev-token` em todas as requisições.
- */
+
 const DEV_TOKEN = process.env.EXPO_PUBLIC_DEV_TOKEN || '';
 
 function resolveBaseUrl(): string {
@@ -22,13 +19,9 @@ function resolveBaseUrl(): string {
   return `http://${ip}:${API_PORT}${API_PREFIX}`;
 }
 
-/** Base URL já incluindo o prefixo /api/v1 */
 export const BASE_URL = resolveBaseUrl();
 
-/**
- * Retorna os headers padrão para todas as requisições.
- * Inclui Content-Type, x-dev-token, e opcionalmente o Authorization Bearer.
- */
+
 export async function getHeaders(includeAuth = true): Promise<Record<string, string>> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -45,12 +38,16 @@ export async function getHeaders(includeAuth = true): Promise<Record<string, str
     }
   }
 
+  console.log('[API CONFIG] BASE_URL atual:', BASE_URL);
+  console.log('[API CONFIG] DEV_TOKEN está vazio?', !DEV_TOKEN);
+  if (!DEV_TOKEN) {
+    console.warn('⚠️ ATENÇÃO: O EXPO_PUBLIC_DEV_TOKEN não foi carregado do .env!');
+  }
+
   return headers;
 }
 
-/**
- * Retorna headers apenas com Content-Type e x-dev-token (sem Authorization).
- */
+
 export async function getPublicHeaders(): Promise<Record<string, string>> {
   return getHeaders(false);
 }
