@@ -526,7 +526,7 @@ export default function ProviderContractsScreen() {
         </TouchableWithoutFeedback>
       </Modal>
 
-      <ProviderBottomNavBar activeTab="menu" />
+      <ProviderBottomNavBar activeTab="contracts" />
     </ImageBackground>
   );
 }

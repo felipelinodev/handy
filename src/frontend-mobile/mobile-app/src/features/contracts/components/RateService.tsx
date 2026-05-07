@@ -149,7 +149,7 @@ export const RateService: React.FC<RateServiceProps> = ({
           {showThankYou ? (
             <View style={styles.thankYouContainer}>
               <View style={styles.thankYouIcon}>
-                <Ionicons name="checkmark-circle" size={56} color={colors.success} />
+                <Ionicons name="checkmark-circle" size={56} color={colors.primary} />
               </View>
               <Text style={styles.thankYouTitle}>Obrigado!</Text>
               <Text style={styles.thankYouSubtitle}>
@@ -292,7 +292,6 @@ const styles = StyleSheet.create({
     color: colors.textWhite,
     fontSize: 15,
     fontFamily: 'OpenSans_700Bold',
-    paddingVertical: 10
   },
   btnDisabled: {
     opacity: 0.6,
@@ -301,6 +300,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 16,
     paddingHorizontal: 12,
+    width: '100%'
   },
   thankYouIcon: {
     marginBottom: 16,

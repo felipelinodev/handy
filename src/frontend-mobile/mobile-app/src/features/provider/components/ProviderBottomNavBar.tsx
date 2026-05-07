@@ -14,11 +14,11 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { key: 'clients',   icon: 'hugeicons:user-group',  route: '/contratations/provider-contracts' },
-  { key: 'analytics', icon: 'solar:chart-square' },
+  { key: 'analytics', icon: 'solar:chart-square', route: '/provider/analytics' },
+  { key: 'clients',   icon: 'hugeicons:user-group',  route: '/provider/clients' },
   { key: 'contracts', icon: 'carbon:for-loop',        route: '/contratations/provider-contracts' },
-  { key: 'payments',  icon: 'hugeicons:credit-card' },
-  { key: 'menu',      icon: 'hugeicons:menu-11' },
+  { key: 'payments',  icon: 'hugeicons:credit-card', route: '/provider/payments' },
+  { key: 'menu',      icon: 'hugeicons:menu-11',      route: '/provider/menu' },
 ];
 
 interface ProviderBottomNavBarProps {
@@ -43,6 +43,7 @@ export const ProviderBottomNavBar: React.FC<ProviderBottomNavBarProps> = ({
               style={[styles.navItem, isActive && styles.navItemActive]}
               activeOpacity={0.7}
               onPress={() => {
+                console.log('Navigating to:', item.route);
                 if (item.route) router.push(item.route as any);
               }}>
               <HandyIcon name={item.icon} size={24} color={iconColor} />
