@@ -5,7 +5,7 @@ export default function Logo() {
   return (
     <View style={styles.container}>
       <Image
-        source={require('../../assets/logo_completa.png')}
+        source={require('../../../assets/images/logo_completa.png')}
         style={styles.logo}
         resizeMode="contain"
       />

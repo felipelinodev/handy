@@ -2,8 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Colors } from '@/theme/colors';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 
 type ProviderTab = 'clients' | 'analytics' | 'contracts' | 'payments' | 'menu';
@@ -37,7 +36,7 @@ export const ProviderBottomNavBar: React.FC<ProviderBottomNavBarProps> = ({
       <View style={styles.container}>
         {navItems.map((item) => {
           const isActive = item.key === activeTab;
-          const iconColor = isActive ? colors.textDark : Colors.navInactive;
+          const iconColor = isActive ? colors.textDark : colors.navInactive;
           return (
             <TouchableOpacity
               key={item.key}
@@ -68,7 +67,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: Colors.white,
+    backgroundColor: colors.surface,
     borderRadius: 22,
     paddingVertical: 10,
     paddingHorizontal: 10,

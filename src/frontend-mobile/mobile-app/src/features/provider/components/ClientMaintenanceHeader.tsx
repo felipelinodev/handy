@@ -12,7 +12,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import { useRouter } from 'expo-router';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { FILTER_OPTIONS, FilterOption } from '@/features/provider/data/mockMaintenance';
 
@@ -82,7 +82,7 @@ export const ClientMaintenanceHeader: React.FC<ClientMaintenanceHeaderProps> = (
             source={
               provider.photo_url
                 ? { uri: provider.photo_url }
-                : require('../../../assets/fundo_neutro.png')
+                : require('../../../../assets/images/fundo_neutro.png')
             }
             style={styles.avatar}
             resizeMode="cover"

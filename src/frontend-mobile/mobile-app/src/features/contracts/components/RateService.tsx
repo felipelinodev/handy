@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { createReview } from '@/features/professionals/services/reviewService';
 

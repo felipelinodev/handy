@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 export default function ServiceCard({ service }: { service: any }) {
   const precoFormatado = service.preco ? `R$ ${Number(service.preco).toFixed(2)}` : 'Consulte';

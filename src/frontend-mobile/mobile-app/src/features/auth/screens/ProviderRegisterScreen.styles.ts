@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 export const styles = StyleSheet.create({
   flex: { flex: 1 },

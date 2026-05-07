@@ -16,11 +16,11 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
-const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 
 type Params = {
   contratoId?: string;
@@ -72,7 +72,7 @@ export default function CancelContractScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_neutro_clean.png')}
+      source={require('../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <KeyboardAvoidingView
         style={styles.flex}

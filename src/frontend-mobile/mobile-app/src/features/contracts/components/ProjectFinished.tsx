@@ -8,8 +8,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Colors } from '@/theme/colors';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 interface ProjectFinishedProps {
   visible: boolean;
@@ -34,7 +33,7 @@ export const ProjectFinished: React.FC<ProjectFinishedProps> = ({
           <TouchableWithoutFeedback>
             <View style={styles.card}>
               <View style={styles.iconCircle}>
-                <Ionicons name="checkmark" size={38} color={Colors.purpleMedium} />
+                <Ionicons name="checkmark" size={38} color={colors.purpleMedium} />
               </View>
 
               <Text style={styles.title}>Serviço realizado!</Text>
@@ -95,7 +94,7 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '100%',
     alignItems: 'center',
-    shadowColor: Colors.purpleDark,
+    shadowColor: colors.purpleDark,
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 0.2,
     shadowRadius: 24,
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
   title: {
     fontFamily: 'OpenSans_700Bold',
     fontSize: 20,
-    color: Colors.textPrimary,
+    color: colors.textPrimary,
     marginBottom: 10,
     textAlign: 'center',
   },
@@ -123,7 +122,7 @@ const styles = StyleSheet.create({
   subtitle: {
     fontFamily: 'OpenSans_400Regular',
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: colors.textSecondary,
     textAlign: 'center',
     lineHeight: 21,
     marginBottom: 18,

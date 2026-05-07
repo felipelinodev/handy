@@ -1,33 +1,40 @@
-export const Colors = {
-  // Primary palette
+// Paleta de cores centralizada do projeto Handy
+const colors = {
+  // Primárias
+  primary: '#5B67ED',
+  primaryDark: '#4f46e5',
+  primaryLight: '#a5b4fc',
+
+  // Roxos (UI específica: ícone de sucesso, sombras de cards)
   purpleDark: '#4A1D96',
   purpleMedium: '#6C3FC5',
-  purpleVibrant: '#7C4DFF',
-  purpleLight: '#B388FF',
-  purpleSoft: '#D1C4E9',
 
-  // Gradient colors
-  gradientTop: '#F3EAFF',
-  gradientMiddle: '#D8C0F5',
-  gradientBottom: '#A47AE8',
-
-  // UI Colors
-  white: '#FFFFFF',
-  whiteTranslucent: 'rgba(255, 255, 255, 0.7)',
-  cardBackground: '#FFFFFF',
+  // Textos
+  textDark: '#121341',
   textPrimary: '#1A1A2E',
   textSecondary: '#4A4A68',
-  textMuted: '#8E8EA0',
+  textMuted: '#9ca3af',
+  textLink: '#6366f1',
+  textWhite: '#ffffff',
 
-  // Accent
-  pillBackground: '#5B5FC7',
-  tagBackground: '#EDE7F6',
-  tagText: '#5C2FC2',
-  starYellow: '#FFB800',
-  notificationBg: '#EDE7F6',
-  categoryBg: 'rgba(209, 196, 233, 0.45)',
+  // Superfícies
+  surface: '#ffffff',
+  muttedSurface: '#f2ebfcff',
+  surfaceInput: '#f5f3ff',
 
-  // Bottom nav
-  navActive: '#5B5FC7',
+  // Bordas
+  border: '#e0ddf7',
+  borderFocus: '#6366f1',
+
+  // Botão escuro (ação principal)
+  buttonDark: '#0f172a',
+
+  // Estados
+  error: '#ef4444',
+  success: '#10b981',
+
+  // Navegação
   navInactive: '#9E9EB8',
 };
+
+export default colors;

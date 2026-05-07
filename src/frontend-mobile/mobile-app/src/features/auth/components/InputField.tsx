@@ -8,7 +8,7 @@ import {
   TextInputProps,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 interface InputFieldProps extends TextInputProps {
   placeholder: string;

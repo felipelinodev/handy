@@ -14,7 +14,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { fetchProfessionalById, ProfessionalListItem, ProfessionalService } from '@/features/professionals/services/professionalService';
 import { fetchReviewsByPrestador, ReviewItem } from '@/features/professionals/services/reviewService';
 import { fetchClientById, ClientInfo } from '@/services/clientService';
@@ -39,7 +39,7 @@ const TABS: { key: TabKey; label: string }[] = [
   { key: 'servicos', label: 'Serviços' },
 ];
 
-const PROFILE_PLACEHOLDER = require('../../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../../assets/images/fundo_neutro.png');
 
 export default function ProfessionalProfileScreen() {
   const router = useRouter();
@@ -167,7 +167,7 @@ export default function ProfessionalProfileScreen() {
   if (loading) {
     return (
       <ImageBackground
-        source={require('../../../assets/fundo_principal.png')}
+        source={require('../../../../assets/images/fundo_principal.png')}
         style={styles.background}>
         <View style={[styles.notFound, { paddingTop: insets.top + 40 }]}>
           <ActivityIndicator color={colors.primary} />
@@ -179,7 +179,7 @@ export default function ProfessionalProfileScreen() {
   if (errorMsg || !professional) {
     return (
       <ImageBackground
-        source={require('../../../assets/fundo_neutro_clean.png')}
+        source={require('../../../../assets/images/fundo_neutro_clean.png')}
         style={styles.background}>
         <View style={[styles.notFound, { paddingTop: insets.top + 40 }]}>
           <Text style={styles.notFoundText}>{errorMsg ?? 'Profissional não encontrado.'}</Text>
@@ -193,7 +193,7 @@ export default function ProfessionalProfileScreen() {
 
   return (
     <ImageBackground
-      source={require('../../../assets/fundo_neutro_clean.png')}
+      source={require('../../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <ScrollView
         style={styles.scroll}

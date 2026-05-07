@@ -12,7 +12,7 @@ import {
 import Icon from '@expo/vector-icons/Ionicons';
 import Svg, { Path } from 'react-native-svg';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { Breakpoint } from '@/features/provider/types';
 import Ionicons from '@expo/vector-icons/Ionicons';
 

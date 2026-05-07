@@ -10,7 +10,7 @@ import {
   ScrollView,
 } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 export interface Especialidade {
   especialidade_id: number;

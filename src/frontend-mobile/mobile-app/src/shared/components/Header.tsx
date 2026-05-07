@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 import Logo from '@/shared/components/Logo';
 

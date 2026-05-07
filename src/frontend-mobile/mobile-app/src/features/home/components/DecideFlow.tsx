@@ -19,13 +19,13 @@ export default function DecideFlow() {
 
     return (
         <ImageBackground
-            source={require('../../../assets/fundo_principal.png')}
+            source={require('../../../../assets/images/fundo_principal.png')}
             style={styles.container}
         >
             {/* PARTE DE CIMA - LOGO  */}
             <View style={styles.logoContainer}>
                 <Image
-                    source={require('../../../assets/logo_completa.png')}
+                    source={require('../../../../assets/images/logo_completa.png')}
                     style={styles.logo}
                     resizeMode="contain"
                 />

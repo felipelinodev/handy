@@ -12,7 +12,7 @@ import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { categories } from '@/features/home/data/mockData';
 import { fetchProfessionals, ProfessionalListItem } from '@/features/professionals/services/professionalService';
 import { ConcludedContractChecker } from '@/features/contracts/components/ConcludedContractChecker';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 export const HomeScreen: React.FC = () => {
   const router = useRouter();
@@ -72,7 +72,7 @@ export const HomeScreen: React.FC = () => {
   if (isProvider) {
     return (
       <ImageBackground
-        source={require('../../../assets/fundo_neutro.png')}
+        source={require('../../../../assets/images/fundo_neutro.png')}
         style={styles.container}>
         <View style={styles.statusBox}>
           <ActivityIndicator color={colors.primary} />
@@ -83,7 +83,7 @@ export const HomeScreen: React.FC = () => {
 
   return (
     <ImageBackground
-      source={require('../../../assets/fundo_neutro.png')}
+      source={require('../../../../assets/images/fundo_neutro.png')}
       style={styles.container}
     >
       <ScrollView

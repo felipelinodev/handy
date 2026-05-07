@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, Alert, TouchableOpacity } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { fetchProviderProfile, fetchProviderServices } from '@/features/provider/services/providerService';
 import ServiceCard from '@/features/provider/components/ServiceCard';
@@ -101,7 +101,7 @@ export default function ProviderProfileScreen({ route, navigation }: any) {
       <View style={styles.profileSection}>
         <View style={styles.imageContainer}>
              <Image
-               source={provider.photo_url ? { uri: provider.photo_url } : require('../../../assets/favicon.png')}
+               source={provider.photo_url ? { uri: provider.photo_url } : require('../../../../assets/images/favicon.png')}
                style={styles.profileImage}
                contentFit="cover"
                transition={200}

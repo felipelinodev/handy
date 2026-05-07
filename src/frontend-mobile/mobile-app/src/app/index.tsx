@@ -26,12 +26,12 @@ const CAROUSEL_WIDTH = SCREEN_WIDTH * 0.82;
 const CAROUSEL_HEIGHT = CAROUSEL_WIDTH * 0.58;
 
 const CAROUSEL_IMAGES = [
-  require('../assets/people1.jpg'),
-  require('../assets/people2.jpg'),
-  require('../assets/people3.jpg'),
-  require('../assets/people4.jpg'),
-  require('../assets/people5.jpg'),
-  require('../assets/people6.jpg'),
+  require('../../assets/images/people1.jpg'),
+  require('../../assets/images/people2.jpg'),
+  require('../../assets/images/people3.jpg'),
+  require('../../assets/images/people4.jpg'),
+  require('../../assets/images/people5.jpg'),
+  require('../../assets/images/people6.jpg'),
 ];
 
 export default function WelcomeScreen() {
@@ -52,14 +52,14 @@ export default function WelcomeScreen() {
 
   return (
     <ImageBackground
-      source={require('../assets/fundo_tela_boasvindas.png')}
+      source={require('../../assets/images/fundo_tela_boasvindas.png')}
       style={styles.container}
       resizeMode="cover"
     >
       {/* PARTE DE CIMA - LOGO */}
       <View style={styles.logoContainer}>
         <Image
-          source={require('../assets/logo_completa.png')}
+          source={require('../../assets/images/logo_completa.png')}
           style={styles.logo}
           resizeMode="contain"
         />

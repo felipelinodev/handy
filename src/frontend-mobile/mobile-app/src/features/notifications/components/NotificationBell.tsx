@@ -3,7 +3,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { getUnreadCount } from '@/features/notifications/services/notificationService';
 
 interface NotificationBellProps {

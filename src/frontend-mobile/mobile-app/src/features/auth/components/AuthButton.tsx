@@ -6,7 +6,7 @@ import {
   ActivityIndicator,
   ViewStyle,
 } from 'react-native';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 interface AuthButtonProps {
   label: string;

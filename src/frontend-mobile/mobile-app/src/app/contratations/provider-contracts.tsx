@@ -20,7 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, getHeaders } from '@/services/apiConfig';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { ProviderBottomNavBar } from '@/features/provider/components/ProviderBottomNavBar';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import {
@@ -35,7 +35,7 @@ import {
 } from '@/features/professionals/services/professionalService';
 import { useProviderGuard } from '@/shared/hooks/useProviderGuard';
 
-const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const STATUS_LABEL: Record<string, string> = {
@@ -271,10 +271,10 @@ export default function ProviderContractsScreen() {
     `R$ ${p.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
-    <ImageBackground source={require('../../assets/fundo_neutro_clean.png')} style={styles.background}>
+    <ImageBackground source={require('../../../assets/images/fundo_neutro_clean.png')} style={styles.background}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <View style={styles.logoRow}>
-          <Image source={require('../../assets/logo_completa.png')} style={styles.logo} contentFit="contain" />
+          <Image source={require('../../../assets/images/logo_completa.png')} style={styles.logo} contentFit="contain" />
         </View>
         <NotificationBell />
       </View>

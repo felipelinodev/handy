@@ -13,12 +13,12 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
-const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 const DESCRIPTION_PREVIEW_LIMIT = 220;
 
 type Params = {
@@ -125,7 +125,7 @@ export default function ContractDetailsScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_neutro_clean.png')}
+      source={require('../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <ScrollView
         style={styles.scroll}

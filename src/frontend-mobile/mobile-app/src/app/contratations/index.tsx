@@ -14,7 +14,7 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { Contratacao, fetchClientContracts, fetchPrestadorContracts } from '@/features/contracts/services/contractService';
@@ -25,7 +25,7 @@ import {
 } from '@/features/professionals/services/professionalService';
 import { syncContractNotifications } from '@/features/notifications/services/notificationService';
 
-const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 
 interface EnrichedContract {
   contrato: Contratacao;
@@ -203,7 +203,7 @@ export default function ContractsListScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_neutro_clean.png')}
+      source={require('../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity

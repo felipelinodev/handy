@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 
 export default function ReviewCard({ review }: { review: any }) {
   const nota = review.nota || review.rating || 0;
@@ -23,7 +23,7 @@ export default function ReviewCard({ review }: { review: any }) {
       <View style={styles.header}>
         <View style={styles.authorInfo}>
           <Image
-            source={review.authorAvatar ?? require('../../../../assets/favicon.png')}
+            source={review.authorAvatar ?? require('../../../../assets/images/favicon.png')}
             style={styles.avatar}
             contentFit="cover"
             transition={200}

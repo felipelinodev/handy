@@ -14,7 +14,7 @@ import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { MaintenanceHeader } from '@/features/provider/components/MaintenanceHeader';
 import { TimelineCard } from '@/features/provider/components/TimelineCard';
 import {
@@ -377,7 +377,7 @@ export default function MaintenanceTimelineScreen() {
 
   return (
     <ImageBackground
-      source={require('../../../assets/fundo_neutro_clean.png')}
+      source={require('../../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <ScrollView
         style={[styles.scroll, { paddingTop: insets.top + 8 }]}

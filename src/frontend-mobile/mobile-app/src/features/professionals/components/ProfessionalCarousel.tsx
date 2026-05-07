@@ -10,11 +10,11 @@ import {
 import { Image } from 'expo-image';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { ProfessionalListItem } from '@/features/professionals/services/professionalService';
 
 const CARD_WIDTH = Dimensions.get('window').width * 0.44;
-const PROFILE_PLACEHOLDER = require('../../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../../assets/images/fundo_neutro.png');
 
 interface ProfessionalCarouselProps {
   data: ProfessionalListItem[];

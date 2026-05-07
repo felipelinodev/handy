@@ -17,7 +17,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SHEET_MAX_HEIGHT = SCREEN_HEIGHT * 0.85;
 const MAX_DESCRICAO = 300;

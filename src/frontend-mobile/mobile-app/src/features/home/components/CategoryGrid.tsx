@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { Category } from '@/features/home/data/mockData';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;

@@ -10,7 +10,7 @@ import {
 import Icon from '@expo/vector-icons/Ionicons';
 import { useRouter } from 'expo-router';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { FILTER_OPTIONS, FilterOption } from '@/features/provider/data/mockMaintenance';
 

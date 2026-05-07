@@ -18,7 +18,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 
 import InputField from '@/features/auth/components/InputField';
 import AuthButton from '@/features/auth/components/AuthButton';
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { isValidEmail } from '@/shared/utils/validation';
 import {
   Especialidade,
@@ -156,7 +156,7 @@ export default function EditProfessionalProfileScreen() {
 
   if (loading || guardAllowed === null || guardAllowed === false) {
     return (
-      <ImageBackground source={require('../../../assets/fundo_neutro_clean.png')} style={styles.background}>
+      <ImageBackground source={require('../../../../assets/images/fundo_neutro_clean.png')} style={styles.background}>
         <View style={[styles.center, { paddingTop: insets.top + 40 }]}>
           <ActivityIndicator color={colors.primary} />
         </View>
@@ -165,7 +165,7 @@ export default function EditProfessionalProfileScreen() {
   }
 
   return (
-    <ImageBackground source={require('../../../assets/fundo_neutro_clean.png')} style={styles.background}>
+    <ImageBackground source={require('../../../../assets/images/fundo_neutro_clean.png')} style={styles.background}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}>

@@ -14,13 +14,13 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { fetchContrato, updateContractStatus } from '@/features/contracts/services/contractService';
 import { createSupportTicket } from '@/services/supportService';
 
-const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
+const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 const FREE_CANCEL_WINDOW_MS = 5 * 60 * 1000;
 const CLOCK_SKEW_TOLERANCE_MS = 60 * 1000;
 
@@ -139,7 +139,7 @@ export default function CancelContractPolicyScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_neutro_clean.png')}
+      source={require('../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <View style={styles.flex}>
         <View style={[styles.topArea, { paddingTop: insets.top + 8 }]}>

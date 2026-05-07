@@ -13,7 +13,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { updateContractStatus } from '@/features/contracts/services/contractService';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { useProviderGuard } from '@/shared/hooks/useProviderGuard';
@@ -75,7 +75,7 @@ export default function ProviderAcceptContractScreen() {
   if (guardAllowed === null || guardAllowed === false) {
     return (
       <ImageBackground
-        source={require('../../assets/fundo_neutro_clean.png')}
+        source={require('../../../assets/images/fundo_neutro_clean.png')}
         style={styles.background}>
         <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
           <ActivityIndicator color={colors.primary} />
@@ -86,7 +86,7 @@ export default function ProviderAcceptContractScreen() {
 
   return (
     <ImageBackground
-      source={require('../../assets/fundo_neutro_clean.png')}
+      source={require('../../../assets/images/fundo_neutro_clean.png')}
       style={styles.background}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8 }]}>
         <TouchableOpacity

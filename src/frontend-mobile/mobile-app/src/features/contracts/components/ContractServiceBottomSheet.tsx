@@ -16,7 +16,7 @@ import {
 import Icon from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { ProfessionalService } from '@/features/professionals/services/professionalService';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 

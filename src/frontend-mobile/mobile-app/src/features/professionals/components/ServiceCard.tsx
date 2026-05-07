@@ -2,7 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 
-import colors from '@/shared/utils/colors';
+import colors from '@/theme/colors';
 import { ProfessionalService } from '@/features/professionals/services/professionalService';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 

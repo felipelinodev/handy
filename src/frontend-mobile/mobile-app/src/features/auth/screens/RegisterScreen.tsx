@@ -37,7 +37,7 @@ export default function RegisterScreen() {
 
   return (
     <ImageBackground
-      source={require('../../../assets/fundo_neutro.png')}
+      source={require('../../../../assets/images/fundo_neutro.png')}
       style={styles.background}
     >
       <SafeAreaView style={styles.flex} edges={['top', 'bottom']}>

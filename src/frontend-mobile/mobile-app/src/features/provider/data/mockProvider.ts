@@ -5,7 +5,7 @@ export const mockProviderProfile: ProviderProfileData = {
   name: 'Guilherme Films',
   profession: 'Video Maker',
   rating: 4.1,
-  avatar: require('../../../assets/favicon.png'),
+  avatar: require('../../../../assets/images/favicon.png'),
   totalClients: 502,
   address: 'Rua da Cachaça 27, Centro, Belo Horizonte',
   experienceText: [
