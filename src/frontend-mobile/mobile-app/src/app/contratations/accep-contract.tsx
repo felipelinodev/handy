@@ -14,10 +14,10 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '../../utils/colors';
-import { createContract } from '../../services/contractService';
-import { NotificationBell } from '../../components/NotificationBell';
-import { recordContractNotification } from '../../services/notificationService';
+import colors from '@/shared/utils/colors';
+import { createContract } from '@/features/contracts/services/contractService';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { recordContractNotification } from '@/features/notifications/services/notificationService';
 
 type Params = {
   servicoId?: string;

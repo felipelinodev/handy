@@ -1,2 +1,2 @@
-import ProviderLoginScreen from '../../screens/auth/ProviderLoginScreen';
+import ProviderLoginScreen from '@/features/auth/screens/ProviderLoginScreen';
 export default ProviderLoginScreen;

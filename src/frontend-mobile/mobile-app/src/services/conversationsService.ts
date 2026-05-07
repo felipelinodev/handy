@@ -1,4 +1,4 @@
-import { BASE_URL, getHeaders } from './apiConfig';
+import { BASE_URL, getHeaders } from '@/services/apiConfig';
 
 export interface PrestadorConversation {
   conversa_id: number;

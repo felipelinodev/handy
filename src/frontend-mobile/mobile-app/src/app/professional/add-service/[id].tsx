@@ -1,2 +1,2 @@
-import AddServiceScreen from '../../../screens/AddServiceScreen';
+import AddServiceScreen from '@/features/professionals/screens/AddServiceScreen';
 export default AddServiceScreen;

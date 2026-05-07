@@ -12,13 +12,13 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '../utils/colors';
+import colors from '@/shared/utils/colors';
 import {
   AppNotification,
   clearAllNotifications,
   loadNotifications,
   markAllNotificationsAsRead,
-} from '../services/notificationService';
+} from '@/features/notifications/services/notificationService';
 
 interface StatusVisual {
   icon: keyof typeof Icon.glyphMap;

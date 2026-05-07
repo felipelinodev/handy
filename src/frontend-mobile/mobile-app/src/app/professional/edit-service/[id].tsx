@@ -1,2 +1,2 @@
-import EditServiceScreen from '../../../screens/EditServiceScreen';
+import EditServiceScreen from '@/features/professionals/screens/EditServiceScreen';
 export default EditServiceScreen;

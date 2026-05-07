@@ -1,5 +1,5 @@
 import React from 'react';
-import DecideFlow from '../components/DecideFlow';
+import DecideFlow from '@/features/home/components/DecideFlow';
 
 export default function Decide() {
   return <DecideFlow />;

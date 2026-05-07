@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL, getHeaders } from './apiConfig';
+import { BASE_URL, getHeaders } from '@/services/apiConfig';
 
 export type SupportCategory =
   | 'cancelamento'

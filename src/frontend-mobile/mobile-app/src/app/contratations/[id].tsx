@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   Alert,
   ImageBackground,
@@ -13,10 +13,10 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '../../utils/colors';
-import { BottomNavBar } from '../../components/BottomNavBar';
-import { HandyIcon } from '@/components/HandyIcon';
-import { NotificationBell } from '../../components/NotificationBell';
+import colors from '@/shared/utils/colors';
+import { BottomNavBar } from '@/shared/components/BottomNavBar';
+import { HandyIcon } from '@/shared/components/HandyIcon';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 const DESCRIPTION_PREVIEW_LIMIT = 220;

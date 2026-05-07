@@ -8,12 +8,12 @@ import {
 } from '@expo-google-fonts/open-sans';
 import { Stack } from 'expo-router';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import colors from '../utils/colors';
+import colors from '@/shared/utils/colors';
 import {
   clearLegacyGlobalNotifications,
   performClientNotificationSync,
-} from '../services/notificationService';
-import { InAppNotificationToaster } from '../components/InAppNotificationToaster';
+} from '@/features/notifications/services/notificationService';
+import { InAppNotificationToaster } from '@/features/notifications/components/InAppNotificationToaster';
 
 const NOTIFICATION_POLL_MS = 20000;
 

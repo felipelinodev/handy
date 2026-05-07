@@ -18,22 +18,22 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { BASE_URL, getHeaders } from '../../services/apiConfig';
+import { BASE_URL, getHeaders } from '@/services/apiConfig';
 
-import colors from '../../utils/colors';
-import { ProviderBottomNavBar } from '../../components/ProviderBottomNavBar';
-import { NotificationBell } from '../../components/NotificationBell';
+import colors from '@/shared/utils/colors';
+import { ProviderBottomNavBar } from '@/features/provider/components/ProviderBottomNavBar';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import {
   Contratacao,
   fetchProviderContracts,
   updateContractStatus,
-} from '../../services/contractService';
+} from '@/features/contracts/services/contractService';
 import {
   fetchProfessionalById,
   ProfessionalListItem,
   ProfessionalService,
-} from '../../services/professionalService';
-import { useProviderGuard } from '../../utils/useProviderGuard';
+} from '@/features/professionals/services/professionalService';
+import { useProviderGuard } from '@/shared/hooks/useProviderGuard';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');

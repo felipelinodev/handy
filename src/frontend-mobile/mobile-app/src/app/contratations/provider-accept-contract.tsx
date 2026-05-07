@@ -13,10 +13,10 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '../../utils/colors';
-import { updateContractStatus } from '../../services/contractService';
-import { NotificationBell } from '../../components/NotificationBell';
-import { useProviderGuard } from '../../utils/useProviderGuard';
+import colors from '@/shared/utils/colors';
+import { updateContractStatus } from '@/features/contracts/services/contractService';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { useProviderGuard } from '@/shared/hooks/useProviderGuard';
 
 type Params = {
   id?: string;

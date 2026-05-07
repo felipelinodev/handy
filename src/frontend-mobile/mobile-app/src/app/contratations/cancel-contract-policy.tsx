@@ -14,11 +14,11 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '../../utils/colors';
-import { BottomNavBar } from '../../components/BottomNavBar';
-import { NotificationBell } from '../../components/NotificationBell';
-import { fetchContrato, updateContractStatus } from '../../services/contractService';
-import { createSupportTicket } from '../../services/supportService';
+import colors from '@/shared/utils/colors';
+import { BottomNavBar } from '@/shared/components/BottomNavBar';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { fetchContrato, updateContractStatus } from '@/features/contracts/services/contractService';
+import { createSupportTicket } from '@/services/supportService';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 const FREE_CANCEL_WINDOW_MS = 5 * 60 * 1000;

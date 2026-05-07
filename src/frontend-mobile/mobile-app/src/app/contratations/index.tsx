@@ -14,16 +14,16 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import colors from '../../utils/colors';
-import { BottomNavBar } from '../../components/BottomNavBar';
-import { NotificationBell } from '../../components/NotificationBell';
-import { Contratacao, fetchClientContracts, fetchPrestadorContracts } from '../../services/contractService';
+import colors from '@/shared/utils/colors';
+import { BottomNavBar } from '@/shared/components/BottomNavBar';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { Contratacao, fetchClientContracts, fetchPrestadorContracts } from '@/features/contracts/services/contractService';
 import {
   fetchProfessionalById,
   ProfessionalListItem,
   ProfessionalService,
-} from '../../services/professionalService';
-import { syncContractNotifications } from '../../services/notificationService';
+} from '@/features/professionals/services/professionalService';
+import { syncContractNotifications } from '@/features/notifications/services/notificationService';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 

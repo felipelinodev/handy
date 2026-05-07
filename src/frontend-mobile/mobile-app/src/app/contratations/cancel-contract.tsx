@@ -16,9 +16,9 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import colors from '../../utils/colors';
-import { BottomNavBar } from '../../components/BottomNavBar';
-import { NotificationBell } from '../../components/NotificationBell';
+import colors from '@/shared/utils/colors';
+import { BottomNavBar } from '@/shared/components/BottomNavBar';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 
 const PROFILE_PLACEHOLDER = require('../../assets/fundo_neutro.png');
 
