@@ -18,6 +18,8 @@ import colors from '@/theme/colors';
 import { createContract } from '@/features/contracts/services/contractService';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { recordContractNotification } from '@/features/notifications/services/notificationService';
+import { buildContractDetails } from '@/features/contracts/utils/contractText';
+import { ContractDocument } from '@/features/contracts/components/ContractDocument';
 
 type Params = {
   servicoId?: string;
@@ -55,19 +57,6 @@ function parseInicioIso(date: string, time: string): string | null {
   return d.toISOString();
 }
 
-function buildDetalhes(p: Params): string {
-  const lines: string[] = [];
-  lines.push(`Tipo de serviço: ${p.modo === 'digital' ? 'Digital' : 'Presencial'}`);
-  if (p.data && p.hora) lines.push(`Agendamento: ${p.data} às ${p.hora}`);
-  if (p.modo === 'presencial' && p.endereco) lines.push(`Endereço: ${p.endereco}`);
-  if (p.observacoes && p.observacoes.trim().length > 0) {
-    lines.push('');
-    lines.push('Observações do cliente:');
-    lines.push(p.observacoes);
-  }
-  return lines.join('\n');
-}
-
 export default function AcceptContractScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -84,7 +73,7 @@ export default function AcceptContractScreen() {
     maximumFractionDigits: 2,
   })}`;
 
-  const detalhes = useMemo(() => buildDetalhes(params), [params]);
+  const detalhes = useMemo(() => buildContractDetails(params), [params]);
 
   async function handleSign() {
     if (!accepted || submitting) return;
@@ -192,60 +181,16 @@ export default function AcceptContractScreen() {
           style={styles.contractScroll}
           contentContainerStyle={styles.contractContent}
           showsVerticalScrollIndicator>
-          <Text style={styles.contractText}>
-            <Text style={styles.contractBold}>CONTRATO DE PRESTAÇÃO DE SERVIÇOS</Text>
-            {'\n'}
-            <Text style={styles.contractBold}>CONTRATANTE:</Text> Cliente Handy
-            {'\n'}
-            <Text style={styles.contractBold}>CONTRATADO:</Text>{' '}
-            {params.prestadorNome ?? 'Prestador'}
-            {'\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 1 – OBJETO</Text>
-            {'\n'}
-            O presente contrato tem como objeto a prestação do serviço{' '}
-            <Text style={styles.contractBold}>"{params.servicoNome ?? '—'}"</Text>,
-            conforme as necessidades do CONTRATANTE.
-            {'\n\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 2 – MODALIDADE E AGENDAMENTO</Text>
-            {'\n'}
-            O serviço será prestado na modalidade{' '}
-            <Text style={styles.contractBold}>
-              {params.modo === 'digital' ? 'Digital (remota)' : 'Presencial'}
-            </Text>
-            {params.data && params.hora
-              ? `, agendado para ${params.data} às ${params.hora}.`
-              : '.'}
-            {params.modo === 'presencial' && params.endereco
-              ? ` O atendimento ocorrerá no endereço: ${params.endereco}.`
-              : ''}
-            {'\n\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 3 – VALOR E FORMA DE PAGAMENTO</Text>
-            {'\n'}
-            O CONTRATANTE pagará ao CONTRATADO o valor de{' '}
-            <Text style={styles.contractBold}>{precoLabel}</Text>, conforme acordo
-            entre as partes.
-            {'\n\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 4 – OBRIGAÇÕES DO CONTRATADO</Text>
-            {'\n'}
-            O CONTRATADO se compromete a:
-            {'\n'}I – Executar os serviços com qualidade, eficiência e dentro dos
-            prazos estabelecidos;
-            {'\n'}II – Cumprir o agendamento acordado e comunicar o CONTRATANTE em
-            caso de qualquer alteração;
-            {'\n'}III – Respeitar as observações e instruções fornecidas pelo
-            CONTRATANTE.
-            {'\n\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 5 – OBSERVAÇÕES DO CONTRATANTE</Text>
-            {'\n'}
-            {params.observacoes && params.observacoes.trim().length > 0
-              ? params.observacoes
-              : 'Sem observações adicionais.'}
-            {'\n\n'}
-            <Text style={styles.contractBold}>CLÁUSULA 6 – DISPOSIÇÕES GERAIS</Text>
-            {'\n'}
-            Ao assinar este contrato, ambas as partes declaram estar de acordo com
-            todos os termos aqui descritos, mediados pela plataforma Handy.
-          </Text>
+          <ContractDocument
+            prestadorNome={params.prestadorNome}
+            servicoNome={params.servicoNome}
+            precoLabel={precoLabel}
+            modo={params.modo}
+            data={params.data}
+            hora={params.hora}
+            endereco={params.endereco}
+            observacoes={params.observacoes}
+          />
         </ScrollView>
 
         {!isReadonly && (
@@ -349,16 +294,6 @@ const styles = StyleSheet.create({
   },
   contractContent: {
     paddingBottom: 16,
-  },
-  contractText: {
-    fontSize: 13,
-    lineHeight: 20,
-    fontFamily: 'OpenSans_400Regular',
-    color: colors.textDark,
-    textAlign: 'justify',
-  },
-  contractBold: {
-    fontFamily: 'OpenSans_700Bold',
   },
   footer: {
     flexDirection: 'row',
