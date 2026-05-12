@@ -13,3 +13,5 @@ export const updateServiceSchema = createServiceSchema.omit({ prestador_id: true
 
 export type CreateServiceDto = z.infer<typeof createServiceSchema>;
 export type UpdateServiceDto = z.infer<typeof updateServiceSchema>;
+
+// for push
