@@ -1,7 +1,7 @@
 import React from 'react';
 import Svg, { G, Path } from 'react-native-svg';
 
-type IconName =
+export type IconName =
   | 'hugeicons:agreement-02'
   | 'carbon:chat'
   | 'material-symbols:home-rounded'
@@ -13,7 +13,7 @@ type IconName =
   | 'solar:chart-square'
   | 'hugeicons:credit-card';
 
-interface HandyIconProps {
+export interface HandyIconProps {
   name: IconName;
   size?: number;
   color?: string;

@@ -18,7 +18,7 @@ Esta documentação provê uma visão detalhada de todos os módulos, rotas (end
 8. [Módulo: Provider](#8-módulo-provider)
 9. [Módulo: Services](#9-módulo-services)
 10. [Módulo: Support](#10-módulo-support)
-
+11. [Módulo: Provider Availability](#11-módulo-provider-availability)
 ---
 
 ## 1. Módulo: Analysis
@@ -328,6 +328,65 @@ Tickets para suporte nativo gerados pelo cliente ou prestador direcionados ao su
 - **Body Recomendado**: Envio de "status", ex: `{"status": "Fechado"}`.
 
 #### `DELETE /support/delete-a-ticket/:ticketId`
+
+---
+
+## 11. Módulo: Provider Availability
+
+Gerencia a agenda e os horários disponíveis dos prestadores de serviços para receber contratações.
+
+### Endpoints
+
+#### `POST /provider-availability/create`
+- **Descrição**: Cria um novo slot de disponibilidade na agenda de um prestador.
+- **Body Esperado**:
+  ```json
+  {
+    "prestador_id": 1,
+    "data_disponivel": "2026-05-20T00:00:00.000Z",
+    "hora_inicio": "2026-05-20T08:00:00.000Z",
+    "hora_fim": "2026-05-20T12:00:00.000Z",
+    "status": "Livre"
+  }
+  ```
+
+#### `POST /provider-availability/create-many`
+- **Descrição**: Cria múltiplos slots de disponibilidade em lote.
+- **Body Esperado**: Lista de objetos com o mesmo formato do endpoint `/create`.
+
+#### `GET /provider-availability/view/:id`
+- **Descrição**: Visualiza os detalhes de um slot específico na agenda.
+- **Headers**: Autorização (JWT).
+
+#### `GET /provider-availability/provider/:prestadorId`
+- **Descrição**: Traz todos os slots de agenda de um prestador específico.
+- **Headers**: Autorização (JWT).
+
+#### `GET /provider-availability/provider/:prestadorId/free`
+- **Descrição**: Traz apenas os slots com status "Livre" de um prestador. Útil para clientes na hora do agendamento.
+- **Headers**: Autorização (JWT).
+
+#### `GET /provider-availability/view-all`
+- **Descrição**: Lista todas as disponibilidades do sistema.
+- **Headers**: Autorização (JWT).
+
+#### `PATCH /provider-availability/update/:id`
+- **Descrição**: Atualiza dados de um slot específico (data, hora ou status).
+- **Headers**: Autorização (JWT).
+
+#### `PATCH /provider-availability/reserve/:id`
+- **Descrição**: Reserva um slot livre atrelando-o a uma contratação. O status muda para "Reservado".
+- **Headers**: Autorização (JWT).
+- **Body Esperado**:
+  ```json
+  {
+    "contratacao_id": 5
+  }
+  ```
+
+#### `DELETE /provider-availability/delete/:id`
+- **Descrição**: Remove um slot da agenda.
+- **Headers**: Autorização (JWT).
 
 ---
 

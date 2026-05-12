@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { HdyButton } from '../shared/components/HdyButton';
 import {
   View,
   Text,
@@ -54,7 +55,7 @@ export default function WelcomeScreen() {
     <ImageBackground
       source={require('../../assets/images/fundo_tela_boasvindas.png')}
       style={styles.container}
-      resizeMode="cover"
+      resizeMode="cover" //PREENCHIMENTO TOTAL, PROPORÇÃO E RECORTE.
     >
       {/* PARTE DE CIMA - LOGO */}
       <View style={styles.logoContainer}>
@@ -109,13 +110,11 @@ export default function WelcomeScreen() {
         </Text>
 
         <View style={styles.buttonGroup}>
-          <TouchableOpacity
-            style={styles.buttonSegundary}
+          <HdyButton
+            title="Entrar"
             onPress={() => router.push('/decide' as any)}
-            activeOpacity={0.7}
-          >
-            <Text style={styles.buttonText}>Entrar</Text>
-          </TouchableOpacity>
+            style={{ width: 309, height: 60 }}
+          />
 
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>Não tem uma conta? </Text>
@@ -202,19 +201,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 16,
   },
-  buttonSegundary: {
-    width: 309,
-    height: 60,
-    backgroundColor: '#6366f1',
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: 18,
-    fontFamily: 'OpenSans_700Bold',
-    color: '#fff',
-  },
+
   footerContainer: {
     flexDirection: 'row',
     alignItems: 'center',

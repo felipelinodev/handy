@@ -4,6 +4,7 @@ export type CreateServicoInput = {
   nome_servico: string;
   descricao?: string | null;
   preco: number;
+  local?: Record<string, unknown> | null;
 };
 
 export type UpdateServicoInput = Partial<Omit<CreateServicoInput, 'prestador_id'>>;

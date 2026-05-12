@@ -15,6 +15,7 @@ import { ConversationsModule } from './conversations/conversations.module';
 import { CategoryModule } from './category/category.module';
 import { ReviewModule } from './review/review.module';
 import { AuthModule } from './auth/auth.module';
+import { ProviderAvailabilityModule } from './provider-availability/provider-availability.module';
 import { DevAuthGuard } from './auth/dev-auth.guard';
 
 @Module({
@@ -31,7 +32,8 @@ import { DevAuthGuard } from './auth/dev-auth.guard';
     ConversationsModule,
     CategoryModule,
     ReviewModule,
-    AuthModule
+    AuthModule,
+    ProviderAvailabilityModule
   ],
   controllers: [AppController],
   providers: [

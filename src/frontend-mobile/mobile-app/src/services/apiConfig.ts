@@ -10,7 +10,7 @@ const DEV_TOKEN = process.env.EXPO_PUBLIC_DEV_TOKEN || '';
 function resolveBaseUrl(): string {
   const raw = process.env.EXPO_PUBLIC_API_URL;
   if (raw) {
-    // Remove trailing slash if present
+    
     const cleaned = raw.replace(/\/+$/, '');
     return `${cleaned}${API_PREFIX}`;
   }
@@ -38,11 +38,6 @@ export async function getHeaders(includeAuth = true): Promise<Record<string, str
     }
   }
 
-  console.log('[API CONFIG] BASE_URL atual:', BASE_URL);
-  console.log('[API CONFIG] DEV_TOKEN está vazio?', !DEV_TOKEN);
-  if (!DEV_TOKEN) {
-    console.warn('⚠️ ATENÇÃO: O EXPO_PUBLIC_DEV_TOKEN não foi carregado do .env!');
-  }
 
   return headers;
 }
