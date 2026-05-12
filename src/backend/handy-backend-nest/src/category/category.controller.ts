@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Headers, Delete, Get, InternalServerErrorException, Param, ParseIntPipe, Post, UseGuards, UseInterceptors } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import { CategoryService } from './category.service';
 import { categorySchema } from './schemas/category.schema';
 import { z } from "zod";
@@ -39,11 +40,15 @@ export class CategoryController {
 
   @UseGuards(JwtAuthGuard)
   @Get('view-all-category')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('view_all_categories')
   async viewAllCategory() {
     return await this.categoryService.viewAllCategories();
   }
 
   @Get('public/list')
+  @UseInterceptors(CacheInterceptor)
+  @CacheKey('public_list_categories')
   async listPublicCategories() {
     return await this.categoryService.viewAllCategories();
   }

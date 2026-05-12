@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException, UnauthorizedException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, ConflictException, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
 import { CategoryRepository } from './repository/category.repository';
 
 @Injectable()
 export class CategoryService {
-  constructor(private readonly categoryRepository: CategoryRepository) {}
+  constructor(
+    private readonly categoryRepository: CategoryRepository,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache
+  ) {}
 
   async createCategory(data: any) {
     const existingCategory = await this.categoryRepository.searchCategory('nome_categoria', data.nome_categoria);
@@ -13,6 +18,11 @@ export class CategoryService {
     }
 
     const category = await this.categoryRepository.createCategory(data);
+    
+    // Invalidate the cache for categories
+    await this.cacheManager.del('view_all_categories');
+    await this.cacheManager.del('public_list_categories');
+
     return { message: 'Categoria criada com sucesso.', data: category };
   }
 
@@ -38,6 +48,10 @@ export class CategoryService {
     }
 
     await this.categoryRepository.deleteCategory(id);
+
+    // Invalidate the cache for categories
+    await this.cacheManager.del('view_all_categories');
+    await this.cacheManager.del('public_list_categories');
 
     return {
       message: 'Categoria excluída com sucesso!',
