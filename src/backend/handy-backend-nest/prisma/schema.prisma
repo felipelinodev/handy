@@ -37,6 +37,7 @@ model categoria {
   categoria_id   Int        @id @default(autoincrement())
   nome_categoria String     @unique @db.VarChar(100)
   rank_categoria Int?       @default(0)
+  icon_tag       String?    @db.VarChar(100)
   servicos       servicos[]
 }
 
@@ -51,25 +52,26 @@ model cliente {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model contratacoes {
-  contratacao_id Int         @id @default(autoincrement())
-  cliente_id     Int
-  prestador_id   Int
-  servico_id     Int
-  titulo         String      @db.VarChar(100)
-  detalhes       String?
-  endereco       String?
-  status         String      @default("Pendente") @db.VarChar(20)
-  inicio         DateTime?   @db.Timestamp(6)
-  conclusao      DateTime?   @db.Timestamp(6)
-  vencimento     DateTime?   @db.Timestamp(6)
-  created_at     DateTime?   @default(now()) @db.Timestamp(6)
-  updated_at     DateTime?   @default(now()) @db.Timestamp(6)
-  avaliacao      avaliacao?
-  cliente        cliente     @relation(fields: [cliente_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_cliente")
-  prestador      prestador   @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_prestador")
-  servicos       servicos    @relation(fields: [servico_id], references: [servico_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_servico")
-  conversa       conversa?
-  pagamento      pagamento[]
+  contratacao_id   Int               @id @default(autoincrement())
+  cliente_id       Int
+  prestador_id     Int
+  servico_id       Int
+  titulo           String            @db.VarChar(100)
+  detalhes         String?
+  endereco         String?
+  status           String            @default("Pendente") @db.VarChar(20)
+  inicio           DateTime?         @db.Timestamp(6)
+  conclusao        DateTime?         @db.Timestamp(6)
+  vencimento       DateTime?         @db.Timestamp(6)
+  created_at       DateTime?         @default(now()) @db.Timestamp(6)
+  updated_at       DateTime?         @default(now()) @db.Timestamp(6)
+  agenda_prestador agenda_prestador?
+  avaliacao        avaliacao?
+  cliente          cliente           @relation(fields: [cliente_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_cliente")
+  prestador        prestador         @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_prestador")
+  servicos         servicos          @relation(fields: [servico_id], references: [servico_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_servico")
+  conversa         conversa?
+  pagamento        pagamento[]
 
   @@index([cliente_id], map: "idx_contratacao_cliente")
   @@index([prestador_id], map: "idx_contratacao_prestador")
@@ -135,6 +137,7 @@ model prestador {
   user_id                 Int                       @id
   media_avaliacao         Decimal?                  @default(0) @db.Decimal(3, 2)
   total_clientes          Int?                      @default(0)
+  agenda_prestador        agenda_prestador[]
   avaliacao               avaliacao[]
   breakpoints             breakpoints[]
   contratacoes            contratacoes[]
@@ -161,6 +164,7 @@ model servicos {
   nome_servico String         @db.VarChar(150)
   descricao    String?
   preco        Decimal        @db.Decimal(10, 2)
+  local        Json?
   contratacoes contratacoes[]
   prestador    prestador      @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_prestador_usuario")
   categoria    categoria      @relation(fields: [categoria_id], references: [categoria_id], onUpdate: NoAction, map: "fk_servico_categoria")
@@ -192,16 +196,33 @@ model usuario {
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model ticket {
-  ticket_id   Int       @id @default(autoincrement())
-  usuario_id  Int
-  titulo      String    @db.VarChar(150)
-  descricao   String
-  categoria   String    @db.VarChar(50)
-  status      String    @default("Aberto") @db.VarChar(20)
-  created_at  DateTime? @default(now()) @db.Timestamp(6)
-  updated_at  DateTime? @default(now()) @db.Timestamp(6)
-  usuario     usuario   @relation(fields: [usuario_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_usuario")
+  ticket_id  Int       @id @default(autoincrement())
+  usuario_id Int
+  titulo     String    @db.VarChar(150)
+  descricao  String
+  categoria  String    @db.VarChar(50)
+  status     String    @default("Aberto") @db.VarChar(20)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+  updated_at DateTime? @default(now()) @db.Timestamp(6)
+  usuario    usuario   @relation(fields: [usuario_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ticket_usuario")
 
   @@index([usuario_id], map: "idx_ticket_usuario")
   @@index([categoria], map: "idx_ticket_categoria")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model agenda_prestador {
+  agenda_id       Int           @id @default(autoincrement())
+  prestador_id    Int
+  data_disponivel DateTime      @db.Date
+  hora_inicio     DateTime?     @db.Time(6)
+  hora_fim        DateTime?     @db.Time(6)
+  status          String?       @default("Livre") @db.VarChar(20)
+  contratacao_id  Int?          @unique
+  created_at      DateTime?     @default(now()) @db.Timestamp(6)
+  updated_at      DateTime?     @default(now()) @db.Timestamp(6)
+  contratacoes    contratacoes? @relation(fields: [contratacao_id], references: [contratacao_id], onUpdate: NoAction, map: "fk_agenda_contratacao")
+  prestador       prestador     @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_agenda_prestador")
+
+  @@index([prestador_id, data_disponivel, status], map: "idx_agenda_prestador_data")
 }

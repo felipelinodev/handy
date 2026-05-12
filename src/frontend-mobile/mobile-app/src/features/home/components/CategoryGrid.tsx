@@ -1,40 +1,52 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
 import colors from '@/theme/colors';
-import { Category } from '@/features/home/data/mockData';
+import type { Category } from '@/services/categoryService';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const GRID_PADDING = 24;
 const GRID_GAP = 12;
 const ITEM_SIZE = (SCREEN_WIDTH - GRID_PADDING * 2 - GRID_GAP * 3) / 4;
 
+/** Fallback icon when the category has no icon_tag or an invalid one */
+const DEFAULT_ICON = 'grid-outline';
+
 interface CategoryGridProps {
   data: Category[];
+  loading?: boolean;
 }
 
 const CategoryItem: React.FC<{ item: Category }> = ({ item }) => {
+  const iconName = (item.icon_tag || DEFAULT_ICON) as any;
+
   return (
     <TouchableOpacity style={styles.item} activeOpacity={0.7}>
       <View style={styles.iconContainer}>
-        <Icon name={item.icon as any} size={26} color={colors.primary} />
+        <Icon name={iconName} size={26} color={colors.primary} />
       </View>
       <Text style={styles.itemLabel} numberOfLines={2}>
-        {item.name}
+        {item.nome_categoria}
       </Text>
     </TouchableOpacity>
   );
 };
 
-export const CategoryGrid: React.FC<CategoryGridProps> = ({ data }) => {
+export const CategoryGrid: React.FC<CategoryGridProps> = ({ data, loading }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Busque por categorias.</Text>
-      <View style={styles.grid}>
-        {data.map(item => (
-          <CategoryItem key={item.id} item={item} />
-        ))}
-      </View>
+      {loading ? (
+        <View style={styles.loadingBox}>
+          <ActivityIndicator color={colors.primary} />
+        </View>
+      ) : (
+        <View style={styles.grid}>
+          {data.map(item => (
+            <CategoryItem key={item.categoria_id} item={item} />
+          ))}
+        </View>
+      )}
     </View>
   );
 };
@@ -78,5 +90,10 @@ const styles = StyleSheet.create({
     color: colors.textDark,
     textAlign: 'center',
     lineHeight: 13,
+  },
+  loadingBox: {
+    paddingVertical: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

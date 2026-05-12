@@ -9,7 +9,7 @@ import { WelcomeSection } from '@/features/home/components/WelcomeSection';
 import { ProfessionalCarousel } from '@/features/professionals/components/ProfessionalCarousel';
 import { CategoryGrid } from '@/features/home/components/CategoryGrid';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
-import { categories } from '@/features/home/data/mockData';
+import { fetchCategories, Category } from '@/services/categoryService';
 import { fetchProfessionals, ProfessionalListItem } from '@/features/professionals/services/professionalService';
 import { ConcludedContractChecker } from '@/features/contracts/components/ConcludedContractChecker';
 import colors from '@/theme/colors';
@@ -19,7 +19,9 @@ export const HomeScreen: React.FC = () => {
   const insets = useSafeAreaInsets();
   const [userName, setUserName] = useState('Usuário');
   const [professionals, setProfessionals] = useState<ProfessionalListItem[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [isProvider, setIsProvider] = useState(false);
 
@@ -69,6 +71,26 @@ export const HomeScreen: React.FC = () => {
     };
   }, [isProvider]);
 
+  useEffect(() => {
+    if (isProvider) return;
+    let isMounted = true;
+    async function loadCategories() {
+      try {
+        setCategoriesLoading(true);
+        const list = await fetchCategories();
+        if (isMounted) setCategories(list);
+      } catch (error) {
+        console.error('Erro ao carregar categorias', error);
+      } finally {
+        if (isMounted) setCategoriesLoading(false);
+      }
+    }
+    loadCategories();
+    return () => {
+      isMounted = false;
+    };
+  }, [isProvider]);
+
   if (isProvider) {
     return (
       <ImageBackground
@@ -104,7 +126,7 @@ export const HomeScreen: React.FC = () => {
         ) : (
           <ProfessionalCarousel data={professionals} />
         )}
-        <CategoryGrid data={categories} />
+        <CategoryGrid data={categories} loading={categoriesLoading} />
       </ScrollView>
 
       <BottomNavBar activeTab="home" />

@@ -12,12 +12,6 @@ export interface Professional {
   description: string;
 }
 
-export interface Category {
-  id: string;
-  name: string;
-  icon: string;
-}
-
 const LOREM =
   'Mussum Ipsum, cacilds vidis litro abertis. Mauris nec dolor in eros commodo tempor. Aenean aliquam molestie leo, vitae iaculis nisl. Suco de cevadiss deixa as pessoas mais interessantis. Delegadis gente fina, bibendum egestas augue arcu ut est. Morbi viverra placerat justo, vel pharetra turpis.';
 
@@ -77,15 +71,4 @@ export const professionals: Professional[] = [
     address: 'Rua Sergipe 1000, Funcionários, Belo Horizonte',
     description: LOREM,
   },
-];
-
-export const categories: Category[] = [
-  { id: '1', name: 'Video Maker', icon: 'videocam' },
-  { id: '2', name: 'Mecânico', icon: 'build' },
-  { id: '3', name: 'Mecânica', icon: 'construct' },
-  { id: '4', name: 'Eletricista', icon: 'flash' },
-  { id: '5', name: 'Chaveiro', icon: 'key' },
-  { id: '6', name: 'Desentupidor', icon: 'water' },
-  { id: '7', name: 'Programador', icon: 'code-slash' },
-  { id: '8', name: 'Editor de vídeo', icon: 'film' },
 ];

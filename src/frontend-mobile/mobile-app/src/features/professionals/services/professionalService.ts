@@ -135,6 +135,7 @@ export interface Especialidade {
 export interface Categoria {
   categoria_id: number;
   nome_categoria: string;
+  icon_tag?: string | null;
 }
 
 export async function fetchEspecialidades(): Promise<Especialidade[]> {
