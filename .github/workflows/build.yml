@@ -53,6 +53,6 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ${{ secrets.PROJECT_PATH }}
-            docker compose pull api
-            docker compose up -d api
-            docker image prune -f
+            sudo docker-compose pull api
+            sudo docker-compose up -d api
+            sudo docker image prune -f
