@@ -29,7 +29,7 @@ const updateProviderAvailabilitySchema = z.object({
     }).optional(),
 
     contratacao_id: z.number().int().positive('ID da contratação inválido.').nullable().optional(),
-
+    
 });
 
 export type CreateProviderAvailabilityDto = z.infer<typeof createProviderAvailabilitySchema>;

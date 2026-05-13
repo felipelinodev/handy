@@ -13,10 +13,10 @@ export class AnalysisService {
     ): Promise<ServicesAnalysis> {
         const startDate = getStartDate(periodo);
 
-        const data = await this.analysisRepository.getContractedServices(prestador_id, startDate);
+        const data = await this.analysisRepository.getContractedServices(prestador_id, startDate) as any[];
 
         const total_contratacoes = data.reduce(
-            (sum, s) => sum + s._count.contratacoes,
+            (sum, s) => sum + (s._count?.contratacoes || 0),
             0,
         );
 
@@ -27,7 +27,7 @@ export class AnalysisService {
             servicos: data.map((s) => ({
                 servico_id: s.servico_id,
                 nome_servico: s.nome_servico,
-                total_contratacoes: s._count.contratacoes,
+                total_contratacoes: s._count?.contratacoes || 0,
             })),
         };
     }
@@ -38,7 +38,7 @@ export class AnalysisService {
     ): Promise<ServicesAnalysis> {
         const startDate = getStartDate(periodo);
 
-        const data = await this.analysisRepository.getRevenue(prestador_id, startDate);
+        const data = await this.analysisRepository.getRevenue(prestador_id, startDate) as any[];
 
         let total_revenue = 0;
 
@@ -71,7 +71,7 @@ export class AnalysisService {
     ): Promise<ServicesAnalysis> {
         const startDate = getStartDate(periodo);
 
-        const data = await this.analysisRepository.getPerformance(prestador_id, startDate);
+        const data = await this.analysisRepository.getPerformance(prestador_id, startDate) as any[];
 
         let totalNotas = 0;
         let totalAvaliacoes = 0;
@@ -112,7 +112,7 @@ export class AnalysisService {
     async listServiceProviderClients(prestador_id: number, periodo?: Periodo): Promise<ClientsAnalysis> {
         const startDate = getStartDate(periodo);
 
-        const data = await this.analysisRepository.listClients(prestador_id, startDate);
+        const data = await this.analysisRepository.listClients(prestador_id, startDate) as any[];
 
         const grouped = new Map<number, { cliente_id: number; nome: string; total_contratacoes: number }>();
 

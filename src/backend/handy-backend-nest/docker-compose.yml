@@ -1,0 +1,17 @@
+services:
+  api:
+    image: ghcr.io/${GITHUB_USER}/handy-api:latest
+    container_name: handy-api
+    restart: always
+    ports:
+      - "4001:4001"
+    env_file: .env
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:alpine
+    container_name: redis-handy
+    restart: always
+    ports:
+      - "6379:6379"
