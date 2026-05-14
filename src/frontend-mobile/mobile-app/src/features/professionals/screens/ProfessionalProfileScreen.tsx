@@ -422,7 +422,7 @@ export default function ProfessionalProfileScreen() {
           <ContractServiceBottomSheet
             visible={contractSheetVisible}
             service={selectedService}
-            providerId={professional.id}
+            providerId={Number(professional.id)}
             providerName={professional.name}
             onClose={() => setContractSheetVisible(false)}
             onConfirm={handleConfirmContract}

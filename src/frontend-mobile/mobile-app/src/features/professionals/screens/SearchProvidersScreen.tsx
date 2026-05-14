@@ -61,12 +61,13 @@ export default function SearchProvidersScreen() {
     const filtered = professionals.filter((p) => {
       const nameMatch = p.name.toLowerCase().includes(query);
       const categoryMatch = p.category.toLowerCase().includes(query);
+      const addressMatch = p.address?.toLowerCase().includes(query) ?? false;
       const serviceMatch = p.services.some(
         (s) =>
           s.name.toLowerCase().includes(query) ||
           s.category.toLowerCase().includes(query),
       );
-      return nameMatch || categoryMatch || serviceMatch;
+      return nameMatch || categoryMatch || serviceMatch || addressMatch;
     });
     setFilteredList(filtered);
   }, [searchQuery, professionals]);
@@ -95,7 +96,7 @@ export default function SearchProvidersScreen() {
           <Icon name="search" size={20} color={colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar por nome, categoria ou serviço..."
+            placeholder="Buscar por nome, serviço, local..."
             placeholderTextColor={colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -129,7 +130,7 @@ export default function SearchProvidersScreen() {
           </Text>
           <Text style={styles.emptyText}>
             {searchQuery
-              ? 'Tente buscar por outro nome, categoria ou serviço.'
+              ? 'Tente buscar por outro nome, serviço ou localização.'
               : 'Novos prestadores aparecerão aqui.'}
           </Text>
         </View>
@@ -172,7 +173,7 @@ export default function SearchProvidersScreen() {
                 </View>
                 <View style={styles.metaRow}>
                   <View style={styles.metaItem}>
-                    <Icon name="star" size={12} color={colors.starYellow} />
+                    <Icon name="star" size={12} color="#F59E0B" />
                     <Text style={styles.metaBold}>
                       {Number(professional.rating).toFixed(1)}
                     </Text>
@@ -183,6 +184,16 @@ export default function SearchProvidersScreen() {
                       {professional.clientsCount}
                     </Text>
                   </View>
+                </View>
+                {!!professional.address && (
+                  <View style={[styles.metaItem, { marginTop: 4 }]}>
+                    <Icon name="location-outline" size={12} color={colors.textMuted} />
+                    <Text style={styles.metaMuted} numberOfLines={1}>
+                      {professional.address}
+                    </Text>
+                  </View>
+                )}
+                <View style={[styles.metaRow, { marginTop: 6, justifyContent: 'flex-end' }]}>
                   {professional.minPrice > 0 && (
                     <Text style={styles.priceText}>
                       A partir de R$ {professional.minPrice.toLocaleString('pt-BR', {
@@ -220,7 +231,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: '#FAF5FF',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: colors.purpleDark,
@@ -292,7 +303,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 16,
-    backgroundColor: colors.avatarPlaceholder,
+    backgroundColor: '#E2E8F0',
   },
   cardBody: {
     flex: 1,
@@ -307,7 +318,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   categoryPill: {
-    backgroundColor: colors.primarySurface,
+    backgroundColor: '#E0DDF7',
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 50,
