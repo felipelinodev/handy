@@ -44,6 +44,7 @@ const STATUS_LABEL: Record<string, string> = {
   Em_Andamento: 'Em andamento',
   Concluida: 'Concluída',
   'Concluída': 'Concluída',
+  Entregue: 'Entregue',
   Cancelada: 'Cancelada',
 };
 
@@ -53,6 +54,7 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
   Em_Andamento: { bg: '#E0DDF7', fg: colors.primary },
   Concluida: { bg: '#D1FAE5', fg: '#065F46' },
   'Concluída': { bg: '#D1FAE5', fg: '#065F46' },
+  Entregue: { bg: '#D1FAE5', fg: '#065F46' },
   Cancelada: { bg: '#FEE2E2', fg: '#B91C1C' },
 };
 
@@ -122,6 +124,7 @@ export default function ProviderContractsScreen() {
   const [sheetVisible, setSheetVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [rejecting, setRejecting] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [slideAnim] = useState(new Animated.Value(SCREEN_HEIGHT));
 
   const load = useCallback(async () => {
@@ -232,6 +235,34 @@ export default function ProviderContractsScreen() {
               Alert.alert('Erro', error?.message ?? 'Não foi possível recusar a solicitação.');
             } finally {
               setRejecting(false);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  async function handleMarcarEntregue() {
+    if (!selectedItem) return;
+    const item = selectedItem;
+    Alert.alert(
+      'Confirmar Entrega',
+      `Deseja marcar o serviço "${item.servico?.name ?? item.contrato.titulo}" como entregue?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              setIsSubmitting(true);
+              await updateContractStatus(item.contrato.contratacao_id, 'Entregue');
+              setSheetVisible(false);
+              setSelectedItem(null);
+              await load();
+            } catch (error: any) {
+              Alert.alert('Erro', error?.message ?? 'Não foi possível marcar como entregue.');
+            } finally {
+              setIsSubmitting(false);
             }
           },
         },
@@ -395,6 +426,19 @@ export default function ProviderContractsScreen() {
                 {selectedItem.contrato.status === 'Aceita' && (
                   <TouchableOpacity style={styles.sheetButton} activeOpacity={0.85} onPress={handleProsseguir}>
                     <Text style={styles.sheetButtonText}>Ver Contrato</Text>
+                  </TouchableOpacity>
+                )}
+                {['aceita', 'em_andamento', 'em andamento'].includes((selectedItem.contrato.status ?? '').toLowerCase()) && (
+                  <TouchableOpacity
+                    style={[styles.sheetButton, { backgroundColor: colors.success, marginTop: selectedItem.contrato.status === 'Aceita' ? 12 : 0 }]}
+                    activeOpacity={0.85}
+                    disabled={isSubmitting}
+                    onPress={handleMarcarEntregue}>
+                    {isSubmitting ? (
+                      <ActivityIndicator color={colors.textWhite} />
+                    ) : (
+                      <Text style={styles.sheetButtonText}>Marcar como Entregue</Text>
+                    )}
                   </TouchableOpacity>
                 )}
                 <TouchableOpacity

@@ -47,6 +47,7 @@ const STATUS_LABEL: Record<string, string> = {
   Em_Andamento: 'Em Andamento',
   Concluida: 'Concluída',
   'Concluída': 'Concluída',
+  Entregue: 'Entregue',
   Cancelada: 'Cancelada',
 };
 
@@ -56,6 +57,7 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
   Em_Andamento: { bg: '#E0DDF7', fg: colors.primary },
   Concluida: { bg: '#D1FAE5', fg: '#065F46' },
   'Concluída': { bg: '#D1FAE5', fg: '#065F46' },
+  Entregue: { bg: '#D1FAE5', fg: '#065F46' },
   Cancelada: { bg: '#FEE2E2', fg: '#B91C1C' },
 };
 

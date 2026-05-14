@@ -66,7 +66,7 @@ export const CompleteServiceSheet: React.FC<CompleteServiceSheetProps> = ({
     () =>
       contracts.filter((c) => {
         const s = (c.status ?? '').toLowerCase().trim();
-        return s !== 'concluído' && s !== 'cancelado' && s !== 'cancelada';
+        return s !== 'concluído' && s !== 'concluída' && s !== 'entregue' && s !== 'cancelado' && s !== 'cancelada';
       }),
     [contracts],
   );
@@ -121,7 +121,7 @@ export const CompleteServiceSheet: React.FC<CompleteServiceSheetProps> = ({
     try {
       const updated = await updateContractStatus(
         selectedContract.contratacao_id,
-        'Concluída',
+        'Entregue',
       );
       onCompleted(updated);
     } catch (err: any) {
@@ -171,9 +171,9 @@ export const CompleteServiceSheet: React.FC<CompleteServiceSheetProps> = ({
           {/* Header */}
           <View style={styles.header}>
             <View style={styles.headerTextWrap}>
-              <Text style={styles.title}>Concluir serviço</Text>
+              <Text style={styles.title}>Marcar como Entregue</Text>
               <Text style={styles.subtitle} numberOfLines={1}>
-                Confirme a conclusão do contrato
+                Confirme a entrega do serviço
               </Text>
             </View>
             <TouchableOpacity
@@ -196,9 +196,9 @@ export const CompleteServiceSheet: React.FC<CompleteServiceSheetProps> = ({
                 <Icon name="checkmark-circle-outline" size={22} color={colors.success} />
               </View>
               <Text style={styles.infoBannerText}>
-                Ao concluir o serviço, o status do contrato será atualizado para{' '}
-                <Text style={styles.infoBannerBold}>Concluído</Text> e o cliente poderá
-                avaliar o serviço prestado.
+                Ao marcar como entregue, o status do contrato será atualizado para{' '}
+                <Text style={styles.infoBannerBold}>Entregue</Text>. O cliente deverá
+                confirmar a entrega para que o serviço seja concluído.
               </Text>
             </View>
 
@@ -293,7 +293,7 @@ export const CompleteServiceSheet: React.FC<CompleteServiceSheetProps> = ({
                   <ActivityIndicator size="small" color={colors.textWhite} />
                 ) : (
                   <>
-                    <Text style={styles.confirmButtonText}>Concluir serviço</Text>
+                    <Text style={styles.confirmButtonText}>Marcar como Entregue</Text>
                     <Icon
                       name="checkmark-circle-outline"
                       size={19}

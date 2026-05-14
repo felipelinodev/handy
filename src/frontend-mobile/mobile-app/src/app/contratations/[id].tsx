@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
+  ActivityIndicator,
   Alert,
   ImageBackground,
   ScrollView,
@@ -11,12 +12,14 @@ import {
 import { Image } from 'expo-image';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '@/theme/colors';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { updateContractStatus } from '@/features/contracts/services/contractService';
 
 const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 const DESCRIPTION_PREVIEW_LIMIT = 220;
@@ -47,6 +50,7 @@ const STATUS_LABEL: Record<string, string> = {
   Em_Andamento: 'Em Andamento',
   Concluida: 'Concluída',
   Concluída: 'Concluída',
+  Entregue: 'Entregue',
   Cancelada: 'Cancelada',
 };
 
@@ -56,6 +60,7 @@ const STATUS_STYLES: Record<string, { bg: string; fg: string }> = {
   Em_Andamento: { bg: '#E0DDF7', fg: colors.primary },
   Concluida: { bg: '#D1FAE5', fg: '#065F46' },
   Concluída: { bg: '#D1FAE5', fg: '#065F46' },
+  Entregue: { bg: '#D1FAE5', fg: '#065F46' },
   Cancelada: { bg: '#FEE2E2', fg: '#B91C1C' },
 };
 
@@ -80,7 +85,20 @@ export default function ContractDetailsScreen() {
   console.log('RENDERIZANDO DETALHES DO CONTRATO ID:', params?.id);
   const [showFullDescription, setShowFullDescription] = useState(false);
 
-  const status = params.status ?? 'Pendente';
+  const [localStatus, setLocalStatus] = useState(params.status ?? 'Pendente');
+  const [userType, setUserType] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    AsyncStorage.getItem('@auth_user').then((userDataStr) => {
+      if (userDataStr) {
+        const u = JSON.parse(userDataStr);
+        setUserType(u?.tipo_usuario ?? 'cliente');
+      }
+    });
+  }, []);
+
+  const status = localStatus;
   const statusLabel = STATUS_LABEL[status] ?? status;
   const statusStyle =
     STATUS_STYLES[status] ?? { bg: colors.muttedSurface, fg: colors.textDark };
@@ -121,6 +139,20 @@ export default function ContractDetailsScreen() {
         readonly: '1',
       },
     });
+  }
+
+  async function handleConfirmDelivery() {
+    if (!params.id) return;
+    try {
+      setIsSubmitting(true);
+      await updateContractStatus(Number(params.id), 'Concluída');
+      setLocalStatus('Concluída');
+      Alert.alert('Sucesso', 'Entrega confirmada com sucesso!');
+    } catch (error: any) {
+      Alert.alert('Erro', error?.message ?? 'Não foi possível confirmar a entrega do serviço.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -261,11 +293,27 @@ export default function ContractDetailsScreen() {
             </>
           )}
 
+          {userType === 'cliente' && status.toLowerCase() === 'entregue' && (
+            <TouchableOpacity
+              style={[styles.actionButtonSuccess, isSubmitting && { opacity: 0.7 }]}
+              onPress={handleConfirmDelivery}
+              disabled={isSubmitting}>
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color={colors.textWhite} />
+              ) : (
+                <>
+                  <Icon name="checkmark-done" size={18} color={colors.textWhite} />
+                  <Text style={styles.actionButtonTextWhite}>Confirmar Entrega</Text>
+                </>
+              )}
+            </TouchableOpacity>
+          )}
+
           <View style={styles.actionsRow}>
             <TouchableOpacity
               style={styles.actionButtonOutline}
               onPress={() => {
-                const s = (params.status ?? '').toLowerCase();
+                const s = (localStatus ?? '').toLowerCase();
                 if (s.startsWith('conclu')) {
                   Alert.alert(
                     'Não permitido',
@@ -585,5 +633,25 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: 'OpenSans_700Bold',
     color: colors.primary,
+  },
+  actionButtonSuccess: {
+    flexDirection: 'row',
+    height: 48,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.success,
+    marginTop: 18,
+    shadowColor: colors.success,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionButtonTextWhite: {
+    fontSize: 14,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.textWhite,
   },
 });
