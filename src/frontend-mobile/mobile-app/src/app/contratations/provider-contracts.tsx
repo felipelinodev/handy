@@ -450,9 +450,9 @@ export default function ProviderContractsScreen() {
                     router.push({
                       pathname: '/maintenance' as any,
                       params: {
-                        contratacaoId: String(item.contrato.contratacao_id),
-                        servicoNome: item.servico?.name ?? item.contrato.titulo,
-                        clienteNome: item.clienteNome,
+                        contratoId: String(item.contrato.contratacao_id),
+                        titulo: item.servico?.name ?? item.contrato.titulo,
+                        subtitulo: item.clienteNome,
                       },
                     });
                   }}>

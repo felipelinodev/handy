@@ -132,14 +132,21 @@ export default function MaintenanceTimelineScreen() {
     return Number.isNaN(cid) ? undefined : cid;
   }, [params.contratoId]);
 
-  const refreshFromApi = useCallback(async (pid: number) => {
+  const refreshFromApi = useCallback(async (pid: number, cId?: string) => {
     setLoading(true);
     try {
       const [list, meta] = await Promise.all([
         listBreakpointsByPrestador(pid),
         readLocalMeta(),
       ]);
-      setBreakpoints(list.map((bp) => toUiBreakpoint(bp, meta)));
+      let filteredList = list;
+      if (cId) {
+        try {
+          const thread = await ensureThreadByContratacao(Number(cId));
+          filteredList = list.filter(bp => bp.mensagem_id === thread.mensagem_id);
+        } catch {}
+      }
+      setBreakpoints(filteredList.map((bp) => toUiBreakpoint(bp, meta)));
     } catch (err: any) {
       Alert.alert('Erro', err?.message ?? 'Falha ao carregar breakpoints.');
       setBreakpoints([]);
@@ -193,7 +200,7 @@ export default function MaintenanceTimelineScreen() {
 
         if (tipo === 'prestador') {
           setPrestadorId(userId);
-          await Promise.all([refreshFromApi(userId), refreshContracts(userId)]);
+          await Promise.all([refreshFromApi(userId, headerContratoId), refreshContracts(userId)]);
         } else {
           // Cliente: Busca contratos do cliente e info do prestador do contrato atual
           await refreshClientFlow(userId);
@@ -231,16 +238,15 @@ export default function MaintenanceTimelineScreen() {
       setCurrentContractIndex(index);
 
       const target = allContracts[index];
-      const [bpList, pInfo, meta] = await Promise.all([
+      const [bpList, pInfo, meta, thread] = await Promise.all([
         listBreakpointsByPrestador(target.prestador_id),
         fetchProfessionalById(target.prestador_id),
         readLocalMeta(),
+        ensureThreadByContratacao(target.contratacao_id).catch(() => null),
       ]);
 
-      // Filtra os BPs apenas para este contrato (o backend retorna todos do prestador)
-      // Nota: No mundo real, filtraríamos por contratacao_id se existisse no BP.
-      // Aqui usamos o que temos.
-      setBreakpoints(bpList.map(bp => toUiBreakpoint(bp, meta)));
+      const filteredList = thread ? bpList.filter(bp => bp.mensagem_id === thread.mensagem_id) : bpList;
+      setBreakpoints(filteredList.map(bp => toUiBreakpoint(bp, meta)));
       setProviderInfo({
         nome: pInfo?.name ?? 'Prestador',
         especialidade: pInfo?.category ?? 'Serviços',
@@ -268,12 +274,14 @@ export default function MaintenanceTimelineScreen() {
     setLoading(true);
     try {
       const pid = contract.prestador_id!;
-      const [bpList, pInfo, meta] = await Promise.all([
+      const [bpList, pInfo, meta, thread] = await Promise.all([
         listBreakpointsByPrestador(pid),
         fetchProfessionalById(pid),
         readLocalMeta(),
+        ensureThreadByContratacao(contract.contratacao_id).catch(() => null),
       ]);
-      setBreakpoints(bpList.map(bp => toUiBreakpoint(bp, meta)));
+      const filteredList = thread ? bpList.filter(bp => bp.mensagem_id === thread.mensagem_id) : bpList;
+      setBreakpoints(filteredList.map(bp => toUiBreakpoint(bp, meta)));
       setProviderInfo({
         nome: pInfo?.name ?? 'Prestador',
         especialidade: pInfo?.category ?? 'Serviços',
@@ -363,7 +371,7 @@ export default function MaintenanceTimelineScreen() {
       });
 
       setShowSheet(false);
-      await refreshFromApi(prestadorId);
+      await refreshFromApi(prestadorId, headerContratoId);
       Alert.alert('Breakpoint criado', `"${form.titulo}" foi salvo no banco.`);
     } catch (err: any) {
       Alert.alert('Erro', err?.message ?? 'Não foi possível criar o breakpoint.');
