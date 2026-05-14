@@ -60,6 +60,7 @@ export default function ProviderMenuScreen() {
     },
     { label: 'Pagamentos', action: () => router.push('/provider/payments' as any) },
     { label: 'Métricas', action: () => router.push('/provider/analytics' as any) },
+    { label: 'Minha Agenda', action: () => router.push('/provider/provider-schedule' as any) },
     { label: 'Integrações', action: () => { } },
     { label: 'Dados da conta', action: () => { } },
     { label: 'Plano', action: () => { } },

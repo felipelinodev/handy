@@ -16,6 +16,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import colors from '@/theme/colors';
 import { createContract } from '@/features/contracts/services/contractService';
+import { reserveAvailabilitySlot } from '@/features/provider/services/scheduleService';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { recordContractNotification } from '@/features/notifications/services/notificationService';
 import { buildContractDetails } from '@/features/contracts/utils/contractText';
@@ -33,6 +34,7 @@ type Params = {
   prestadorRating?: string;
   prestadorClientes?: string;
   modo?: 'presencial' | 'digital';
+  slotId?: string;
   data?: string;
   hora?: string;
   endereco?: string;
@@ -117,6 +119,14 @@ export default function AcceptContractScreen() {
       if (!novoId) {
         Alert.alert('Erro', 'Contrato criado, mas não foi possível abrir o detalhe.');
         return;
+      }
+
+      if (params.slotId) {
+        try {
+          await reserveAvailabilitySlot(Number(params.slotId), novoId);
+        } catch (e) {
+          console.error("Falha ao reservar o slot: ", e);
+        }
       }
 
       await recordContractNotification(novoId, 'Pendente', {

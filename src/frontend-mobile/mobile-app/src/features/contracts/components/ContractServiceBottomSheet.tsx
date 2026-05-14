@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   KeyboardAvoidingView,
@@ -19,6 +20,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '@/theme/colors';
 import { ProfessionalService } from '@/features/professionals/services/professionalService';
 import { HandyIcon } from '@/shared/components/HandyIcon';
+import { fetchProviderFreeSlots, AvailabilitySlot } from '@/features/provider/services/scheduleService';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SHEET_MAX_HEIGHT = SCREEN_HEIGHT * 0.92;
@@ -29,6 +31,7 @@ export type ServiceMode = 'presencial' | 'digital';
 export interface ContractFormResult {
   service: ProfessionalService;
   mode: ServiceMode;
+  slotId: number;
   date: string;
   time: string;
   address: string;
@@ -38,6 +41,7 @@ export interface ContractFormResult {
 interface ContractServiceBottomSheetProps {
   visible: boolean;
   service: ProfessionalService | null;
+  providerId: number;
   providerName?: string;
   onClose: () => void;
   onConfirm: (data: ContractFormResult) => void;
@@ -59,6 +63,7 @@ function maskTime(value: string) {
 export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProps> = ({
   visible,
   service,
+  providerId,
   providerName,
   onClose,
   onConfirm,
@@ -68,8 +73,9 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
   const backdropOpacity = useRef(new Animated.Value(0)).current;
 
   const [mode, setMode] = useState<ServiceMode>('presencial');
-  const [date, setDate] = useState('');
-  const [time, setTime] = useState('');
+  const [slots, setSlots] = useState<AvailabilitySlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+  const [selectedSlotId, setSelectedSlotId] = useState<number | null>(null);
   const [address, setAddress] = useState('');
   const [observations, setObservations] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -77,11 +83,33 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
   useEffect(() => {
     if (visible) {
       setMode('presencial');
-      setDate('');
-      setTime('');
+      setSelectedSlotId(null);
+      setSlots([]);
       setAddress('');
       setObservations('');
       setErrorMsg(null);
+
+      // Load slots
+      if (providerId) {
+        setLoadingSlots(true);
+        fetchProviderFreeSlots(providerId)
+          .then(data => {
+            // Sort by date/time
+            data.sort((a, b) => {
+              const dA = new Date(a.data_disponivel).getTime();
+              const dB = new Date(b.data_disponivel).getTime();
+              if (dA !== dB) return dA - dB;
+              if (a.hora_inicio && b.hora_inicio) {
+                return a.hora_inicio.localeCompare(b.hora_inicio);
+              }
+              return 0;
+            });
+            setSlots(data);
+          })
+          .catch(() => {})
+          .finally(() => setLoadingSlots(false));
+      }
+
       Animated.parallel([
         Animated.timing(translateY, {
           toValue: 0,
@@ -113,12 +141,8 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
   function handleConfirm() {
     if (!service) return;
 
-    if (date.length !== 10) {
-      setErrorMsg('Informe a data no formato DD/MM/AAAA.');
-      return;
-    }
-    if (time.length !== 5) {
-      setErrorMsg('Informe o horário no formato HH:MM.');
+    if (!selectedSlotId) {
+      setErrorMsg('Por favor, selecione um horário disponível.');
       return;
     }
     if (mode === 'presencial' && address.trim().length === 0) {
@@ -126,12 +150,21 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
       return;
     }
 
+    const slot = slots.find(s => s.agenda_id === selectedSlotId);
+    if (!slot) return;
+
+    const dateStr = slot.data_disponivel.split('T')[0];
+    const parts = dateStr.split('-');
+    const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
+    const formattedTime = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '';
+
     setErrorMsg(null);
     onConfirm({
       service,
       mode,
-      date,
-      time,
+      slotId: selectedSlotId,
+      date: formattedDate,
+      time: formattedTime,
       address: address.trim(),
       observations: observations.trim(),
     });
@@ -250,34 +283,47 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
 
             <Text style={styles.sectionLabel}>Data e horário</Text>
             <Text style={styles.sectionHelper}>
-              Informe quando o serviço deve acontecer.
+              Selecione um dos horários disponíveis do prestador.
             </Text>
-            <View style={styles.dateTimeRow}>
-              <View style={styles.dateField}>
-                <Text style={styles.fieldLabel}>Data</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="DD/MM/AAAA"
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  value={date}
-                  onChangeText={(v) => setDate(maskDate(v))}
-                  maxLength={10}
-                />
+            {loadingSlots ? (
+              <ActivityIndicator color={colors.primary} style={{ marginVertical: 12 }} />
+            ) : slots.length === 0 ? (
+              <View style={styles.emptySlotsBox}>
+                <Text style={styles.emptySlotsText}>
+                  Este prestador não possui horários livres no momento.
+                </Text>
               </View>
-              <View style={styles.timeField}>
-                <Text style={styles.fieldLabel}>Hora</Text>
-                <TextInput
-                  style={styles.input}
-                  placeholder="HH:MM"
-                  placeholderTextColor={colors.textMuted}
-                  keyboardType="number-pad"
-                  value={time}
-                  onChangeText={(v) => setTime(maskTime(v))}
-                  maxLength={5}
-                />
-              </View>
-            </View>
+            ) : (
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.slotsScroll}
+              >
+                {slots.map(slot => {
+                  const isSelected = selectedSlotId === slot.agenda_id;
+                  const dateStr = slot.data_disponivel.split('T')[0];
+                  const dParts = dateStr.split('-');
+                  const dFormatted = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : dateStr;
+                  const tStart = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '--:--';
+                  
+                  return (
+                    <TouchableOpacity 
+                      key={slot.agenda_id}
+                      style={[styles.slotCard, isSelected && styles.slotCardSelected]}
+                      activeOpacity={0.7}
+                      onPress={() => setSelectedSlotId(slot.agenda_id)}
+                    >
+                      <Text style={[styles.slotDateText, isSelected && styles.slotDateTextSelected]}>
+                        {dFormatted}
+                      </Text>
+                      <Text style={[styles.slotTimeText, isSelected && styles.slotTimeTextSelected]}>
+                        {tStart}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
 
             {mode === 'presencial' && (
               <>
@@ -584,23 +630,55 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_400Regular',
     color: colors.textMuted,
   },
-  dateTimeRow: {
-    flexDirection: 'row',
-    gap: 10,
+  emptySlotsBox: {
+    padding: 16,
+    backgroundColor: '#FFF1F2',
+    borderRadius: 12,
     marginBottom: 18,
   },
-  dateField: {
-    flex: 1.2,
-    gap: 6,
+  emptySlotsText: {
+    fontSize: 13,
+    fontFamily: 'OpenSans_600SemiBold',
+    color: colors.error,
+    textAlign: 'center',
   },
-  timeField: {
-    flex: 1,
-    gap: 6,
+  slotsScroll: {
+    paddingRight: 20,
+    paddingVertical: 4,
+    gap: 12,
+    marginBottom: 14,
   },
-  fieldLabel: {
+  slotCard: {
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 80,
+  },
+  slotCardSelected: {
+    borderColor: colors.primary,
+    backgroundColor: colors.primary,
+  },
+  slotDateText: {
+    fontSize: 13,
+    fontFamily: 'OpenSans_700Bold',
+    color: colors.textDark,
+  },
+  slotDateTextSelected: {
+    color: colors.textWhite,
+  },
+  slotTimeText: {
+    marginTop: 2,
     fontSize: 12,
     fontFamily: 'OpenSans_600SemiBold',
     color: colors.textMuted,
+  },
+  slotTimeTextSelected: {
+    color: '#E0DDF7',
   },
   input: {
     backgroundColor: colors.surface,

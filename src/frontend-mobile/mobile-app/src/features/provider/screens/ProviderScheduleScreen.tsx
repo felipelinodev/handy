@@ -376,7 +376,7 @@ export default function ProviderScheduleScreen() {
                   slot.status === 'Livre'
                     ? colors.success
                     : slot.status === 'Reservado'
-                    ? colors.warning
+                    ? '#F59E0B'
                     : colors.textMuted;
 
                 return (
@@ -429,7 +429,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: colors.surfaceLight,
+    backgroundColor: '#FAF5FF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -494,7 +494,7 @@ const styles = StyleSheet.create({
     borderColor: colors.primary,
   },
   dayCellExisting: {
-    backgroundColor: colors.successLight,
+    backgroundColor: '#D1FAE5',
   },
   dayCellSelected: {
     backgroundColor: colors.primary,
@@ -512,7 +512,7 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.bold,
   },
   dayTextExisting: {
-    color: colors.successDark,
+    color: '#047857',
   },
   dayTextSelected: {
     color: colors.textWhite,

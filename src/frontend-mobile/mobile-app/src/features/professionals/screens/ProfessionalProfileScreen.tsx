@@ -82,6 +82,7 @@ export default function ProfessionalProfileScreen() {
         prestadorRating: String(professional.rating),
         prestadorClientes: String(professional.clientsCount),
         modo: form.mode,
+        slotId: String(form.slotId),
         data: form.date,
         hora: form.time,
         endereco: form.address,
@@ -421,6 +422,7 @@ export default function ProfessionalProfileScreen() {
           <ContractServiceBottomSheet
             visible={contractSheetVisible}
             service={selectedService}
+            providerId={professional.id}
             providerName={professional.name}
             onClose={() => setContractSheetVisible(false)}
             onConfirm={handleConfirmContract}

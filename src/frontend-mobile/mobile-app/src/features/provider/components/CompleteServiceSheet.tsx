@@ -519,7 +519,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
     paddingHorizontal: 14,
-    backgroundColor: colors.primarySurface,
+    backgroundColor: '#E0DDF7',
     gap: 10,
   },
   cardTitle: {
@@ -599,7 +599,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   confirmButtonDisabled: {
-    backgroundColor: colors.successMuted,
+    backgroundColor: '#D1FAE5',
   },
   confirmButtonText: {
     fontSize: 14,
