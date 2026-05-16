@@ -4,7 +4,7 @@ services:
     container_name: handy-api
     restart: always
     ports:
-      - "80:4001"
+      - "4001:4001"
     env_file: .env
     environment:
       - REDIS_HOST=redis
