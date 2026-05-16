@@ -53,6 +53,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd ${{ secrets.PROJECT_PATH }}
-            sudo docker-compose pull api
-            sudo docker-compose up -d api
+            export GITHUB_USER=${{ github.repository_owner }}
+            sudo -E docker-compose pull api
+            sudo -E docker-compose up -d api
             sudo docker image prune -f
