@@ -9,6 +9,10 @@
         "include": "../generated/**/*",
         "outDir": "dist/generated",
         "watchAssets": true
+      },
+      {
+        "include": "**/*.png",
+        "watchAssets": true
       }
     ]
   }

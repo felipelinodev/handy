@@ -1,4 +1,6 @@
 const crypto = require('crypto');
+require('dotenv').config();
+
 function genToken(secret) {
   const hmac = crypto.createHmac('sha256', secret);
   const payload = Buffer.from(JSON.stringify({role:'developer',sub:'api-consumer',iat:1777929509})).toString('base64').replace(/=/g, '');
@@ -8,5 +10,6 @@ function genToken(secret) {
   const sig = hmac.digest('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   return tokenStr + '.' + sig;
 }
-console.log('Token sem aspas:', genToken('dev@han3#2026s'));
-console.log('Token com aspas:', genToken('"dev@han3#2026s"'));
+
+const secret = process.env.DEV_JWT_SECRET;
+console.log('Token gerado com a secret do .env:', genToken(secret));

@@ -8,4 +8,5 @@ export type CreateContratationInput = {
   inicio?: Date | null;
   conclusao?: Date | null;
   vencimento?: Date | null;
+  contract_gateway_id?: string | null;
 };

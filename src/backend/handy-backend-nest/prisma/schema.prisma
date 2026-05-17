@@ -64,8 +64,10 @@ model contratacoes {
   conclusao        DateTime?         @db.Timestamp(6)
   vencimento       DateTime?         @db.Timestamp(6)
   created_at       DateTime?         @default(now()) @db.Timestamp(6)
-  updated_at       DateTime?         @default(now()) @db.Timestamp(6)
-  agenda_prestador agenda_prestador?
+  updated_at          DateTime?         @default(now()) @db.Timestamp(6)
+  contract_gateway_id String?           @db.VarChar(200)
+  gateway_data       Json?
+  agenda_prestador    agenda_prestador?
   avaliacao        avaliacao?
   cliente          cliente           @relation(fields: [cliente_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_cliente")
   prestador        prestador         @relation(fields: [prestador_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_contratacao_prestador")

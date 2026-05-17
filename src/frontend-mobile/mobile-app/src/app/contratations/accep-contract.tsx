@@ -3,6 +3,8 @@ import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  Linking,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,6 +15,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WebView } from 'react-native-webview';
 
 import colors from '@/theme/colors';
 import { createContract } from '@/features/contracts/services/contractService';
@@ -69,6 +72,11 @@ export default function AcceptContractScreen() {
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // WebView de assinatura Autentique
+  const [signUrl, setSignUrl] = useState<string | null>(null);
+  const [showSignWebView, setShowSignWebView] = useState(false);
+  const [contractCreatedId, setContractCreatedId] = useState<number | null>(null);
+
   const precoNum = Number(params.preco ?? 0) || 0;
   const precoLabel = `R$ ${precoNum.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
@@ -88,13 +96,15 @@ export default function AcceptContractScreen() {
     }
 
     let clienteId: number | null = null;
+    let clienteEmail: string | null = null;
     try {
       const userDataString = await AsyncStorage.getItem('@auth_user');
       if (userDataString) {
         const u = JSON.parse(userDataString);
         clienteId = Number(u?.user_id) || null;
+        clienteEmail = u?.email || null;
       }
-    } catch {}
+    } catch { }
 
     if (!clienteId) {
       Alert.alert('Sessão expirada', 'Faça login novamente para contratar.');
@@ -105,7 +115,7 @@ export default function AcceptContractScreen() {
 
     try {
       setSubmitting(true);
-      const contrato = await createContract({
+      const result = await createContract({
         cliente_id: clienteId,
         prestador_id: prestadorId,
         servico_id: servicoId,
@@ -115,11 +125,13 @@ export default function AcceptContractScreen() {
         inicio: inicioIso ?? undefined,
       });
 
-      const novoId = (contrato as any)?.contratacao_id;
+      const novoId = result.data?.contratacao_id;
       if (!novoId) {
         Alert.alert('Erro', 'Contrato criado, mas não foi possível abrir o detalhe.');
         return;
       }
+
+      setContractCreatedId(novoId);
 
       if (params.slotId) {
         try {
@@ -134,33 +146,72 @@ export default function AcceptContractScreen() {
         prestadorNome: params.prestadorNome,
       });
 
-      router.replace({
-        pathname: '/contratations/[id]' as any,
-        params: {
-          id: String(novoId),
-          servicoId: String(servicoId),
-          prestadorId: String(prestadorId),
-          servicoNome: params.servicoNome ?? '',
-          servicoDescricao: params.servicoDescricao ?? '',
-          preco: params.preco ?? '0',
-          prestadorNome: params.prestadorNome ?? '',
-          prestadorFoto: params.prestadorFoto ?? '',
-          prestadorCategoria: params.prestadorCategoria ?? '',
-          prestadorRating: params.prestadorRating ?? '0',
-          prestadorClientes: params.prestadorClientes ?? '0',
-          modo: params.modo ?? 'presencial',
-          data: params.data ?? '',
-          hora: params.hora ?? '',
-          endereco: params.endereco ?? '',
-          observacoes: params.observacoes ?? '',
-          status: 'Pendente',
-        },
-      });
+      // Pegar link de assinatura (sign_url construído pelo backend via public_id)
+      const sigs = result.autentique?.signatures ?? [];
+      const clienteSig = sigs.find(
+        (s: any) => s.email === clienteEmail,
+      );
+      const sigLink = (clienteSig as any)?.sign_url
+        ?? (sigs[0] as any)?.sign_url
+        ?? clienteSig?.link?.short_link
+        ?? sigs[0]?.link?.short_link;
+
+
+      if (sigLink) {
+        setSignUrl(sigLink);
+        setShowSignWebView(true);
+        return;
+      }
+
+      // Fallback
+      Alert.alert(
+        'Contrato criado!',
+        'O contrato foi criado com sucesso. O link de assinatura foi enviado para o seu e-mail.',
+        [{ text: 'OK', onPress: () => navigateToDetails(novoId) }],
+      );
+      return;
     } catch (error: any) {
       Alert.alert('Erro', error?.message ?? 'Não foi possível assinar o contrato.');
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleCloseWebView() {
+    setShowSignWebView(false);
+    setSignUrl(null);
+    if (contractCreatedId) {
+      Alert.alert(
+        'Assinatura enviada!',
+        'Sua assinatura digital foi registrada. O prestador também recebera o contrato para assinar.',
+        [{ text: 'OK', onPress: () => navigateToDetails(contractCreatedId!) }],
+      );
+    }
+  }
+
+  function navigateToDetails(novoId: number) {
+    router.replace({
+      pathname: '/contratations/[id]' as any,
+      params: {
+        id: String(novoId),
+        servicoId: params.servicoId ?? '',
+        prestadorId: params.prestadorId ?? '',
+        servicoNome: params.servicoNome ?? '',
+        servicoDescricao: params.servicoDescricao ?? '',
+        preco: params.preco ?? '0',
+        prestadorNome: params.prestadorNome ?? '',
+        prestadorFoto: params.prestadorFoto ?? '',
+        prestadorCategoria: params.prestadorCategoria ?? '',
+        prestadorRating: params.prestadorRating ?? '0',
+        prestadorClientes: params.prestadorClientes ?? '0',
+        modo: params.modo ?? 'presencial',
+        data: params.data ?? '',
+        hora: params.hora ?? '',
+        endereco: params.endereco ?? '',
+        observacoes: params.observacoes ?? '',
+        status: 'Pendente',
+      },
+    });
   }
 
   return (
@@ -237,6 +288,49 @@ export default function AcceptContractScreen() {
           </View>
         )}
       </View>
+
+      {/* WebView Modal para assinatura Autentique */}
+      <Modal
+        visible={showSignWebView}
+        animationType="slide"
+        onRequestClose={handleCloseWebView}
+        statusBarTranslucent>
+        <View style={[styles.webViewContainer, { paddingTop: insets.top }]}>
+          <View style={styles.webViewHeader}>
+            <TouchableOpacity
+              style={styles.webViewCloseButton}
+              onPress={handleCloseWebView}
+              hitSlop={10}>
+              <Icon name="close" size={22} color={colors.textDark} />
+            </TouchableOpacity>
+            <Text style={styles.webViewTitle}>Assinatura Digital</Text>
+            <View style={{ width: 34 }} />
+          </View>
+
+          {signUrl && (
+            <WebView
+              source={{ uri: signUrl }}
+              style={styles.webView}
+              javaScriptEnabled
+              domStorageEnabled
+              originWhitelist={['*']}
+              mixedContentMode="always"
+              thirdPartyCookiesEnabled
+              sharedCookiesEnabled
+              setSupportMultipleWindows={false}
+              onError={(syntheticEvent) => {
+                const { nativeEvent } = syntheticEvent;
+                console.warn('WebView error:', nativeEvent);
+                setShowSignWebView(false);
+                Linking.openURL(signUrl).catch(() => { });
+                if (contractCreatedId) {
+                  navigateToDetails(contractCreatedId);
+                }
+              }}
+            />
+          )}
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -247,113 +341,84 @@ const styles = StyleSheet.create({
     backgroundColor: colors.muttedSurface,
   },
   topBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingBottom: 16,
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    paddingHorizontal: 24, paddingBottom: 16,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: '#FAF5FF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#4A1D96',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 5,
+    width: 44, height: 44, borderRadius: 22, backgroundColor: '#FAF5FF',
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#4A1D96', shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 5,
   },
   sheet: {
-    flex: 1,
-    backgroundColor: colors.surfaceInput,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    flex: 1, backgroundColor: colors.surfaceInput,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingHorizontal: 20, paddingTop: 10,
   },
   handle: {
-    alignSelf: 'center',
-    width: 44,
-    height: 5,
-    borderRadius: 3,
-    backgroundColor: '#E0DDF7',
-    marginBottom: 16,
+    alignSelf: 'center', width: 44, height: 5, borderRadius: 3,
+    backgroundColor: '#E0DDF7', marginBottom: 16,
   },
-  downloadRow: {
-    flexDirection: 'row',
-    marginBottom: 12,
-  },
+  downloadRow: { flexDirection: 'row', marginBottom: 12 },
   downloadButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingVertical: 6, paddingHorizontal: 12, borderRadius: 10,
     backgroundColor: colors.muttedSurface,
   },
-  downloadText: {
-    fontSize: 12,
-    fontFamily: 'OpenSans_700Bold',
-    color: colors.textDark,
-  },
-  contractScroll: {
-    flex: 1,
-  },
-  contractContent: {
-    paddingBottom: 16,
-  },
+  downloadText: { fontSize: 12, fontFamily: 'OpenSans_700Bold', color: colors.textDark },
+  contractScroll: { flex: 1 },
+  contractContent: { paddingBottom: 16 },
   footer: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    gap: 12, paddingTop: 12, borderTopWidth: 1, borderTopColor: colors.border,
+  },
+  checkboxRow: { flexDirection: 'row', alignItems: 'center', flex: 1, gap: 10 },
+  checkbox: {
+    width: 22, height: 22, borderRadius: 6, borderWidth: 1.5,
+    borderColor: colors.primary, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: colors.surface,
+  },
+  checkboxChecked: { backgroundColor: colors.primary },
+  checkboxLabel: {
+    flex: 1, fontSize: 12, lineHeight: 16,
+    fontFamily: 'OpenSans_600SemiBold', color: colors.textDark,
+  },
+  signButton: {
+    paddingHorizontal: 28, height: 44, borderRadius: 12,
+    backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center',
+  },
+  signButtonDisabled: { backgroundColor: '#CBC3F8' },
+  signButtonText: { color: colors.textWhite, fontSize: 15, fontFamily: 'OpenSans_700Bold' },
+
+  // WebView Modal
+  webViewContainer: {
+    flex: 1,
+    backgroundColor: colors.surface,
+  },
+  webViewHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    gap: 12,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-  checkboxRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-    gap: 10,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
     backgroundColor: colors.surface,
   },
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-  },
-  checkboxLabel: {
-    flex: 1,
-    fontSize: 12,
-    lineHeight: 16,
-    fontFamily: 'OpenSans_600SemiBold',
-    color: colors.textDark,
-  },
-  signButton: {
-    paddingHorizontal: 28,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
+  webViewCloseButton: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.muttedSurface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  signButtonDisabled: {
-    backgroundColor: '#CBC3F8',
-  },
-  signButtonText: {
-    color: colors.textWhite,
-    fontSize: 15,
+  webViewTitle: {
+    fontSize: 16,
     fontFamily: 'OpenSans_700Bold',
+    color: colors.textDark,
+  },
+  webView: {
+    flex: 1,
   },
 });

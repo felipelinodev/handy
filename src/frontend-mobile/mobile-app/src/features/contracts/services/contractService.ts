@@ -12,6 +12,7 @@ export interface Contratacao {
   inicio: string | null;
   conclusao: string | null;
   vencimento: string | null;
+  contract_gateway_id: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -109,9 +110,27 @@ export interface CreateContratationPayload {
   vencimento?: string;
 }
 
+export interface AutentiqueSignature {
+  public_id: string;
+  name: string;
+  email: string;
+  action: { name: string };
+  link: { short_link: string };
+}
+
+export interface CreateContractResponse {
+  message: string;
+  data: Contratacao;
+  autentique?: {
+    document_id: string;
+    signatures: AutentiqueSignature[];
+  };
+  error?: string;
+}
+
 export async function createContract(
   payload: CreateContratationPayload,
-): Promise<Contratacao> {
+): Promise<CreateContractResponse> {
   const headers = await getHeaders();
 
   const response = await fetch(`${BASE_URL}/contratations/create-a-contratation`, {
@@ -130,7 +149,7 @@ export async function createContract(
     throw new Error(msg);
   }
 
-  return (data?.data ?? data) as Contratacao;
+  return data as CreateContractResponse;
 }
 
 export async function fetchProviderContracts(prestadorId: number): Promise<Contratacao[]> {
@@ -161,4 +180,43 @@ export async function updateContractStatus(
   }
 
   return (data?.contratation ?? data) as Contratacao;
+}
+
+export async function fetchContractSignUrl(
+  id: number,
+  email: string,
+): Promise<string | null> {
+  const headers = await getHeaders();
+
+  const response = await fetch(
+    `${BASE_URL}/contratations/${id}/sign-url?email=${encodeURIComponent(email)}`,
+    { headers },
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    console.warn('Erro ao buscar sign_url:', data?.message);
+    return null;
+  }
+
+  return data?.sign_url ?? null;
+}
+
+export async function createProviderSignature(id: number): Promise<string | null> {
+  const headers = await getHeaders();
+
+  const response = await fetch(
+    `${BASE_URL}/contratations/${id}/provider-sign`,
+    { method: 'POST', headers },
+  );
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    console.warn('Erro ao criar assinatura do prestador:', data?.message);
+    return null;
+  }
+
+  return data?.sign_url ?? null;
 }

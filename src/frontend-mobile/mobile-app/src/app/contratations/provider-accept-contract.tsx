@@ -1,8 +1,10 @@
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
   ImageBackground,
+  Linking,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
@@ -12,9 +14,14 @@ import {
 import Icon from '@expo/vector-icons/Ionicons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { WebView } from 'react-native-webview';
 
 import colors from '@/theme/colors';
-import { updateContractStatus } from '@/features/contracts/services/contractService';
+import {
+  fetchContractSignUrl,
+  updateContractStatus,
+} from '@/features/contracts/services/contractService';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { useProviderGuard } from '@/shared/hooks/useProviderGuard';
 
@@ -42,6 +49,10 @@ export default function ProviderAcceptContractScreen() {
   const [accepted, setAccepted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // WebView de assinatura Autentique
+  const [signUrl, setSignUrl] = useState<string | null>(null);
+  const [showSignWebView, setShowSignWebView] = useState(false);
+
   const precoNum = Number(params.preco ?? 0) || 0;
   const precoLabel = `R$ ${precoNum.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
@@ -59,8 +70,35 @@ export default function ProviderAcceptContractScreen() {
       return;
     }
 
+    let prestadorEmail: string | null = null;
+    try {
+      const userDataString = await AsyncStorage.getItem('@auth_user');
+      if (userDataString) {
+        const u = JSON.parse(userDataString);
+        prestadorEmail = u?.email || null;
+      }
+    } catch {}
+
+    if (!prestadorEmail) {
+      Alert.alert('Sessao expirada', 'Faca login novamente para assinar.');
+      return;
+    }
+
     try {
       setSubmitting(true);
+
+      const sigLink = await fetchContractSignUrl(contractId, prestadorEmail);
+      console.log('🔗 Link de assinatura (prestador):', sigLink);
+
+      if (sigLink) {
+        // Atualiza status e abre o link
+        await updateContractStatus(contractId, 'Aceita');
+        setSignUrl(sigLink);
+        setShowSignWebView(true);
+        return;
+      }
+
+      // Fallback: sem link, apenas atualiza o status
       await updateContractStatus(contractId, 'Aceita');
       Alert.alert('Contrato assinado', 'Você aceitou este contrato com sucesso.', [
         { text: 'OK', onPress: () => router.back() },
@@ -70,6 +108,16 @@ export default function ProviderAcceptContractScreen() {
     } finally {
       setSubmitting(false);
     }
+  }
+
+  function handleCloseWebView() {
+    setShowSignWebView(false);
+    setSignUrl(null);
+    Alert.alert(
+      'Assinatura enviada!',
+      'Sua assinatura digital foi registrada com sucesso.',
+      [{ text: 'OK', onPress: () => router.back() }],
+    );
   }
 
   if (guardAllowed === null || guardAllowed === false) {
@@ -212,6 +260,51 @@ export default function ProviderAcceptContractScreen() {
           </View>
         )}
       </View>
+
+      {/* WebView Modal para assinatura Autentique */}
+      <Modal
+        visible={showSignWebView}
+        animationType="slide"
+        onRequestClose={handleCloseWebView}
+        statusBarTranslucent>
+        <View style={[styles.webViewContainer, { paddingTop: insets.top }]}>
+          <View style={styles.webViewHeader}>
+            <TouchableOpacity
+              style={styles.webViewCloseButton}
+              onPress={handleCloseWebView}
+              hitSlop={10}>
+              <Icon name="close" size={22} color={colors.textDark} />
+            </TouchableOpacity>
+            <Text style={styles.webViewTitle}>Assinatura Digital</Text>
+            <View style={{ width: 34 }} />
+          </View>
+
+          {signUrl && (
+            <WebView
+              source={{ uri: signUrl }}
+              style={styles.webView}
+              javaScriptEnabled
+              domStorageEnabled
+              originWhitelist={['*']}
+              mixedContentMode="always"
+              thirdPartyCookiesEnabled
+              sharedCookiesEnabled
+              setSupportMultipleWindows={false}
+              onError={(syntheticEvent) => {
+                const { nativeEvent } = syntheticEvent;
+                console.warn('WebView error:', nativeEvent);
+                setShowSignWebView(false);
+                Linking.openURL(signUrl).catch(() => {});
+                Alert.alert(
+                  'Assinatura enviada!',
+                  'Sua assinatura digital foi registrada com sucesso.',
+                  [{ text: 'OK', onPress: () => router.back() }],
+                );
+              }}
+            />
+          )}
+        </View>
+      </Modal>
     </ImageBackground>
   );
 }
@@ -272,4 +365,20 @@ const styles = StyleSheet.create({
   },
   signButtonDisabled: { backgroundColor: '#CBC3F8' },
   signButtonText: { color: colors.textWhite, fontSize: 15, fontFamily: 'OpenSans_700Bold' },
+
+  // WebView Modal
+  webViewContainer: { flex: 1, backgroundColor: colors.surface },
+  webViewHeader: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 12,
+    borderBottomWidth: 1, borderBottomColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  webViewCloseButton: {
+    width: 34, height: 34, borderRadius: 17,
+    backgroundColor: colors.muttedSurface,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  webViewTitle: { fontSize: 16, fontFamily: 'OpenSans_700Bold', color: colors.textDark },
+  webView: { flex: 1 },
 });

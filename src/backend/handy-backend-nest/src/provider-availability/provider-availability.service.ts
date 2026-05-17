@@ -7,12 +7,24 @@ export class ProviderAvailabilityService {
   constructor(private readonly providerAvailabilityRepository: ProviderAvailabilityRepository) {}
 
   async createAvailability(data: any) {
-    const availability = await this.providerAvailabilityRepository.createAvailability(data);
+    const formattedData = {
+      ...data,
+      data_disponivel: new Date(`${data.data_disponivel}T00:00:00Z`),
+      hora_inicio: data.hora_inicio ? new Date(`${data.data_disponivel}T${data.hora_inicio}Z`) : null,
+      hora_fim: data.hora_fim ? new Date(`${data.data_disponivel}T${data.hora_fim}Z`) : null,
+    };
+    const availability = await this.providerAvailabilityRepository.createAvailability(formattedData);
     return { message: 'Disponibilidade criada com sucesso.', data: availability };
   }
 
   async createManyAvailability(data: any[]) {
-    const result = await this.providerAvailabilityRepository.createManyAvailability(data);
+    const formattedData = data.map(item => ({
+      ...item,
+      data_disponivel: new Date(`${item.data_disponivel}T00:00:00Z`),
+      hora_inicio: item.hora_inicio ? new Date(`${item.data_disponivel}T${item.hora_inicio}Z`) : null,
+      hora_fim: item.hora_fim ? new Date(`${item.data_disponivel}T${item.hora_fim}Z`) : null,
+    }));
+    const result = await this.providerAvailabilityRepository.createManyAvailability(formattedData);
     return { message: `${result.count} disponibilidades criadas com sucesso.`, data: result };
   }
 
