@@ -153,10 +153,13 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
     const slot = slots.find(s => s.agenda_id === selectedSlotId);
     if (!slot) return;
 
-    const dateStr = slot.data_disponivel.split('T')[0];
+    const dateStr = slot.data_disponivel?.split('T')[0] ?? '';
     const parts = dateStr.split('-');
     const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
-    const formattedTime = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '';
+    const rawTime = slot.hora_inicio ?? '';
+    const formattedTime = rawTime.includes('T')
+      ? rawTime.split('T')[1].slice(0, 5)
+      : rawTime.slice(0, 5) || '';
 
     setErrorMsg(null);
     onConfirm({
@@ -301,10 +304,13 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
               >
                 {slots.map(slot => {
                   const isSelected = selectedSlotId === slot.agenda_id;
-                  const dateStr = slot.data_disponivel.split('T')[0];
+                  const dateStr = slot.data_disponivel?.split('T')[0] ?? '';
                   const dParts = dateStr.split('-');
                   const dFormatted = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : dateStr;
-                  const tStart = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '--:--';
+                  const rawTime = slot.hora_inicio ?? '';
+                  const tStart = rawTime.includes('T')
+                    ? rawTime.split('T')[1].slice(0, 5)
+                    : rawTime.slice(0, 5) || '--:--';
                   
                   return (
                     <TouchableOpacity 

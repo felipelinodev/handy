@@ -163,12 +163,8 @@ export default function AcceptContractScreen() {
         return;
       }
 
-      // Fallback
-      Alert.alert(
-        'Contrato criado!',
-        'O contrato foi criado com sucesso. O link de assinatura foi enviado para o seu e-mail.',
-        [{ text: 'OK', onPress: () => navigateToDetails(novoId) }],
-      );
+      // Sem Autentique configurado: navega direto (comportamento original)
+      navigateToDetails(novoId);
       return;
     } catch (error: any) {
       Alert.alert('Erro', error?.message ?? 'Não foi possível assinar o contrato.');

@@ -98,11 +98,9 @@ export default function ProviderAcceptContractScreen() {
         return;
       }
 
-      // Fallback: sem link, apenas atualiza o status
+      // Sem Autentique configurado: atualiza status e volta (comportamento original)
       await updateContractStatus(contractId, 'Aceita');
-      Alert.alert('Contrato assinado', 'Você aceitou este contrato com sucesso.', [
-        { text: 'OK', onPress: () => router.back() },
-      ]);
+      router.back();
     } catch (error: any) {
       Alert.alert('Erro', error?.message ?? 'Não foi possível assinar o contrato.');
     } finally {
