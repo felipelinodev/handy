@@ -17,6 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import colors from '@/theme/colors';
 import { Fonts } from '@/theme/fonts';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
+import { HandyIcon } from '@/shared/components/HandyIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import {
   fetchProfessionals,
@@ -162,49 +163,31 @@ export default function SearchProvidersScreen() {
                 transition={200}
                 cachePolicy="memory-disk"
               />
-              <View style={styles.cardBody}>
-                <Text style={styles.cardName} numberOfLines={1}>
-                  {professional.name}
-                </Text>
-                <View style={styles.pillRow}>
+              <View style={styles.cardContent}>
+                <View style={styles.cardLeftColumn}>
+                  <Text style={styles.cardName} numberOfLines={1}>
+                    {professional.name}
+                  </Text>
                   <View style={styles.categoryPill}>
                     <Text style={styles.categoryPillText}>{professional.category}</Text>
                   </View>
                 </View>
-                <View style={styles.metaRow}>
-                  <View style={styles.metaItem}>
-                    <Icon name="star" size={12} color="#F59E0B" />
-                    <Text style={styles.metaBold}>
-                      {Number(professional.rating).toFixed(1)}
+
+                <View style={styles.cardRightColumn}>
+                  <View style={styles.ratingRow}>
+                    <HandyIcon name="solar:star-bold" size={14} color={colors.primary} />
+                    <Text style={styles.ratingText}>
+                      {Number(professional.rating).toFixed(1).replace('.', ',')}
                     </Text>
                   </View>
-                  <View style={styles.metaItem}>
-                    <Icon name="people-outline" size={12} color={colors.textMuted} />
-                    <Text style={styles.metaMuted}>
-                      {professional.clientsCount}
+                  <View style={styles.clientsRow}>
+                    <HandyIcon name="hugeicons:user-group" size={16} color={colors.navInactive} />
+                    <Text style={styles.clientsText}>
+                      {professional.clientsCount} Clientes
                     </Text>
                   </View>
-                </View>
-                {!!professional.address && (
-                  <View style={[styles.metaItem, { marginTop: 4 }]}>
-                    <Icon name="location-outline" size={12} color={colors.textMuted} />
-                    <Text style={styles.metaMuted} numberOfLines={1}>
-                      {professional.address}
-                    </Text>
-                  </View>
-                )}
-                <View style={[styles.metaRow, { marginTop: 6, justifyContent: 'flex-end' }]}>
-                  {professional.minPrice > 0 && (
-                    <Text style={styles.priceText}>
-                      A partir de R$ {professional.minPrice.toLocaleString('pt-BR', {
-                        minimumFractionDigits: 2,
-                        maximumFractionDigits: 2,
-                      })}
-                    </Text>
-                  )}
                 </View>
               </View>
-              <Icon name="chevron-forward" size={20} color={colors.textMuted} />
             </TouchableOpacity>
           ))}
         </ScrollView>
@@ -289,70 +272,77 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 14,
+    padding: 10,
     backgroundColor: colors.surface,
-    borderRadius: 18,
-    gap: 12,
+    borderRadius: 24,
+    borderWidth: 1.5,
+    borderColor: colors.border,
+    gap: 14,
     shadowColor: colors.purpleDark,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.06,
-    shadowRadius: 12,
-    elevation: 3,
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
+    marginBottom: 4,
   },
   avatar: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
+    width: 64,
+    height: 64,
+    borderRadius: 18,
     backgroundColor: '#E2E8F0',
   },
-  cardBody: {
+  cardContent: {
     flex: 1,
-    gap: 4,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  cardLeftColumn: {
+    flex: 1,
+    gap: 8,
+    justifyContent: 'center',
+  },
+  cardRightColumn: {
+    alignItems: 'flex-end',
+    gap: 8,
+    justifyContent: 'center',
   },
   cardName: {
-    fontSize: 15,
+    fontSize: 16,
     fontFamily: Fonts.bold,
-    color: colors.textDark,
-  },
-  pillRow: {
-    flexDirection: 'row',
+    color: colors.textSecondary,
   },
   categoryPill: {
-    backgroundColor: '#E0DDF7',
-    paddingHorizontal: 10,
-    paddingVertical: 3,
+    backgroundColor: colors.border,
+    paddingHorizontal: 14,
+    paddingVertical: 4,
     borderRadius: 50,
+    alignSelf: 'flex-start',
   },
   categoryPillText: {
     fontSize: 11,
     fontFamily: Fonts.semiBold,
+    color: colors.textSecondary,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  ratingText: {
+    fontSize: 15,
+    fontFamily: Fonts.bold,
     color: colors.primary,
   },
-  metaRow: {
+  clientsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginTop: 2,
+    gap: 6,
   },
-  metaItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-  },
-  metaBold: {
-    fontSize: 12,
-    fontFamily: Fonts.bold,
-    color: colors.textDark,
-  },
-  metaMuted: {
-    fontSize: 12,
+  clientsText: {
+    fontSize: 11,
     fontFamily: Fonts.semiBold,
-    color: colors.textMuted,
-  },
-  priceText: {
-    fontSize: 12,
-    fontFamily: Fonts.bold,
-    color: colors.primary,
+    color: colors.navInactive,
   },
   centered: {
     flex: 1,

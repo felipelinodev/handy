@@ -18,7 +18,7 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '@/theme/colors';
-import { ProfessionalService } from '@/features/professionals/services/professionalService';
+import { ProfessionalService, type ServiceLocal } from '@/features/professionals/services/professionalService';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { fetchProviderFreeSlots, AvailabilitySlot } from '@/features/provider/services/scheduleService';
 
@@ -80,12 +80,28 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
   const [observations, setObservations] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  const serviceLocal = service?.local ?? null;
+  const modeLocked = serviceLocal != null && serviceLocal.tipo !== 'escolha_cliente';
+
   useEffect(() => {
     if (visible) {
-      setMode('presencial');
+      let initialMode: ServiceMode = 'presencial';
+      let initialAddress = '';
+
+      if (serviceLocal) {
+        if (serviceLocal.tipo === 'plataforma') {
+          initialMode = 'digital';
+        } else if (serviceLocal.tipo === 'personalizado') {
+          initialMode = 'presencial';
+          initialAddress = serviceLocal.endereco ?? '';
+        }
+        // escolha_cliente: fica 'presencial' como default, cliente escolhe
+      }
+
+      setMode(initialMode);
+      setAddress(initialAddress);
       setSelectedSlotId(null);
       setSlots([]);
-      setAddress('');
       setObservations('');
       setErrorMsg(null);
 
@@ -263,9 +279,11 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
               </View>
             )}
 
-            <Text style={styles.sectionLabel}>Tipo de serviço</Text>
+            <Text style={styles.sectionLabel}>Tipo de servico</Text>
             <Text style={styles.sectionHelper}>
-              Selecione como o serviço será executado.
+              {modeLocked
+                ? 'Definido pelo prestador.'
+                : 'Selecione como o servico sera executado.'}
             </Text>
             <View style={styles.radioGroup}>
               <RadioOption
@@ -273,14 +291,16 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
                 description="Prestador comparece em local definido"
                 icon="location-outline"
                 selected={mode === 'presencial'}
-                onPress={() => setMode('presencial')}
+                onPress={() => { if (!modeLocked) setMode('presencial'); }}
+                disabled={modeLocked}
               />
               <RadioOption
                 label="Digital"
                 description="Atendimento remoto / online"
                 icon="laptop-outline"
                 selected={mode === 'digital'}
-                onPress={() => setMode('digital')}
+                onPress={() => { if (!modeLocked) setMode('digital'); }}
+                disabled={modeLocked}
               />
             </View>
 
@@ -333,17 +353,20 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
 
             {mode === 'presencial' && (
               <>
-                <Text style={styles.sectionLabel}>Endereço</Text>
+                <Text style={styles.sectionLabel}>Endereco</Text>
                 <Text style={styles.sectionHelper}>
-                  Onde o prestador deve comparecer.
+                  {serviceLocal?.tipo === 'personalizado'
+                    ? 'Endereco definido pelo prestador.'
+                    : 'Onde o prestador deve comparecer.'}
                 </Text>
                 <TextInput
-                  style={styles.input}
-                  placeholder="Rua, número, bairro, cidade"
+                  style={[styles.input, serviceLocal?.tipo === 'personalizado' && styles.inputLocked]}
+                  placeholder="Rua, numero, bairro, cidade"
                   placeholderTextColor={colors.textMuted}
                   value={address}
                   onChangeText={setAddress}
                   maxLength={200}
+                  editable={serviceLocal?.tipo !== 'personalizado'}
                 />
               </>
             )}
@@ -396,6 +419,7 @@ interface RadioOptionProps {
   icon: keyof typeof Icon.glyphMap;
   selected: boolean;
   onPress: () => void;
+  disabled?: boolean;
 }
 
 const RadioOption: React.FC<RadioOptionProps> = ({
@@ -404,23 +428,24 @@ const RadioOption: React.FC<RadioOptionProps> = ({
   icon,
   selected,
   onPress,
+  disabled,
 }) => (
   <TouchableOpacity
-    style={[styles.radioOption, selected && styles.radioOptionSelected]}
-    activeOpacity={0.85}
-    onPress={onPress}>
-    <View style={[styles.radioCircle, selected && styles.radioCircleSelected]}>
-      {selected && <View style={styles.radioDot} />}
+    style={[styles.radioOption, selected && styles.radioOptionSelected, disabled && styles.radioOptionDisabled]}
+    activeOpacity={disabled ? 1 : 0.85}
+    onPress={disabled ? undefined : onPress}>
+    <View style={[styles.radioCircle, selected && styles.radioCircleSelected, disabled && styles.radioCircleDisabled]}>
+      {selected && <View style={[styles.radioDot, disabled && styles.radioDotDisabled]} />}
     </View>
     <Icon
       name={icon}
       size={18}
-      color={selected ? colors.primary : colors.textMuted}
+      color={selected ? colors.primary : disabled ? colors.border : colors.textMuted}
       style={styles.radioIcon}
     />
     <View style={styles.radioTextWrap}>
       <Text
-        style={[styles.radioLabel, selected && styles.radioLabelSelected]}>
+        style={[styles.radioLabel, selected && styles.radioLabelSelected, disabled && styles.radioLabelDisabled]}>
         {label}
       </Text>
       <Text style={styles.radioDescription}>{description}</Text>
@@ -610,11 +635,23 @@ const styles = StyleSheet.create({
   radioCircleSelected: {
     borderColor: colors.primary,
   },
+  radioCircleDisabled: {
+    borderColor: colors.border,
+  },
   radioDot: {
     width: 10,
     height: 10,
     borderRadius: 5,
     backgroundColor: colors.primary,
+  },
+  radioDotDisabled: {
+    backgroundColor: colors.border,
+  },
+  radioOptionDisabled: {
+    opacity: 0.55,
+  },
+  radioLabelDisabled: {
+    color: colors.textMuted,
   },
   radioIcon: {
     marginLeft: 2,
@@ -697,6 +734,11 @@ const styles = StyleSheet.create({
     fontFamily: 'OpenSans_400Regular',
     color: colors.textDark,
     marginBottom: 4,
+  },
+  inputLocked: {
+    backgroundColor: '#F5F3FF',
+    color: colors.textDark,
+    borderColor: colors.border,
   },
   textarea: {
     minHeight: 110,

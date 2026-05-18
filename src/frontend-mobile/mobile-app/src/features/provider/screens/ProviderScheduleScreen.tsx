@@ -361,23 +361,23 @@ export default function ProviderScheduleScreen() {
                 const dateStr = formatDateBR(slot.data_disponivel.split('T')[0]);
                 const slotStart = slot.hora_inicio
                   ? new Date(slot.hora_inicio).toLocaleTimeString('pt-BR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                   : '--:--';
                 const slotEnd = slot.hora_fim
                   ? new Date(slot.hora_fim).toLocaleTimeString('pt-BR', {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })
                   : '--:--';
 
                 const statusColor =
                   slot.status === 'Livre'
                     ? colors.success
                     : slot.status === 'Reservado'
-                    ? '#F59E0B'
-                    : colors.textMuted;
+                      ? '#F59E0B'
+                      : colors.textMuted;
 
                 return (
                   <View key={slot.agenda_id} style={styles.slotCard}>
@@ -470,13 +470,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 8,
+
   },
   weekdayLabel: {
     width: 40,
     textAlign: 'center',
-    fontSize: 12,
+    fontSize: 10,
     fontFamily: Fonts.semiBold,
     color: colors.textMuted,
+
   },
   daysGrid: {
     flexDirection: 'row',
@@ -506,6 +508,8 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontFamily: Fonts.semiBold,
     color: colors.textDark,
+    padding: 11,
+    borderColor: colors.textWhite
   },
   dayTextToday: {
     color: colors.primary,

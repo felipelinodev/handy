@@ -16,6 +16,7 @@ export interface BackendProvider {
       descricao?: string | null;
       preco: number | string;
       categoria?: { nome_categoria: string } | null;
+      local?: ServiceLocal | null;
     }>;
     prestador_especialidade?: Array<{
       especialidade?: { nome_especialidade: string } | null;
@@ -29,6 +30,7 @@ export interface ProfessionalService {
   description: string;
   price: number;
   category: string;
+  local: ServiceLocal | null;
 }
 
 export interface ProfessionalListItem {
@@ -67,6 +69,7 @@ export function mapProvider(p: BackendProvider): ProfessionalListItem {
     description: s.descricao ?? '',
     price: Number(s.preco) || 0,
     category: s.categoria?.nome_categoria ?? '',
+    local: (s as any).local ?? null,
   }));
 
   return {
@@ -199,12 +202,18 @@ export async function fetchCategorias(): Promise<Categoria[]> {
   return [];
 }
 
+export type ServiceLocal =
+  | { tipo: 'escolha_cliente' }
+  | { tipo: 'plataforma' }
+  | { tipo: 'personalizado'; endereco: string };
+
 export interface CreateServicePayload {
   prestador_id: number;
   categoria_id: number;
   nome_servico: string;
   descricao?: string | null;
   preco: number;
+  local?: ServiceLocal | null;
 }
 
 export async function createService(payload: CreateServicePayload): Promise<void> {
@@ -229,6 +238,7 @@ export interface UpdateServicePayload {
   descricao?: string | null;
   preco?: number;
   categoria_id?: number;
+  local?: ServiceLocal | null;
 }
 
 export async function fetchServiceById(serviceId: number | string): Promise<{
@@ -237,6 +247,7 @@ export async function fetchServiceById(serviceId: number | string): Promise<{
   descricao: string | null;
   preco: number;
   categoria_id: number;
+  local: ServiceLocal | null;
 }> {
   const headers = await getHeaders();
   const response = await fetch(`${BASE_URL}/services/list-a-service/${serviceId}`, {
@@ -251,6 +262,7 @@ export async function fetchServiceById(serviceId: number | string): Promise<{
     descricao: data.descricao ?? null,
     preco: Number(data.preco) || 0,
     categoria_id: data.categoria_id,
+    local: data.local ?? null,
   };
 }
 

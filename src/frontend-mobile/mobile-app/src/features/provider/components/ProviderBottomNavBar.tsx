@@ -15,10 +15,10 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: 'analytics', icon: 'solar:chart-square', route: '/provider/analytics' },
-  { key: 'clients',   icon: 'hugeicons:user-group',  route: '/provider/clients' },
-  { key: 'contracts', icon: 'carbon:for-loop',        route: '/contratations/provider-contracts' },
-  { key: 'payments',  icon: 'hugeicons:credit-card', route: '/provider/payments' },
-  { key: 'menu',      icon: 'hugeicons:menu-11',      route: '/provider/menu' },
+  { key: 'clients', icon: 'hugeicons:user-group', route: '/provider/clients' },
+  { key: 'contracts', icon: 'carbon:for-loop', route: '/contratations/provider-contracts' },
+  { key: 'payments', icon: 'hugeicons:credit-card', route: '/provider/payments' },
+  { key: 'menu', icon: 'hugeicons:menu-11', route: '/provider/menu' },
 ];
 
 interface ProviderBottomNavBarProps {
@@ -72,11 +72,13 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     paddingVertical: 10,
     paddingHorizontal: 10,
-    shadowColor: '#4A1D96',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 10,
+    borderWidth: 2,
+    borderColor: colors.primary,
+    shadowColor: colors.primary,
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.35,
+    shadowRadius: 20,
+    elevation: 15,
   },
   navItem: {
     alignItems: 'center',
