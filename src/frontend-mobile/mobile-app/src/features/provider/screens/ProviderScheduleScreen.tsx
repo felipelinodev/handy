@@ -75,10 +75,7 @@ export default function ProviderScheduleScreen() {
   const [endTime, setEndTime] = useState('18:00');
 
   const existingDates = new Set(
-    slots.map((s) => {
-      const d = new Date(s.data_disponivel);
-      return formatDateISO(d.getFullYear(), d.getMonth(), d.getDate());
-    }),
+    slots.map((s) => s.data_disponivel.split('T')[0]),
   );
 
   const loadSchedule = useCallback(async (pid: number) => {
@@ -150,14 +147,41 @@ export default function ProviderScheduleScreen() {
       return;
     }
 
-    const payloads: CreateAvailabilityPayload[] = Array.from(selectedDates).map(
-      (dateISO) => ({
-        prestador_id: providerId,
-        data_disponivel: dateISO,
-        hora_inicio: startTime.length === 5 ? `${startTime}:00` : undefined,
-        hora_fim: endTime.length === 5 ? `${endTime}:00` : undefined,
-      }),
-    );
+    const payloads: CreateAvailabilityPayload[] = [];
+    
+    Array.from(selectedDates).forEach((dateISO) => {
+      if (startTime.length === 5 && endTime.length === 5) {
+        const startHour = parseInt(startTime.split(':')[0], 10);
+        const endHour = parseInt(endTime.split(':')[0], 10);
+        
+        // Se a hora de fim for menor ou igual, ou inválida, criamos um slot único
+        if (startHour >= endHour || isNaN(startHour) || isNaN(endHour)) {
+           payloads.push({
+             prestador_id: providerId,
+             data_disponivel: dateISO,
+             hora_inicio: `${startTime}:00`,
+             hora_fim: `${endTime}:00`,
+           });
+        } else {
+          // Cria slots de 1 em 1 hora
+          for (let h = startHour; h < endHour; h++) {
+            const hStart = String(h).padStart(2, '0');
+            const hEnd = String(h + 1).padStart(2, '0');
+            payloads.push({
+              prestador_id: providerId,
+              data_disponivel: dateISO,
+              hora_inicio: `${hStart}:00:00`,
+              hora_fim: `${hEnd}:00:00`,
+            });
+          }
+        }
+      } else {
+        payloads.push({
+          prestador_id: providerId,
+          data_disponivel: dateISO,
+        });
+      }
+    });
 
     setSaving(true);
     try {
@@ -203,8 +227,7 @@ export default function ProviderScheduleScreen() {
   for (let d = 1; d <= daysInMonth; d++) calendarCells.push(d);
 
   const futureSlots = slots.filter((s) => {
-    const d = new Date(s.data_disponivel);
-    return d >= new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    return s.data_disponivel.split('T')[0] >= todayISO;
   });
 
   return (
@@ -363,12 +386,14 @@ export default function ProviderScheduleScreen() {
                   ? new Date(slot.hora_inicio).toLocaleTimeString('pt-BR', {
                       hour: '2-digit',
                       minute: '2-digit',
+                      timeZone: 'UTC'
                     })
                   : '--:--';
                 const slotEnd = slot.hora_fim
                   ? new Date(slot.hora_fim).toLocaleTimeString('pt-BR', {
                       hour: '2-digit',
                       minute: '2-digit',
+                      timeZone: 'UTC'
                     })
                   : '--:--';
 

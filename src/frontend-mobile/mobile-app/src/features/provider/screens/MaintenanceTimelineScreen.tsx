@@ -383,6 +383,10 @@ export default function MaintenanceTimelineScreen() {
   const totalCount = breakpoints.length;
   const doneCount = breakpoints.filter((b) => b.status === 'concluido').length;
 
+  const currentProviderContract = contracts.find(c => String(c.contratacao_id) === headerContratoId);
+  const providerContractStatus = (currentProviderContract?.status ?? '').toLowerCase();
+  const hideFab = headerContratoId ? ['cancelada', 'recusado', 'concluida', 'concluída'].includes(providerContractStatus) : false;
+
   return (
     <ImageBackground
       source={require('../../../../assets/images/fundo_neutro_clean.png')}
@@ -463,7 +467,7 @@ export default function MaintenanceTimelineScreen() {
         )}
       </ScrollView>
 
-      {tipoUsuario === 'prestador' && (
+      {tipoUsuario === 'prestador' && !hideFab && (
         <View style={[styles.fabContainer, { bottom: insets.bottom + 24 }]}>
           <TouchableOpacity
             style={styles.fab}

@@ -156,7 +156,7 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
     const dateStr = slot.data_disponivel.split('T')[0];
     const parts = dateStr.split('-');
     const formattedDate = parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : dateStr;
-    const formattedTime = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '';
+    const formattedTime = slot.hora_inicio ? new Date(slot.hora_inicio).toLocaleTimeString('pt-BR', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) : '';
 
     setErrorMsg(null);
     onConfirm({
@@ -304,7 +304,7 @@ export const ContractServiceBottomSheet: React.FC<ContractServiceBottomSheetProp
                   const dateStr = slot.data_disponivel.split('T')[0];
                   const dParts = dateStr.split('-');
                   const dFormatted = dParts.length === 3 ? `${dParts[2]}/${dParts[1]}` : dateStr;
-                  const tStart = slot.hora_inicio ? slot.hora_inicio.slice(0, 5) : '--:--';
+                  const tStart = slot.hora_inicio ? new Date(slot.hora_inicio).toLocaleTimeString('pt-BR', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }) : '--:--';
                   
                   return (
                     <TouchableOpacity 
