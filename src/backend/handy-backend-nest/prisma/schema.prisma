@@ -178,9 +178,10 @@ model servicos {
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 model usuario {
   user_id       Int        @id @default(autoincrement())
+  zitadel_id    String?    @unique @db.VarChar(200)
   nome          String     @db.VarChar(100)
   email         String     @unique @db.VarChar(100)
-  hash_password String
+  hash_password String?
   cpf           String?    @unique @db.VarChar(14)
   tipo_usuario  String     @db.VarChar(20)
   photo_url     String?
