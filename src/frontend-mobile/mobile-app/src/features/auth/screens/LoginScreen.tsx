@@ -6,6 +6,7 @@ import {
   Platform,
   ScrollView,
   ImageBackground,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect } from 'react';
@@ -13,6 +14,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest, exchangeCodeAsync } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { BASE_URL, getPublicHeaders } from '@/services/apiConfig';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -52,11 +54,20 @@ export default function LoginScreen() {
 
   console.log('🔗 REDIRECT URI GERADA:', redirectUri);
 
+  const googleIdpId = process.env.EXPO_PUBLIC_ZITADEL_GOOGLE_IDP_ID || '';
+  const scopes = ['openid', 'profile', 'email', 'offline_access'];
+  if (googleIdpId) {
+    scopes.push(`urn:zitadel:iam:org:idp:id:${googleIdpId}`);
+  }
+
   const [request, response, promptAsync] = useAuthRequest(
     {
       clientId: process.env.EXPO_PUBLIC_ZITADEL_CLIENT_ID || '',
-      scopes: ['openid', 'profile', 'email', 'offline_access'],
+      scopes,
       redirectUri,
+      extraParams: {
+        prompt: 'select_account',
+      },
     },
     discovery
   );
@@ -64,34 +75,49 @@ export default function LoginScreen() {
   useEffect(() => {
     if (response?.type === 'success') {
       const { code } = response.params;
-      
+
       exchangeCodeAsync(
         {
           clientId: process.env.EXPO_PUBLIC_ZITADEL_CLIENT_ID || '',
           code,
           redirectUri: makeRedirectUri({ scheme: 'handyapp', path: 'callback' }),
           extraParams: {
-            code_verifier: request?.codeVerifier,
+            code_verifier: request?.codeVerifier!,
           },
         },
         discovery
       )
         .then(async (res) => {
           console.log("🎉 Tokens ZITADEL recebidos:", res);
-          
+
           // Buscar informações do usuário logado no ZITADEL
           const userInfoResponse = await fetch(`${process.env.EXPO_PUBLIC_ZITADEL_ISSUER}/oidc/v1/userinfo`, {
             headers: { Authorization: `Bearer ${res.accessToken}` }
           });
           const userInfo = await userInfoResponse.json();
 
-          // Salva os dados no AsyncStorage do celular igualzinho o login normal faz
-          await AsyncStorage.setItem('@auth_token', res.accessToken);
-          await AsyncStorage.setItem('@auth_user', JSON.stringify({
-            nome: userInfo.given_name || userInfo.name || 'Usuário',
-            email: userInfo.email,
-            zitadel_id: userInfo.sub
-          }));
+          // Trocar o token Zitadel por um token JWT local do backend
+          const headers = await getPublicHeaders();
+          const backendResponse = await fetch(`${BASE_URL}/client/login-zitadel`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({
+              email: userInfo.email,
+              nome: userInfo.given_name || userInfo.name || 'Usuário',
+              zitadel_id: userInfo.sub,
+            }),
+          });
+
+          if (!backendResponse.ok) {
+            const errData = await backendResponse.json().catch(() => ({}));
+            throw new Error(errData?.message || `Erro do backend: ${backendResponse.status}`);
+          }
+
+          const backendData = await backendResponse.json();
+
+          // Salva o token JWT LOCAL do backend (não o do Zitadel!)
+          await AsyncStorage.setItem('@auth_token', backendData.accessToken);
+          await AsyncStorage.setItem('@auth_user', JSON.stringify(backendData.user));
 
           // Manda pra tela principal!
           router.replace('/home' as any);
@@ -144,11 +170,33 @@ export default function LoginScreen() {
 
               <AuthButton label="Entrar" onPress={submit} loading={loading} />
 
-              <AuthButton 
-                label="Entrar com ZITADEL" 
-                onPress={() => promptAsync()} 
-                style={{ backgroundColor: '#2b2d42', marginTop: 12 }} 
-              />
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#fff',
+                  borderRadius: 14,
+                  height: 54,
+                  width: '100%',
+                  marginTop: 12,
+                  borderWidth: 1,
+                  borderColor: '#dadce0',
+                }}
+                onPress={() => promptAsync()}
+                activeOpacity={0.85}
+              >
+                <Image
+                  source={{ uri: 'https://developers.google.com/identity/images/g-logo.png' }}
+                  style={{ width: 22, height: 22, marginRight: 10 }}
+                />
+                <Text style={{
+                  color: '#3c4043',
+                  fontSize: 16,
+                  fontFamily: 'OpenSans_600SemiBold',
+                  letterSpacing: 0.2,
+                }}>Entrar com Google</Text>
+              </TouchableOpacity>
 
               <View style={styles.footer}>
                 <Text style={styles.footerText}>Não tem uma conta? </Text>

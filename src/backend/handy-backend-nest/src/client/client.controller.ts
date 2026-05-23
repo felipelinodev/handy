@@ -96,6 +96,36 @@ export class ClientController {
     }
     
   }
+
+  @Post('login-zitadel')
+  async loginZitadel(@Body() body: { email: string; nome: string; zitadel_id: string }) {
+    const { email, nome, zitadel_id } = body;
+
+    if (!email || !zitadel_id) {
+      throw new BadRequestException('Email e zitadel_id são obrigatórios.');
+    }
+
+    try {
+      const user = await this.clientService.findOrCreateByZitadel({
+        email,
+        nome: nome || 'Usuário',
+        zitadel_id,
+      });
+
+      const payload = { email: user.email, user_id: user.user_id };
+      const { hash_password, cpf, ...userNotPassword } = user;
+
+      return {
+        accessToken: this.jwtService.sign(payload),
+        user: userNotPassword,
+      };
+    } catch (error) {
+      if (error.status) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Erro ao realizar login via Zitadel.');
+    }
+  }
  
   @UseGuards(SuperAdminGuard)
   @Delete('delete-a-client/:email')

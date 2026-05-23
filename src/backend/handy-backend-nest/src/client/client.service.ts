@@ -108,5 +108,32 @@ export class ClientService {
       user: updatedUser
     };
   }
+
+  async findOrCreateByZitadel(data: { email: string; nome: string; zitadel_id: string }) {
+    // 1. Busca pelo zitadel_id
+    const byZitadel = await this.clientRepository.findByZitadelId(data.zitadel_id);
+    if (byZitadel) return byZitadel;
+
+    // 2. Busca pelo email
+    const byEmail = await this.clientRepository.searchClient('email', data.email);
+    if (byEmail) {
+      // Vincula o zitadel_id ao registro existente
+      await this.clientRepository.updateZitadelId(byEmail.user_id, data.zitadel_id);
+      return { ...byEmail, zitadel_id: data.zitadel_id };
+    }
+
+    // 3. Cria novo usuário (cliente, sem senha, sem CPF)
+    const newUser = await this.clientRepository.createClient({
+      nome: data.nome,
+      email: data.email,
+      hash_password: '',
+      tipo_usuario: 'cliente',
+    });
+
+    // Vincula o zitadel_id ao novo usuário
+    await this.clientRepository.updateZitadelId(newUser.user_id, data.zitadel_id);
+
+    return { ...newUser, zitadel_id: data.zitadel_id };
+  }
 }
 

@@ -42,5 +42,18 @@ export class ClientRepository {
             data
         });
     }
+
+    async findByZitadelId(zitadelId: string) {
+        return await this.prisma.usuario.findUnique({
+            where: { zitadel_id: zitadelId },
+        });
+    }
+
+    async updateZitadelId(userId: number, zitadelId: string) {
+        return await this.prisma.usuario.update({
+            where: { user_id: userId },
+            data: { zitadel_id: zitadelId },
+        });
+    }
     
 }
