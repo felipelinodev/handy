@@ -1,0 +1,20 @@
+# Dependências
+node_modules/
+
+# Build do TypeScript
+dist/
+
+# Variáveis de Ambiente (Segredos)
+.env
+.env.*
+
+# Banco de dados local SQLite (Não comitar credenciais)
+admin_users.db
+admin_users.db-journal
+
+# Logs
+*.log
+npm-debug.log*
+
+# Mac/OS
+.DS_Store
