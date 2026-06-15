@@ -12,7 +12,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import colors from '@/theme/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ProviderBottomNavBar } from '@/features/provider/components/ProviderBottomNavBar';
+import { BottomNavBar } from '@/shared/components/BottomNavBar';
 
 interface MenuItemProps {
   label: string;
@@ -30,7 +30,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ label, onPress }) => (
   </TouchableOpacity>
 );
 
-export default function ProviderMenuScreen() {
+export default function ClientMenuScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
@@ -44,36 +44,10 @@ export default function ProviderMenuScreen() {
   };
 
   const menuOptions = [
-    {
-      label: 'Perfil',
-      action: async () => {
-        try {
-          const userData = await AsyncStorage.getItem('@auth_user');
-          console.log('User data from storage:', userData);
-          if (userData) {
-            const user = JSON.parse(userData);
-            const profileId = user.user_id || user.id || user.provider_id;
-            console.log('Navigating to profile with ID:', profileId);
-            if (profileId) {
-              router.push(`/professional/${profileId}` as any);
-            } else {
-              console.warn('No ID found in user data');
-            }
-          } else {
-            console.warn('No user data found in storage');
-          }
-        } catch (error) {
-          console.error('Error navigating to profile:', error);
-        }
-      }
-    },
-    { label: 'Pagamentos', action: () => router.push('/provider/payments' as any) },
-    { label: 'Métricas', action: () => router.push('/provider/analytics' as any) },
-    { label: 'Minha Agenda', action: () => router.push('/provider/provider-schedule' as any) },
-    { label: 'Integrações', action: () => { } },
-    { label: 'Dados da conta', action: () => { } },
-    { label: 'Plano', action: () => { } },
-    { label: 'Meus Serviços', action: () => { } },
+    { label: 'Meus Contratos', action: () => router.push('/contratations' as any) },
+    { label: 'Notificações', action: () => router.push('/notifications' as any) },
+    { label: 'Dados da Conta', action: () => { } },
+    { label: 'Suporte', action: () => { } },
   ];
 
   return (
@@ -90,7 +64,6 @@ export default function ProviderMenuScreen() {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity
               style={styles.backButton}
@@ -99,14 +72,16 @@ export default function ProviderMenuScreen() {
               <Ionicons name="chevron-back" size={24} color={colors.textDark} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.notificationButton}>
+            <TouchableOpacity
+              style={styles.notificationButton}
+              onPress={() => router.push('/notifications' as any)}
+            >
               <Ionicons name="notifications-outline" size={24} color={colors.textDark} />
             </TouchableOpacity>
           </View>
 
           <Text style={styles.title}>Menu</Text>
 
-          {/* Menu Items */}
           <View style={styles.menuContainer}>
             {menuOptions.map((option, index) => (
               <MenuItem
@@ -128,7 +103,7 @@ export default function ProviderMenuScreen() {
         </ScrollView>
       </LinearGradient>
 
-      <ProviderBottomNavBar activeTab="menu" />
+      <BottomNavBar activeTab="menu" />
     </View>
   );
 }
@@ -170,7 +145,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontFamily: 'OpenSans-SemiBold',
+    fontFamily: 'OpenSans_600SemiBold',
     color: colors.textDark,
     marginBottom: 32,
   },

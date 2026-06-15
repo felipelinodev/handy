@@ -20,6 +20,7 @@ import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { updateContractStatus } from '@/features/contracts/services/contractService';
+import { ensureThreadByContratacao } from '@/services/conversationsService';
 
 const PROFILE_PLACEHOLDER = require('../../../assets/images/fundo_neutro.png');
 const DESCRIPTION_PREVIEW_LIMIT = 220;
@@ -150,6 +151,30 @@ export default function ContractDetailsScreen() {
       Alert.alert('Sucesso', 'Entrega confirmada com sucesso!');
     } catch (error: any) {
       Alert.alert('Erro', error?.message ?? 'Não foi possível confirmar a entrega do serviço.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleOpenChat() {
+    if (!params.id) return;
+    try {
+      setIsSubmitting(true);
+      const thread = await ensureThreadByContratacao(Number(params.id));
+      router.push({
+        pathname: '/chat/[id]',
+        params: {
+          id: thread.conversa_id.toString(),
+          contratacaoId: params.id,
+          clienteId: thread.cliente_id.toString(),
+          prestadorId: thread.prestador_id.toString(),
+          conversaId: thread.conversa_id.toString(),
+          title: params.servicoNome || 'Conversa',
+          otherUserName: userType === 'cliente' ? (params.prestadorNome || 'Profissional') : 'Cliente',
+        }
+      } as any);
+    } catch (error: any) {
+      Alert.alert('Erro', error?.message ?? 'Não foi possível abrir o chat.');
     } finally {
       setIsSubmitting(false);
     }
@@ -343,9 +368,19 @@ export default function ContractDetailsScreen() {
               <Text style={styles.actionButtonText}>Cancelar</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionButtonFull}>
-              <HandyIcon name="carbon:chat" size={16} color={colors.primary} />
-              <Text style={styles.actionButtonText}>Mensagens</Text>
+            <TouchableOpacity 
+              style={styles.actionButtonFull}
+              onPress={handleOpenChat}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator size="small" color={colors.primary} />
+              ) : (
+                <>
+                  <HandyIcon name="carbon:chat" size={16} color={colors.primary} />
+                  <Text style={styles.actionButtonText}>Mensagens</Text>
+                </>
+              )}
             </TouchableOpacity>
           </View>
         </View>

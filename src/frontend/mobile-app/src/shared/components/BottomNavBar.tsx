@@ -17,8 +17,8 @@ const navItems: NavItem[] = [
   { icon: 'home-outline', iconActive: 'home', key: 'home', route: '/home' },
   { icon: 'search-outline', iconActive: 'search', key: 'search', route: '/search' },
   { icon: 'reload-outline', iconActive: 'reload', key: 'history', route: '/contratations' },
-  { icon: 'chatbox-ellipses-outline', iconActive: 'chatbox-ellipses', key: 'chat' },
-  { icon: 'menu-outline', iconActive: 'menu', key: 'menu' },
+  { icon: 'chatbox-ellipses-outline', iconActive: 'chatbox-ellipses', key: 'chat', route: '/chat' },
+  { icon: 'menu-outline', iconActive: 'menu', key: 'menu', route: '/menu' },
 ];
 
 interface BottomNavBarProps {

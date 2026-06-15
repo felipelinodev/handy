@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   ImageBackground,
-  ScrollView,
+  FlatList,
   StyleSheet,
   Text,
   TextInput,
@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import Icon from '@expo/vector-icons/Ionicons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import colors from '@/theme/colors';
@@ -19,9 +19,11 @@ import { Fonts } from '@/theme/fonts';
 import { BottomNavBar } from '@/shared/components/BottomNavBar';
 import { HandyIcon } from '@/shared/components/HandyIcon';
 import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import { BASE_URL, getPublicHeaders } from '@/services/apiConfig';
 import {
-  fetchProfessionals,
   ProfessionalListItem,
+  mapProvider,
+  BackendProvider,
 } from '@/features/professionals/services/professionalService';
 
 const PROFILE_PLACEHOLDER = require('../../../../assets/images/fundo_neutro.png');
@@ -29,17 +31,39 @@ const PROFILE_PLACEHOLDER = require('../../../../assets/images/fundo_neutro.png'
 export default function SearchProvidersScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { category } = useLocalSearchParams<{ category?: string }>();
+
   const [professionals, setProfessionals] = useState<ProfessionalListItem[]>([]);
   const [filteredList, setFilteredList] = useState<ProfessionalListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Define a pesquisa inicial se vier uma categoria por parâmetro de navegação
+  useEffect(() => {
+    if (category) {
+      setSearchQuery(category);
+    }
+  }, [category]);
+
   const loadProfessionals = useCallback(async () => {
     try {
       setLoading(true);
       setErrorMsg(null);
-      const list = await fetchProfessionals();
+      
+      const headers = await getPublicHeaders();
+      const response = await fetch(`${BASE_URL}/provider/list-service-providers`, {
+        method: 'GET',
+        headers,
+      });
+
+      if (!response.ok) {
+        throw new Error('Não foi possível carregar os prestadores.');
+      }
+
+      const data: BackendProvider[] = await response.json();
+      const list = data.map(mapProvider);
+      
       setProfessionals(list);
       setFilteredList(list);
     } catch (error: any) {
@@ -136,19 +160,21 @@ export default function SearchProvidersScreen() {
           </Text>
         </View>
       ) : (
-        <ScrollView
-          style={styles.scroll}
+        <FlatList
+          data={filteredList}
+          keyExtractor={(item) => item.id}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled">
-          {!!searchQuery && (
-            <Text style={styles.resultCount}>
-              {filteredList.length} resultado{filteredList.length !== 1 ? 's' : ''}
-            </Text>
-          )}
-          {filteredList.map((professional) => (
+          keyboardShouldPersistTaps="handled"
+          ListHeaderComponent={
+            searchQuery ? (
+              <Text style={styles.resultCount}>
+                {filteredList.length} resultado{filteredList.length !== 1 ? 's' : ''}
+              </Text>
+            ) : null
+          }
+          renderItem={({ item: professional }) => (
             <TouchableOpacity
-              key={professional.id}
               style={styles.card}
               activeOpacity={0.85}
               onPress={() => handleOpenProfile(professional.id)}>
@@ -189,8 +215,8 @@ export default function SearchProvidersScreen() {
                 </View>
               </View>
             </TouchableOpacity>
-          ))}
-        </ScrollView>
+          )}
+        />
       )}
 
       <BottomNavBar activeTab="search" />

@@ -63,4 +63,15 @@ export const styles = StyleSheet.create({
     color: colors.primary,
     fontFamily: 'OpenSans_600SemiBold',
   },
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginTop: -4,
+    marginBottom: 16,
+  },
+  forgotPasswordLink: {
+    fontSize: 14,
+    color: colors.textLink,
+    fontFamily: 'OpenSans_600SemiBold',
+    textDecorationLine: 'underline',
+  },
 });

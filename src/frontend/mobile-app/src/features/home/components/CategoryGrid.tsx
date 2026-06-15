@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions, ActivityIndicator } from 'react-native';
 import Icon from '@expo/vector-icons/Ionicons';
+import { useRouter } from 'expo-router';
 import colors from '@/theme/colors';
 import type { Category } from '@/services/categoryService';
 
@@ -18,10 +19,20 @@ interface CategoryGridProps {
 }
 
 const CategoryItem: React.FC<{ item: Category }> = ({ item }) => {
+  const router = useRouter();
   const iconName = (item.icon_tag || DEFAULT_ICON) as any;
 
   return (
-    <TouchableOpacity style={styles.item} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={styles.item}
+      activeOpacity={0.7}
+      onPress={() => {
+        router.push({
+          pathname: '/search',
+          params: { category: item.nome_categoria }
+        } as any);
+      }}
+    >
       <View style={styles.iconContainer}>
         <Icon name={iconName} size={26} color={colors.primary} />
       </View>

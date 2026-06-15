@@ -8,6 +8,7 @@ import {
   ImageBackground,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter } from 'expo-router';
 
 import Logo from '@/shared/components/Logo';
 import InputField from '@/features/auth/components/InputField';
@@ -17,6 +18,7 @@ import { useProviderLogin } from '@/features/auth/hooks/useProviderLogin';
 import { styles } from './ProviderLoginScreen.styles';
 
 export default function ProviderLoginScreen() {
+  const router = useRouter();
   const {
     email,
     senha,
@@ -69,6 +71,14 @@ export default function ProviderLoginScreen() {
                 isPassword
                 errorMessage={senhaError}
               />
+
+              <TouchableOpacity
+                onPress={() => router.push('/auth/forgot-password' as any)}
+                style={styles.forgotPasswordContainer}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.forgotPasswordLink}>Esqueci minha senha</Text>
+              </TouchableOpacity>
 
               <AuthButton
                 label="Entrar como Prestador"

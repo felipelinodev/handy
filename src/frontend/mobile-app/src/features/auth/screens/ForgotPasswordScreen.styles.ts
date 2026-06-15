@@ -1,9 +1,10 @@
 import { StyleSheet } from 'react-native';
-
 import colors from '@/theme/colors';
 
 export const styles = StyleSheet.create({
-  flex: { flex: 1 },
+  flex: {
+    flex: 1,
+  },
   background: {
     flex: 1,
   },
@@ -24,73 +25,19 @@ export const styles = StyleSheet.create({
     backgroundColor: colors.muttedSurface,
     borderRadius: 24,
     padding: 24,
+    shadowColor: colors.purpleDark,
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.12,
     shadowRadius: 20,
+    elevation: 8,
   },
   title: {
     fontSize: 26,
     fontFamily: 'OpenSans_700Bold',
     color: colors.textDark,
-    marginBottom: 20,
-    paddingVertical: 20,
-  },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  footerText: {
-    fontSize: 14,
-    color: colors.textMuted,
-    fontFamily: 'OpenSans_400Regular',
-  },
-  footerLink: {
-    fontSize: 14,
-    color: colors.textLink,
-    fontFamily: 'OpenSans_700Bold',
-  },
-  altLink: {
-    fontSize: 13,
-    color: colors.primary,
-    fontFamily: 'OpenSans_600SemiBold',
-  },
-  forgotPasswordContainer: {
-    alignSelf: 'flex-end',
-    marginTop: -4,
-    marginBottom: 16,
-  },
-  forgotPasswordLink: {
-    fontSize: 14,
-    color: colors.textLink,
-    fontFamily: 'OpenSans_600SemiBold',
-    textDecorationLine: 'underline',
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(18, 19, 65, 0.6)', // Fundo escurecido semi-transparente premium
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 24,
-  },
-  modalCard: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#4A1D96',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.15,
-    shadowRadius: 30,
-    elevation: 10,
-  },
-  modalTitle: {
-    fontSize: 22,
-    fontFamily: 'OpenSans_700Bold',
-    color: colors.textDark,
     marginBottom: 12,
   },
-  modalDescription: {
+  description: {
     fontSize: 14,
     fontFamily: 'OpenSans_400Regular',
     color: colors.textSecondary,
@@ -126,11 +73,11 @@ export const styles = StyleSheet.create({
   alertTextSuccess: {
     color: colors.success,
   },
-  modalButtonsContainer: {
+  buttonsContainer: {
     marginTop: 8,
     gap: 12,
   },
-  modalCancelButton: {
+  cancelButton: {
     height: 54,
     borderRadius: 14,
     justifyContent: 'center',
@@ -140,7 +87,7 @@ export const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.surface,
   },
-  modalCancelButtonText: {
+  cancelButtonText: {
     fontSize: 16,
     fontFamily: 'OpenSans_600SemiBold',
     color: colors.textSecondary,

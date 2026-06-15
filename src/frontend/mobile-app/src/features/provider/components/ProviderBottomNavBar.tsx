@@ -15,7 +15,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { key: 'analytics', icon: 'solar:chart-square', route: '/provider/analytics' },
-  { key: 'clients', icon: 'hugeicons:user-group', route: '/provider/clients' },
+  { key: 'clients', icon: 'hugeicons:user-group', route: '/chat' },
   { key: 'contracts', icon: 'carbon:for-loop', route: '/contratations/provider-contracts' },
   { key: 'payments', icon: 'hugeicons:credit-card', route: '/provider/payments' },
   { key: 'menu', icon: 'hugeicons:menu-11', route: '/provider/menu' },

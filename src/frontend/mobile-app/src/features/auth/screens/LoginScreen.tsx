@@ -9,7 +9,7 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import * as WebBrowser from 'expo-web-browser';
 import { makeRedirectUri, useAuthRequest, exchangeCodeAsync } from 'expo-auth-session';
 import { useRouter } from 'expo-router';
@@ -17,6 +17,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BASE_URL, getPublicHeaders } from '@/services/apiConfig';
 
 WebBrowser.maybeCompleteAuthSession();
+
+
 
 const discovery = {
   authorizationEndpoint: `${process.env.EXPO_PUBLIC_ZITADEL_ISSUER}/oauth/v2/authorize`,
@@ -30,6 +32,7 @@ import AuthButton from '@/features/auth/components/AuthButton';
 import { useLogin } from '@/features/auth/hooks/useLogin';
 
 import { styles } from './LoginScreen.styles';
+import colors from '@/theme/colors';
 
 export default function LoginScreen() {
   const router = useRouter();
@@ -46,6 +49,8 @@ export default function LoginScreen() {
     goToRegister,
     switchToProvider,
   } = useLogin();
+
+
 
   const redirectUri = makeRedirectUri({
     scheme: 'handyapp',
@@ -167,6 +172,14 @@ export default function LoginScreen() {
                 isPassword
                 errorMessage={senhaError}
               />
+
+              <TouchableOpacity
+                onPress={() => router.push('/auth/forgot-password' as any)}
+                style={styles.forgotPasswordContainer}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.forgotPasswordLink}>Esqueci minha senha</Text>
+              </TouchableOpacity>
 
               <AuthButton label="Entrar" onPress={submit} loading={loading} />
 

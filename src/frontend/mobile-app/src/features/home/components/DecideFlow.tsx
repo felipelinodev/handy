@@ -44,7 +44,7 @@ export default function DecideFlow() {
                         style={styles.buttonPrimary}
                         onPress={() => router.push('/auth/login' as any)}
                     >
-                        <Text style={styles.buttonText}>Serviços</Text>
+                        <Text style={styles.buttonText}>Buscar Serviços</Text>
                     </TouchableOpacity>
 
                     <TouchableOpacity
