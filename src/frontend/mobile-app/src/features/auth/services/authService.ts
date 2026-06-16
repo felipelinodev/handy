@@ -91,3 +91,18 @@ export async function registerProvider(payload: RegisterPayload): Promise<any> {
 
   return await response.json();
 }
+
+export async function requestPasswordReset(email: string): Promise<{ message: string }> {
+  const headers = await getPublicHeaders();
+  const response = await fetch(`${BASE_URL}/client/forgot-password`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    throw await parseError(response, 'Erro ao solicitar recuperação de senha.');
+  }
+
+  return (await response.json()) as { message: string };
+}

@@ -44,15 +44,11 @@ export default function ForgotPasswordScreen() {
     setSuccess(false);
     setErrorMsg('');
 
-    setTimeout(() => {
-      setLoading(false);
-      if (email.trim().toLowerCase() === 'erro@handy.com') {
-        setErrorMsg('E-mail não cadastrado ou credencial inválida.');
-      } else {
-        setSuccess(true);
-        setEmail('');
-      }
-    }, 1500);
+    // Placeholder: simula envio enquanto o backend não tem endpoint de reset
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    setLoading(false);
+    setSuccess(true);
+    setEmail('');
   };
 
   return (

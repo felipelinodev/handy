@@ -57,7 +57,10 @@ export default function LoginScreen() {
     path: 'callback'
   });
 
+  console.log('========================================');
   console.log('🔗 REDIRECT URI GERADA:', redirectUri);
+  console.log('⚠️  Certifique-se de que este URI está cadastrado no ZITADEL!');
+  console.log('========================================');
 
   const googleIdpId = process.env.EXPO_PUBLIC_ZITADEL_GOOGLE_IDP_ID || '';
   const scopes = ['openid', 'profile', 'email', 'offline_access'];
@@ -85,7 +88,7 @@ export default function LoginScreen() {
         {
           clientId: process.env.EXPO_PUBLIC_ZITADEL_CLIENT_ID || '',
           code,
-          redirectUri: makeRedirectUri({ scheme: 'handyapp', path: 'callback' }),
+          redirectUri,
           extraParams: {
             code_verifier: request?.codeVerifier!,
           },
